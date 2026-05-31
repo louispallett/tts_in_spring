@@ -16,17 +16,17 @@ public class Category extends Base {
     @Column(nullable = false)
     private String name;
 
-    @ManyToOne
-    @JoinColumn(name = "tournament_id", nullable = false)
-    private Tournament tournament;
-
     @Column(name = "locked", nullable = false)
     private Boolean locked;
 
     @Column(name = "doubles", nullable = false)
     private Boolean doubles;
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @ManyToOne
+    @JoinColumn(name = "tournament_id", nullable = false)
+    private Tournament tournament;
+
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Player> players;
 
     public Category(String name, Tournament tournament, Boolean doubles) {
