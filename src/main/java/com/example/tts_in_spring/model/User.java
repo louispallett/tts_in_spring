@@ -2,15 +2,20 @@ package com.example.tts_in_spring.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "users", schema = "public")
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class User extends Base {
     @Column(nullable = false)
     private String firstName;
@@ -34,16 +39,6 @@ public class User extends Base {
     @Column(nullable = false)
     private String mobile;
 
-    public User(String firstName, String lastName, String email, String password, String mobCode, String mobile) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email.toLowerCase();
-        this.password = password;
-        this.mobCode = mobCode;
-        this.mobile = mobile;
-    }
-
-    public void setEmail(String email) {
-        this.email = email.toLowerCase();
-    }
+    @OneToMany(mappedBy = "host", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Tournament> tournaments = new ArrayList<>();
 }

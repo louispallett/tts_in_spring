@@ -1,26 +1,44 @@
 package com.example.tts_in_spring.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.validator.constraints.Length;
+
+import java.util.List;
 
 @Entity
 @Table(name = "categories", schema = "public")
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class Category extends Base {
-    @Column(unique = true, nullable = false)
-    @NotBlank(message = "Name is mandatory")
-    @Length(max = 20, message = "Cannot be longer than 20 characters")
+    @Column(nullable = false)
     private String name;
 
     @ManyToOne
     @JoinColumn(name = "tournament_id", nullable = false)
     private Tournament tournament;
+
+    @Column(name = "locked", nullable = false)
+    private Boolean locked;
+
+    @Column(name = "doubles", nullable = false)
+    private Boolean doubles;
+
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private List<Player> players;
+
+    public Category(String name, Tournament tournament, Boolean doubles) {
+        this.name = name;
+        this.tournament = tournament;
+        this.locked = false;
+        this.doubles = doubles;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        super.onCreate();
+        this.locked = false;
+    }
 }

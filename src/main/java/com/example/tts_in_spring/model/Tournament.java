@@ -8,19 +8,18 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 @Entity
 @Table(name = "tournaments", schema = "public")
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class Tournament extends Base {
    @Column(nullable = false)
    private String name;
 
-   private enum Stage {
+   public enum Stage {
       SIGN_UP,
       DRAW,
       PLAY,
@@ -32,7 +31,7 @@ public class Tournament extends Base {
    private Stage stage;
 
    @ManyToOne
-   @JoinColumn(name = "host_id")
+   @JoinColumn(name = "host_id", nullable = false)
    private User host;
 
    @Column(nullable = false)
@@ -41,39 +40,9 @@ public class Tournament extends Base {
    @Column(nullable = false)
    private Boolean showMobile;
 
-   // NOTE: In terms of an application, it makes far more sense to allow the front end to handle the creation of the categories
-   // after the tournament is finished.
-   @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+   @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
    private List<Category> categories = new ArrayList<>();
 
-   private static String generateRandomString(int len) {
-      Random random = new Random();
-      StringBuilder sb = new StringBuilder(len);
-
-      for (int i = 0; i < len; i++) {
-         char c = (char) ('a' + random.nextInt(26));
-         sb.append(c);
-      }
-
-      return sb.toString();
-   }
-
-   public void setCode(String name) {
-      String[] words = name.split("\\s+");
-
-      String firstWord = words[0];
-
-      if (firstWord.length() < 8) {
-         this.code = firstWord + "_" + generateRandomString(8);
-      } else {
-         String truncatedWord = firstWord.substring(0, 8);
-         this.code = truncatedWord + "_" + generateRandomString(8);
-      }
-   }
-
-   @PrePersist
-   protected  void onCreate() {
-      super.onCreate();
-      this.stage = Stage.SIGN_UP;
-   }
+   @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+   private List<Player> players = new ArrayList<>();
 }
