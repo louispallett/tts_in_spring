@@ -2,6 +2,8 @@ package com.example.tts_in_spring.controller;
 
 import com.example.tts_in_spring.dto.AuthResponse;
 import com.example.tts_in_spring.dto.LoginRequest;
+import com.example.tts_in_spring.dto.TournamentResponse;
+import com.example.tts_in_spring.dto.UserResponse;
 import com.example.tts_in_spring.model.User;
 import com.example.tts_in_spring.repository.UserRepository;
 import com.example.tts_in_spring.security.JwtUtil;
@@ -21,23 +23,38 @@ public class UserController {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
+    private UserResponse mapToResponse(User user) {
+        UserResponse userResponse = new UserResponse(user);
+
+        userResponse.tournaments = user.getTournaments().stream().map(i -> {
+            TournamentResponse r = new TournamentResponse(i);
+            return r;
+        }).toList();
+
+        return userResponse;
+    }
+
     @GetMapping("/get-all")
-    public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = userRepository.findAll();
+    public ResponseEntity<List<UserResponse>> getAllUsers() {
+        List<UserResponse> users = userRepository.findAll()
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+
         return ResponseEntity.ok(users);
     }
 
     @GetMapping("/get")
-    public ResponseEntity<User> getUser(@RequestParam Long id) {
+    public ResponseEntity<UserResponse> getUser(@RequestParam Long id) {
         return userRepository.findById(id)
-                .map(ResponseEntity::ok)
+                .map(t -> ResponseEntity.ok(mapToResponse(t)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/get-by-email")
-    public ResponseEntity<User> getUserByEmail(@RequestParam String email) {
+    public ResponseEntity<UserResponse> getUserByEmail(@RequestParam String email) {
         return userRepository.findByEmail(email.toLowerCase())
-                .map(ResponseEntity::ok)
+                .map(t -> ResponseEntity.ok(mapToResponse(t)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
