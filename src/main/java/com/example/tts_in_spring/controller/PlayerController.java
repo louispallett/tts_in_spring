@@ -30,7 +30,7 @@ public class PlayerController {
         return playerResponse;
     }
 
-    @GetMapping("/get-all")
+    @GetMapping
     public ResponseEntity<List<PlayerResponse>> getAllPlayers() {
         List<PlayerResponse> players = playerRepository.findAll()
                 .stream()
@@ -40,8 +40,8 @@ public class PlayerController {
         return ResponseEntity.ok(players);
     }
 
-    @GetMapping("/get")
-    public ResponseEntity<PlayerResponse> getPlayer(@RequestParam Long id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<PlayerResponse> getPlayer(@PathVariable Long id) {
         return playerRepository.findById(id)
                 .map(p -> ResponseEntity.ok(mapToResponse(p)))
                 .orElse(ResponseEntity.notFound().build());
@@ -59,5 +59,4 @@ public class PlayerController {
                 .map(p -> ResponseEntity.ok(mapToResponse(p)))
                 .orElse(ResponseEntity.notFound().build());
     }
-
 }

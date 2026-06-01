@@ -43,7 +43,7 @@ public class TournamentController {
         return tournamentResponse;
     }
 
-    @GetMapping("/get-all")
+    @GetMapping
     public ResponseEntity<List<TournamentResponse>> getAllTournaments() {
         List<TournamentResponse> tournaments = tournamentRepository.findAll()
                 .stream()
@@ -53,8 +53,8 @@ public class TournamentController {
         return ResponseEntity.ok(tournaments);
     }
 
-    @GetMapping("/get")
-    public ResponseEntity<TournamentResponse> getTournament(@RequestParam Long id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<TournamentResponse> getTournament(@PathVariable Long id) {
         return tournamentRepository.findById(id)
                 .map(tournament -> ResponseEntity.ok(mapToResponse(tournament)))
                 .orElse(ResponseEntity.notFound().build());

@@ -37,18 +37,19 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/user/create",
-                                "/api/user/get-all",
-                                "/api/user/get",
+                                "/api/user",
+                                "/api/user/{id}",
+                                "/api/user/email/{email}",
                                 "/api/user/login",
                                 "/api/tournament/create",
-                                "/api/tournament/get-all",
-                                "/api/tournament/get",
+                                "/api/tournament",
+                                "/api/tournament/{id}",
                                 "/api/category/create",
-                                "/api/category/get-all",
-                                "/api/category/get",
+                                "/api/category",
+                                "/api/category/{id}",
                                 "/api/player/create",
-                                "/api/player/get-all",
-                                "/api/player/get"
+                                "/api/player",
+                                "/api/player/{id}"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

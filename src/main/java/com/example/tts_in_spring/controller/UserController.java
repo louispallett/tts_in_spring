@@ -34,7 +34,7 @@ public class UserController {
         return userResponse;
     }
 
-    @GetMapping("/get-all")
+    @GetMapping
     public ResponseEntity<List<UserResponse>> getAllUsers() {
         List<UserResponse> users = userRepository.findAll()
                 .stream()
@@ -44,15 +44,15 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
-    @GetMapping("/get")
-    public ResponseEntity<UserResponse> getUser(@RequestParam Long id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<UserResponse> getUser(@PathVariable Long id) {
         return userRepository.findById(id)
                 .map(u -> ResponseEntity.ok(mapToResponse(u)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/get-by-email")
-    public ResponseEntity<UserResponse> getUserByEmail(@RequestParam String email) {
+    @GetMapping("/email/{email}")
+    public ResponseEntity<UserResponse> getUserByEmail(@PathVariable String email) {
         return userRepository.findByEmail(email.toLowerCase())
                 .map(t -> ResponseEntity.ok(mapToResponse(t)))
                 .orElse(ResponseEntity.notFound().build());

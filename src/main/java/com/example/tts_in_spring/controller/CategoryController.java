@@ -5,7 +5,6 @@ import com.example.tts_in_spring.dto.PlayerResponse;
 import com.example.tts_in_spring.dto.TournamentResponse;
 import com.example.tts_in_spring.dto.UserResponse;
 import com.example.tts_in_spring.model.Category;
-import com.example.tts_in_spring.model.Player;
 import com.example.tts_in_spring.repository.CategoryRepository;
 import com.example.tts_in_spring.repository.PlayerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +44,7 @@ public class CategoryController {
         return categoryResponse;
     }
 
-    @GetMapping("/get-all")
+    @GetMapping
     public ResponseEntity<List<CategoryResponse>> getAllCategories() {
         List<CategoryResponse> categories = categoryRepository.findAll()
                 .stream()
@@ -55,8 +54,8 @@ public class CategoryController {
         return ResponseEntity.ok(categories);
     }
 
-    @GetMapping("/get")
-    public ResponseEntity<CategoryResponse> getCategory(@RequestParam Long id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<CategoryResponse> getCategory(@PathVariable Long id) {
         return categoryRepository.findById(id)
                 .map(c -> ResponseEntity.ok(mapToResponse(c)))
                 .orElse(ResponseEntity.notFound().build());
