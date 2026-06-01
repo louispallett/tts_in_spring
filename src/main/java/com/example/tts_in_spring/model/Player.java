@@ -21,13 +21,6 @@ public class Player extends Base {
     @Column(name = "rank", nullable = false)
     private int rank;
 
-    @PrePersist
-    protected void onCreate() {
-        super.onCreate();
-        this.seeded = false;
-        this.rank = 0;
-    }
-
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
