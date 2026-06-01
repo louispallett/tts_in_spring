@@ -45,7 +45,10 @@ public class SecurityConfig {
                                 "/api/tournament/get",
                                 "/api/category/create",
                                 "/api/category/get-all",
-                                "/api/category/get"
+                                "/api/category/get",
+                                "/api/player/create",
+                                "/api/player/get-all",
+                                "/api/player/get"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

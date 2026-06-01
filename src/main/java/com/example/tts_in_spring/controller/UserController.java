@@ -47,7 +47,7 @@ public class UserController {
     @GetMapping("/get")
     public ResponseEntity<UserResponse> getUser(@RequestParam Long id) {
         return userRepository.findById(id)
-                .map(t -> ResponseEntity.ok(mapToResponse(t)))
+                .map(u -> ResponseEntity.ok(mapToResponse(u)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
