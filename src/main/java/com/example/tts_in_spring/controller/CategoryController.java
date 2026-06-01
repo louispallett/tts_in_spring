@@ -6,7 +6,6 @@ import com.example.tts_in_spring.dto.TournamentResponse;
 import com.example.tts_in_spring.dto.UserResponse;
 import com.example.tts_in_spring.model.Category;
 import com.example.tts_in_spring.repository.CategoryRepository;
-import com.example.tts_in_spring.repository.PlayerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +18,6 @@ import java.util.Optional;
 public class CategoryController {
     @Autowired
     private CategoryRepository categoryRepository;
-    private PlayerRepository playerRepository;
 
     private CategoryResponse mapToResponse(Category category) {
         CategoryResponse categoryResponse = new CategoryResponse(category);
