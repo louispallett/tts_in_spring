@@ -8,6 +8,7 @@ import com.example.tts_in_spring.model.User;
 import com.example.tts_in_spring.repository.UserRepository;
 import com.example.tts_in_spring.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -62,20 +63,20 @@ public class UserController {
     public ResponseEntity<?> createUser(@RequestBody User incomingUser) {
 
         // Check if email already used
-        if (userRepository.findByEmail(incomingUser.getEmail()).isPresent()) {
+        if (userRepository.findByEmail(incomingUser.getEmail().toLowerCase()).isPresent()) {
             return ResponseEntity
-                    .badRequest()
+                    .status(HttpStatus.CONFLICT)
                     .body("Email already registered");
         }
 
-        incomingUser.setEmail(incomingUser.getEmail());
+        incomingUser.setEmail(incomingUser.getEmail().toLowerCase());
 
         // Hashing password
         String hashedPassword = passwordEncoder.encode((incomingUser.getPassword()));
         incomingUser.setPassword(hashedPassword);
 
         User savedUser = userRepository.save(incomingUser);
-        return ResponseEntity.ok(savedUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapToResponse(savedUser));
     }
 
     @Autowired
@@ -93,7 +94,6 @@ public class UserController {
             return ResponseEntity.ok(new AuthResponse(token));
         }
 
-        // Always return 403 for any login failure
-        return ResponseEntity.status(403).body("Invalid Credentials");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid Credentials");
     }
 }
