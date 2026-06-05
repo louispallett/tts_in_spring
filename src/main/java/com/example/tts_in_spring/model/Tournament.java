@@ -28,7 +28,7 @@ public class Tournament extends Base {
    private String code;
 
    @Column(nullable = false)
-   private Boolean showMobile;
+   private boolean showMobile;
 
    @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
    private List<Category> categories = new ArrayList<>();

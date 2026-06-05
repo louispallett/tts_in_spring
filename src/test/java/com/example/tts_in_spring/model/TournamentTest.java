@@ -31,7 +31,7 @@ class TournamentTest {
         assertThat(tournament.getStage()).isEqualTo("SIGN_UP");
         assertThat(tournament.getHost()).isSameAs(host);
         assertThat(tournament.getCode()).isEqualTo("ABC123");
-        assertThat(tournament.getShowMobile()).isTrue();
+        assertThat(tournament.isShowMobile()).isTrue();
     }
 
     @Test

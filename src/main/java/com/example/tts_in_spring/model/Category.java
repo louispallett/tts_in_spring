@@ -17,10 +17,10 @@ public class Category extends Base {
     private String name;
 
     @Column(name = "locked", nullable = false)
-    private Boolean locked;
+    private boolean locked;
 
     @Column(name = "doubles", nullable = false)
-    private Boolean doubles;
+    private boolean doubles;
 
     @ManyToOne
     @JoinColumn(name = "tournament_id", nullable = false)

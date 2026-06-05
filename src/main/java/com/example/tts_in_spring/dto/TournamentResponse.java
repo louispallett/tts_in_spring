@@ -19,6 +19,6 @@ public class TournamentResponse {
         this.name = tournament.getName();
         this.stage = tournament.getStage();
         this.code = tournament.getCode();
-        this.showMobile = tournament.getShowMobile();
+        this.showMobile = tournament.isShowMobile();
     }
 }

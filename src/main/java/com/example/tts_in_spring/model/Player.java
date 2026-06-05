@@ -1,7 +1,6 @@
 package com.example.tts_in_spring.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,10 +12,10 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Player extends Base {
     @Column(name = "male", nullable = false)
-    private Boolean male;
+    private boolean male;
 
     @Column(name = "seeded", nullable = false)
-    private Boolean seeded;
+    private boolean seeded;
 
     @Column(name = "rank", nullable = false)
     private int rank;

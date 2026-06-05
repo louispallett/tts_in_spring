@@ -13,8 +13,8 @@ public class PlayerResponse {
 
     public PlayerResponse(Player player) {
         this.id = player.getId();
-        this.male = player.getMale();
-        this.seeded = player.getSeeded();
+        this.male = player.isMale();
+        this.seeded = player.isSeeded();
         this.rank = player.getRank();
     }
 }

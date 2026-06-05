@@ -15,7 +15,7 @@ public class CategoryResponse {
     public CategoryResponse(Category category) {
         this.id = category.getId();
         this.name = category.getName();
-        this.locked = category.getLocked();
-        this.doubles = category.getDoubles();
+        this.locked = category.isLocked();
+        this.doubles = category.isDoubles();
     }
 }

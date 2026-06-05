@@ -17,7 +17,7 @@ class TournamentResponseTest {
         when(tournament.getName()).thenReturn("My Tournament");
         when(tournament.getStage()).thenReturn("SIGN_UP");
         when(tournament.getCode()).thenReturn("ABC123");
-        when(tournament.getShowMobile()).thenReturn(Boolean.TRUE);
+        when(tournament.isShowMobile()).thenReturn(true);
 
         TournamentResponse response = new TournamentResponse(tournament);
 

@@ -50,7 +50,7 @@ class TournamentRepositoryTest {
         assertThat(saved.getStage()).isEqualTo("SIGN_UP");
         assertThat(saved.getHost()).isEqualTo(host);
         assertThat(saved.getCode()).isEqualTo("ABC123");
-        assertThat(saved.getShowMobile()).isTrue();
+        assertThat(saved.isShowMobile()).isTrue();
     }
 
     @Test

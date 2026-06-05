@@ -90,13 +90,12 @@ class TournamentControllerTest {
     @Test
     void createTournament_createsTournament() {
         User host = new User();
-        host.setId(1L);
 
         // NOTE: Tournament.host is set by the authentication header, so we need to mock the class and
         // tell the tests to return the host when authentication.getPrincipal() (in the createTournament() function)
         // is called.
         // This, therefore, DOES NOT test that the SecurityContextHolder actually works - this is intentional, as the
-        // tests here should only test the logic in the controller. But it's important to bare in mind.
+        // tests here should only test the logic in the controller. But it's important to bear in mind.
         Authentication authentication = mock(Authentication.class);
         SecurityContext securityContext = mock(SecurityContext.class);
         when(securityContext.getAuthentication()).thenReturn(authentication);
@@ -106,7 +105,7 @@ class TournamentControllerTest {
 
         Tournament incoming = new Tournament();
         incoming.setName("Test Tournament");
-        incoming.setShowMobile(Boolean.TRUE);
+        incoming.setShowMobile(true);
 
         Tournament saved = createTournament(1L, "Test Tournament", host);
         when(tournamentRepository.save(any(Tournament.class))).thenReturn(saved);
@@ -127,7 +126,7 @@ class TournamentControllerTest {
         Tournament toSave = captor.getValue();
 
         assertThat(toSave.getName()).isEqualTo("Test Tournament");
-        assertThat(toSave.getShowMobile()).isTrue();
+        assertThat(toSave.isShowMobile()).isTrue();
 
         SecurityContextHolder.clearContext();
     }
