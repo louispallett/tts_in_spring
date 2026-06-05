@@ -8,6 +8,7 @@ import com.example.tts_in_spring.model.Tournament;
 import com.example.tts_in_spring.model.User;
 import com.example.tts_in_spring.repository.TournamentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -70,7 +71,7 @@ public class TournamentController {
 
         Tournament savedTournament = tournamentRepository.save(incomingTournament);
         return tournamentRepository.findById(savedTournament.getId())
-                .map(t -> ResponseEntity.ok(mapToResponse(t)))
+                .map(t -> ResponseEntity.status(HttpStatus.CREATED).body(mapToResponse(t)))
                 .orElse(ResponseEntity.notFound().build());
     }
 }
