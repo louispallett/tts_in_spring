@@ -7,7 +7,7 @@ import java.util.List;
 public class TournamentResponse {
     public Long id;
     public String name;
-    public Tournament.Stage stage;
+    public String stage;
     public String code;
     public Boolean showMobile;
     public UserResponse host;

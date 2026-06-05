@@ -17,16 +17,8 @@ public class Tournament extends Base {
    @Column(nullable = false)
    private String name;
 
-   public enum Stage {
-      SIGN_UP,
-      DRAW,
-      PLAY,
-      FINISHED
-   }
-
-   @Enumerated(EnumType.STRING)
    @Column(nullable = false)
-   private Stage stage;
+   private String stage;
 
    @ManyToOne
    @JoinColumn(name = "host_id", nullable = false)
