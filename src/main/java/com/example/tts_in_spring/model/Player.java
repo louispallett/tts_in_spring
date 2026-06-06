@@ -31,4 +31,8 @@ public class Player extends Base {
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
+
+    @ManyToOne
+    @JoinColumn(name = "team_id")
+    private Team team;
 }
