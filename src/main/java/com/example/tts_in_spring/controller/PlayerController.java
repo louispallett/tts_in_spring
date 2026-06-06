@@ -8,6 +8,7 @@ import com.example.tts_in_spring.model.Player;
 import com.example.tts_in_spring.model.User;
 import com.example.tts_in_spring.repository.PlayerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -56,7 +57,12 @@ public class PlayerController {
 
         Player savedPlayer = playerRepository.save(incomingPlayer);
         return playerRepository.findById(savedPlayer.getId())
-                .map(p -> ResponseEntity.ok(mapToResponse(p)))
+                .map(p -> ResponseEntity.status(HttpStatus.CREATED).body(mapToResponse(p)))
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    // @PatchMapping("/players/{id}")
+    // public ResponseEntity<PlayerResponse> updatePlayer(@PathVariable Long id, @RequestBody PlayerUpdateDto updatedPlayer) {
+    //
+    // }
 }
