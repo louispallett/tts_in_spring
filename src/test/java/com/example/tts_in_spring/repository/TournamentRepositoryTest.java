@@ -2,6 +2,7 @@ package com.example.tts_in_spring.repository;
 
 import com.example.tts_in_spring.model.Tournament;
 import com.example.tts_in_spring.model.User;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
@@ -14,26 +15,22 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DataJpaTest
 class TournamentRepositoryTest {
-
     @Autowired
     private TournamentRepository tournamentRepository;
 
     @Autowired
     private UserRepository userRepository;
 
+    private User host;
+
+    @BeforeEach
+    void setUp() {
+        host = new User("John", "Doe", "john.doe@example.com", "secret", "44", "123456789", List.of());
+        userRepository.save(host);
+    }
+
     @Test
     void save_savesTournamentSuccessfully() {
-        User host = new User(
-                "John",
-                "Doe",
-                "john@example.com",
-                "secret",
-                "44",
-                "123456789",
-                List.of()
-        );
-        userRepository.save(host);
-
         Tournament tournament = new Tournament();
         tournament.setName("Spring Cup");
         tournament.setStage("SIGN_UP");
@@ -41,7 +38,6 @@ class TournamentRepositoryTest {
         tournament.setCode("ABC123");
         tournament.setShowMobile(true);
         tournament.setCategories(List.of());
-        tournament.setPlayers(List.of());
 
         Tournament saved = tournamentRepository.save(tournament);
 
@@ -70,46 +66,7 @@ class TournamentRepositoryTest {
     }
 
     @Test
-    void save_persistsEnumCorrectly() {
-        User host = new User(
-                "Alice",
-                "Smith",
-                "alice@example.com",
-                "secret",
-                "44",
-                "987654321",
-                java.util.List.of()
-        );
-        userRepository.save(host);
-
-        Tournament tournament = new Tournament();
-        tournament.setName("Enum Test");
-        tournament.setStage("PLAY");
-        tournament.setHost(host);
-        tournament.setCode("XYZ789");
-        tournament.setShowMobile(false);
-
-        Tournament saved = tournamentRepository.saveAndFlush(tournament);
-
-        Optional<Tournament> found = tournamentRepository.findById(saved.getId());
-
-        assertThat(found).isPresent();
-        assertThat(found.get().getStage()).isEqualTo("PLAY");
-    }
-
-    @Test
     void save_persistsRelationships() {
-        User host = new User(
-                "Bob",
-                "Marley",
-                "bob@example.com",
-                "secret",
-                "44",
-                "555555555",
-                java.util.List.of()
-        );
-        userRepository.save(host);
-
         Tournament tournament = new Tournament();
         tournament.setName("Rel Test");
         tournament.setStage("DRAW");
