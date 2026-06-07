@@ -29,7 +29,6 @@ class PlayerRepositoryTest {
     @Autowired
     CategoryRepository categoryRepository;
 
-    private Tournament tournament;
     private User user;
     private Category category;
 
@@ -39,7 +38,7 @@ class PlayerRepositoryTest {
         user = new User("Simon", "Smith", "simon.smith@example.com", "secret", "44", "987654321", List.of());
         userRepository.save(host);
 
-        tournament = new Tournament();
+        Tournament tournament = new Tournament();
         tournament.setName("Test");
         tournament.setStage("SIGN_UP");
         tournament.setHost(host);
@@ -64,7 +63,6 @@ class PlayerRepositoryTest {
         player.setSeeded(false);
         player.setRank(3);
         player.setUser(user);
-        player.setTournament(tournament);
         player.setCategory(category);
 
        Player saved = playerRepository.save(player);
@@ -74,7 +72,6 @@ class PlayerRepositoryTest {
        assertThat(saved.isSeeded()).isFalse();
        assertThat(saved.getRank()).isEqualTo(3);
        assertThat(saved.getUser()).isSameAs(user);
-       assertThat(saved.getTournament()).isSameAs(tournament);
        assertThat(saved.getCategory()).isSameAs(category);
     }
 
@@ -100,7 +97,6 @@ class PlayerRepositoryTest {
         player.setSeeded(false);
         player.setRank(3);
         player.setUser(user);
-        player.setTournament(tournament);
         player.setCategory(category);
 
         Player saved = playerRepository.save(player);

@@ -25,10 +25,6 @@ public class Player extends Base {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "tournament_id", nullable = false)
-    private Tournament tournament;
-
-    @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 

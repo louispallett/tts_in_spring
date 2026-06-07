@@ -1,7 +1,6 @@
 package com.example.tts_in_spring.controller;
 
 import com.example.tts_in_spring.dto.CategoryResponse;
-import com.example.tts_in_spring.dto.PlayerResponse;
 import com.example.tts_in_spring.dto.TournamentResponse;
 import com.example.tts_in_spring.dto.UserResponse;
 import com.example.tts_in_spring.model.Tournament;
@@ -32,13 +31,6 @@ public class TournamentController {
                         .orElse(List.of())
                         .stream()
                         .map(CategoryResponse::new)
-                        .toList();
-
-        tournamentResponse.players =
-                Optional.ofNullable(tournament.getPlayers())
-                        .orElse(List.of())
-                        .stream()
-                        .map(PlayerResponse::new)
                         .toList();
 
         return tournamentResponse;

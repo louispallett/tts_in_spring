@@ -3,7 +3,6 @@ package com.example.tts_in_spring.controller;
 import com.example.tts_in_spring.dto.PlayerResponse;
 import com.example.tts_in_spring.model.Category;
 import com.example.tts_in_spring.model.Player;
-import com.example.tts_in_spring.model.Tournament;
 import com.example.tts_in_spring.model.User;
 import com.example.tts_in_spring.repository.PlayerRepository;
 import org.junit.jupiter.api.Test;
@@ -34,7 +33,6 @@ public class PlayerControllerTest {
     private PlayerController playerController;
 
     private Player createPlayer(Long id, Boolean male, User user, int rank) {
-        Tournament tournament = new Tournament();
         Category category = new Category();
 
         Player p = new Player();
@@ -42,7 +40,6 @@ public class PlayerControllerTest {
         p.setMale(male);
         p.setUser(user);
         p.setRank(rank);
-        p.setTournament(tournament);
         p.setCategory(category);
         p.setSeeded(false);
 

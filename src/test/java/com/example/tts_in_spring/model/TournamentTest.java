@@ -11,9 +11,6 @@ class TournamentTest {
 
         assertThat(tournament.getCategories()).isNotNull();
         assertThat(tournament.getCategories()).isEmpty();
-
-        assertThat(tournament.getPlayers()).isNotNull();
-        assertThat(tournament.getPlayers()).isEmpty();
     }
 
     @Test
@@ -39,15 +36,10 @@ class TournamentTest {
         Tournament tournament = new Tournament();
 
         Category category = new Category();
-        Player player = new Player();
 
         tournament.getCategories().add(category);
-        tournament.getPlayers().add(player);
 
         assertThat(tournament.getCategories())
                 .containsExactly(category);
-
-        assertThat(tournament.getPlayers())
-                .containsExactly(player);
     }
 }

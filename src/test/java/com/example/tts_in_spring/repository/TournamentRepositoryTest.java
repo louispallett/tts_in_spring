@@ -120,6 +120,5 @@ class TournamentRepositoryTest {
         Tournament saved = tournamentRepository.saveAndFlush(tournament);
 
         assertThat(saved.getCategories()).isEmpty();
-        assertThat(saved.getPlayers()).isEmpty();
     }
 }

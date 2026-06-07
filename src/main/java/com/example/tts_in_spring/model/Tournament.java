@@ -32,7 +32,4 @@ public class Tournament extends Base {
 
    @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
    private List<Category> categories = new ArrayList<>();
-
-   @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-   private List<Player> players = new ArrayList<>();
 }

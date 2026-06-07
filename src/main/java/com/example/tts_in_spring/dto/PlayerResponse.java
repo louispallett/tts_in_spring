@@ -8,7 +8,6 @@ public class PlayerResponse {
     public Boolean seeded;
     public int rank;
     public UserResponse user;
-    public TournamentResponse tournament;
     public CategoryResponse category;
 
     public PlayerResponse(Player player) {

@@ -28,6 +28,5 @@ class TournamentResponseTest {
         assertThat(response.showMobile).isTrue();
         assertThat(response.host).isNull();
         assertThat(response.categories).isNull();
-        assertThat(response.players).isNull();
     }
 }

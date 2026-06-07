@@ -25,6 +25,5 @@ class PlayerResponseTest {
         assertThat(response.male).isFalse();
         assertThat(response.user).isNull();
         assertThat(response.category).isNull();
-        assertThat(response.tournament).isNull();
     }
 }

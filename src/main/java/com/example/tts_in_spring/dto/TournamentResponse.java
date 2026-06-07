@@ -12,7 +12,6 @@ public class TournamentResponse {
     public Boolean showMobile;
     public UserResponse host;
     public List<CategoryResponse> categories;
-    public List<PlayerResponse> players;
 
     public TournamentResponse(Tournament tournament) {
         this.id = tournament.getId();
