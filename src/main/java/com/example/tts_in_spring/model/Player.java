@@ -5,6 +5,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "player", schema = "public")
 @Getter
@@ -31,4 +34,7 @@ public class Player extends Base {
     @ManyToOne
     @JoinColumn(name = "team_id")
     private Team team;
+
+    @OneToMany(mappedBy = "player", fetch = FetchType.LAZY)
+    private List<Participant> participants = new ArrayList<>();
 }
