@@ -49,7 +49,16 @@ public class SecurityConfig {
                                 "/api/category/{id}",
                                 "/api/player/create",
                                 "/api/player",
-                                "/api/player/{id}"
+                                "/api/player/{id}",
+                                "/api/team/create",
+                                "/api/team",
+                                "/api/team/{id}",
+                                "/api/participant/create",
+                                "/api/participant",
+                                "/api/participant/{id}",
+                                "/api/match/create",
+                                "/api/match",
+                                "/api/match/{id}"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
