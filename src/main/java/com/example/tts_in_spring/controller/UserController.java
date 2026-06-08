@@ -1,12 +1,10 @@
 package com.example.tts_in_spring.controller;
 
-import com.example.tts_in_spring.dto.AuthResponse;
-import com.example.tts_in_spring.dto.LoginRequest;
-import com.example.tts_in_spring.dto.TournamentResponse;
-import com.example.tts_in_spring.dto.UserResponse;
+import com.example.tts_in_spring.dto.*;
 import com.example.tts_in_spring.model.User;
 import com.example.tts_in_spring.repository.UserRepository;
 import com.example.tts_in_spring.security.JwtUtil;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -60,22 +58,24 @@ public class UserController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createUser(@RequestBody User incomingUser) {
+    public ResponseEntity<?> createUser(@Valid @RequestBody UserRequest userRequest) {
 
         // Check if email already used
-        if (userRepository.findByEmail(incomingUser.getEmail().toLowerCase()).isPresent()) {
+        if (userRepository.findByEmail(userRequest.getEmail().toLowerCase()).isPresent()) {
             return ResponseEntity
                     .status(HttpStatus.CONFLICT)
                     .body("Email already registered");
         }
 
-        incomingUser.setEmail(incomingUser.getEmail().toLowerCase());
+        User validatedUser = new User();
+        validatedUser.setFirstName(userRequest.getFirstName());
+        validatedUser.setLastName(userRequest.getLastName());
+        validatedUser.setEmail(userRequest.getEmail().toLowerCase());
+        validatedUser.setPassword(passwordEncoder.encode(userRequest.getPassword()));
+        validatedUser.setMobCode(userRequest.getMobCode());
+        validatedUser.setMobile(userRequest.getMobile());
 
-        // Hashing password
-        String hashedPassword = passwordEncoder.encode((incomingUser.getPassword()));
-        incomingUser.setPassword(hashedPassword);
-
-        User savedUser = userRepository.save(incomingUser);
+        User savedUser = userRepository.save(validatedUser);
 
         return userRepository.findById(savedUser.getId())
                 .map(user -> ResponseEntity.status(HttpStatus.CREATED).body(mapToResponse(user)))

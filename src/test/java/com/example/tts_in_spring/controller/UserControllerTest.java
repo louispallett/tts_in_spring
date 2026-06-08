@@ -2,6 +2,7 @@ package com.example.tts_in_spring.controller;
 
 import com.example.tts_in_spring.dto.AuthResponse;
 import com.example.tts_in_spring.dto.LoginRequest;
+import com.example.tts_in_spring.dto.UserRequest;
 import com.example.tts_in_spring.dto.UserResponse;
 import com.example.tts_in_spring.model.User;
 import com.example.tts_in_spring.repository.UserRepository;
@@ -119,7 +120,7 @@ class UserControllerTest {
         when(userRepository.findByEmail("john@example.com")).thenReturn(Optional.empty());
         when(passwordEncoder.encode(rawPassword)).thenReturn(encodedPassword);
 
-        User incoming = new User();
+        UserRequest incoming = new UserRequest();
         incoming.setFirstName("John");
         incoming.setLastName("Doe");
         incoming.setEmail("john@example.com");
@@ -153,7 +154,7 @@ class UserControllerTest {
         when(userRepository.findByEmail("john@example.com"))
                 .thenReturn(Optional.of(createUser(1L, "john@example.com")));
 
-        User incoming = new User();
+        UserRequest incoming = new UserRequest();
         incoming.setFirstName("John");
         incoming.setLastName("Doe");
         incoming.setEmail("john@example.com");

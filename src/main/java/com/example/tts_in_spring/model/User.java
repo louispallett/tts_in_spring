@@ -40,6 +40,6 @@ public class User extends Base {
     private String mobile;
 
     @Column(nullable = false)
-    @OneToMany( mappedBy = "host", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "host", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Tournament> tournaments = new ArrayList<>();
 }
