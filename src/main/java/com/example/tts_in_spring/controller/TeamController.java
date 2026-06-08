@@ -60,8 +60,6 @@ public class TeamController {
     public ResponseEntity<?> createTeam(@RequestBody Team incomingTeam) {
         Team savedTeam = teamRepository.save(incomingTeam);
 
-        return teamRepository.findById(savedTeam.getId())
-                .map(team -> ResponseEntity.status(HttpStatus.CREATED).body(mapToResponse(team)))
-                .orElse(ResponseEntity.notFound().build());
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapToResponse(savedTeam));
     }
 }

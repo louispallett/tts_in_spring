@@ -28,24 +28,26 @@ class ParticipantControllerTest {
     private ParticipantController participantController;
 
     // Overloaded functions to handle participant with team or player
-    private Participant createParticipant(Long id, Player player) {
+    private Participant createParticipant(Long id, Player player, Match match) {
         Participant p = new Participant();
         p.setId(id);
         p.setResultText("");
         p.setWinner(false);
         p.setStatus("");
         p.setPlayer(player);
+        p.setMatch(match);
 
         return p;
     }
 
-    private Participant createParticipant(Long id, Team team) {
+    private Participant createParticipant(Long id, Team team, Match match) {
         Participant p = new Participant();
         p.setId(id);
         p.setResultText("");
         p.setWinner(false);
         p.setStatus("");
         p.setTeam(team);
+        p.setMatch(match);
 
         return p;
     }
@@ -54,12 +56,14 @@ class ParticipantControllerTest {
     void getAllParticipants_returnsMappedResponses() {
         Team team = new Team();
         Player player = new Player();
+        Match match1 = new Match();
+        Match match2 = new Match();
 
         // Two participants of the same team
-        Participant pTeam1 = createParticipant(1L, team);
-        Participant pTeam2 = createParticipant(2L, team);
+        Participant pTeam1 = createParticipant(1L, team, match1);
+        Participant pTeam2 = createParticipant(2L, team, match1);
         // One participant from player
-        Participant pPlayer = createParticipant(3L, player);
+        Participant pPlayer = createParticipant(3L, player, match2);
 
         when(participantRepository.findAll()).thenReturn(List.of(pTeam1, pTeam2, pPlayer));
 
@@ -77,7 +81,7 @@ class ParticipantControllerTest {
         assertThat(response.getBody().get(1).team).isNotNull();
         assertThat(response.getBody().get(1).player).isNull();
         assertThat(response.getBody().get(1).match).isNotNull();
-        assertThat(response.getBody().get(2).id).isEqualTo(2L);
+        assertThat(response.getBody().get(2).id).isEqualTo(3L);
         assertThat(response.getBody().get(2).resultText).isEqualTo("");
         assertThat(response.getBody().get(2).team).isNull();
         assertThat(response.getBody().get(2).player).isNotNull();
@@ -87,7 +91,8 @@ class ParticipantControllerTest {
     @Test
     void getParticipant_returnsWhenParticipantPlayerExists() {
         Player player = new Player();
-        Participant p = createParticipant(1L, player);
+        Match match = new Match();
+        Participant p = createParticipant(1L, player, match);
         when(participantRepository.findById(1L)).thenReturn(Optional.of(p));
 
         ResponseEntity<ParticipantResponse> response = participantController.getParticipant(1L);
@@ -106,7 +111,8 @@ class ParticipantControllerTest {
     @Test
     void getParticipant_returnsWhenParticipantTeamExists() {
         Team team = new Team();
-        Participant p = createParticipant(1L, team);
+        Match match = new Match();
+        Participant p = createParticipant(1L, team, match);
         when(participantRepository.findById(1L)).thenReturn(Optional.of(p));
 
         ResponseEntity<ParticipantResponse> response = participantController.getParticipant(1L);
@@ -126,10 +132,12 @@ class ParticipantControllerTest {
     void createParticipant_createsPlayerParticipant() {
         Participant incoming = new Participant();
         Player player = new Player();
+        Match match = new Match();
+        incoming.setPlayer(player);
+        incoming.setMatch(match);
 
-        Participant saved = createParticipant(1L, player);
+        Participant saved = createParticipant(1L, player, match);
         when(participantRepository.save(any(Participant.class))).thenReturn(saved);
-        when(participantRepository.findById(1L)).thenReturn(Optional.of(saved));
 
         ResponseEntity<?> response = participantController.createParticipant(incoming);
 
@@ -145,17 +153,20 @@ class ParticipantControllerTest {
         verify(participantRepository).save(captor.capture());
         Participant toSave = captor.getValue();
 
-        assertThat(toSave.getId()).isEqualTo(1L);
+        assertThat(toSave.getPlayer()).isSameAs(player);
+        assertThat(toSave.getMatch()).isSameAs(match);
     }
 
     @Test
     void createParticipant_createsTeamParticipant() {
         Participant incoming = new Participant();
         Team team = new Team();
+        Match match = new Match();
+        incoming.setWinner(false);
+        incoming.setTeam(team);
 
-        Participant saved = createParticipant(1L, team);
+        Participant saved = createParticipant(1L, team, match);
         when(participantRepository.save(any(Participant.class))).thenReturn(saved);
-        when(participantRepository.findById(1L)).thenReturn(Optional.of(saved));
 
         ResponseEntity<?> response = participantController.createParticipant(incoming);
 
@@ -171,6 +182,7 @@ class ParticipantControllerTest {
         verify(participantRepository).save(captor.capture());
         Participant toSave = captor.getValue();
 
-        assertThat(toSave.getId()).isEqualTo(1L);
+        assertThat(toSave.isWinner()).isFalse();
+        assertThat(toSave.getTeam()).isSameAs(team);
     }
 }

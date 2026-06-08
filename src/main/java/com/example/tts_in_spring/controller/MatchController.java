@@ -2,12 +2,8 @@ package com.example.tts_in_spring.controller;
 
 import com.example.tts_in_spring.dto.MatchResponse;
 import com.example.tts_in_spring.dto.ParticipantResponse;
-import com.example.tts_in_spring.dto.PlayerResponse;
-import com.example.tts_in_spring.dto.TeamResponse;
 import com.example.tts_in_spring.model.Match;
-import com.example.tts_in_spring.model.Participant;
 import com.example.tts_in_spring.repository.MatchRepository;
-import com.example.tts_in_spring.repository.ParticipantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -66,8 +62,6 @@ public class MatchController {
     public ResponseEntity<?> createMatch(@RequestBody Match incomingMatch) {
         Match savedMatch = matchRepository.save(incomingMatch);
 
-        return matchRepository.findById(savedMatch.getId())
-                .map(match -> ResponseEntity.status(HttpStatus.CREATED).body(mapToResponse(match)))
-                .orElse(ResponseEntity.notFound().build());
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapToResponse(savedMatch));
     }
 }

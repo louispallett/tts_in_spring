@@ -54,8 +54,6 @@ public class ParticipantController {
     public ResponseEntity<?> createParticipant(@RequestBody Participant incomingParticipant) {
         Participant savedParticipant = participantRepository.save(incomingParticipant);
 
-        return participantRepository.findById(savedParticipant.getId())
-                .map(participant -> ResponseEntity.status(HttpStatus.CREATED).body(mapToResponse(participant)))
-                .orElse(ResponseEntity.notFound().build());
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapToResponse(savedParticipant));
     }
 }

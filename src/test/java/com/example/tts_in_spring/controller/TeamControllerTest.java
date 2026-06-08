@@ -73,10 +73,10 @@ public class TeamControllerTest {
     @Test
     void createTeam_createsTeam() {
         Team incoming = new Team();
+        incoming.setId(1L);
 
         Team saved = createTeam(1L);
         when(teamRepository.save(any(Team.class))).thenReturn(saved);
-        when(teamRepository.findById(1L)).thenReturn(Optional.of(saved));
 
         ResponseEntity<?> response = teamController.createTeam(incoming);
 

@@ -96,10 +96,11 @@ class MatchControllerTest {
         Match incoming = new Match();
         Category category = new Category();
         Instant date = Instant.now();
+        incoming.setCategory(category);
+        incoming.setDate(date);
 
         Match saved = createMatch(1L, date, false, category);
         when(matchRepository.save(any(Match.class))).thenReturn(saved);
-        when(matchRepository.findById(1L)).thenReturn(Optional.of(saved));
 
         ResponseEntity<?> response = matchController.createMatch(incoming);
 
@@ -110,15 +111,16 @@ class MatchControllerTest {
         assertThat(body.id).isEqualTo(1L);
         assertThat(body.category).isNotNull();
         assertThat(body.date).isEqualTo(date);
-        assertThat(body.nextMatch).isNotNull();
-        assertThat(body.previousMatches).isNull();
+        assertThat(body.nextMatch).isNull();
+        assertThat(body.previousMatches).isNotNull();
         assertThat(body.participants).isNotNull();
 
         ArgumentCaptor<Match> captor = ArgumentCaptor.forClass(Match.class);
         verify(matchRepository).save(captor.capture());
         Match toSave = captor.getValue();
 
-        assertThat(toSave.getId()).isEqualTo(1L);
+        assertThat(toSave.getCategory()).isSameAs(category);
+        assertThat(toSave.getDate()).isEqualTo(date);
     }
 
 }
