@@ -3,7 +3,6 @@ package com.example.tts_in_spring.controller;
 import com.example.tts_in_spring.dto.TeamResponse;
 import com.example.tts_in_spring.model.Category;
 import com.example.tts_in_spring.model.Team;
-import com.example.tts_in_spring.controller.TeamController
 import com.example.tts_in_spring.repository.TeamRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,6 +43,8 @@ public class TeamControllerTest {
         Team t1 = createTeam(1L);
         Team t2 = createTeam(2L);
 
+        when(teamRepository.findAll()).thenReturn(List.of(t1, t2));
+
         ResponseEntity<List<TeamResponse>> response = teamController.getAllTeams();
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -59,6 +60,7 @@ public class TeamControllerTest {
     @Test
     void getTeam_returnsTeamWhenTeamExists() {
         Team t = createTeam(1L);
+        when(teamRepository.findById(1L)).thenReturn(Optional.of(t));
 
         ResponseEntity<TeamResponse> response = teamController.getTeam(1L);
 
@@ -76,7 +78,7 @@ public class TeamControllerTest {
         when(teamRepository.save(any(Team.class))).thenReturn(saved);
         when(teamRepository.findById(1L)).thenReturn(Optional.of(saved));
 
-        ResponseEntity<?> response = teamController.createPlayer(incoming);
+        ResponseEntity<?> response = teamController.createTeam(incoming);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(response.getBody()).isInstanceOf(TeamResponse.class);
