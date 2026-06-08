@@ -1,7 +1,6 @@
 package com.example.tts_in_spring.controller;
 
 import com.example.tts_in_spring.dto.PlayerResponse;
-import com.example.tts_in_spring.dto.UserResponse;
 import com.example.tts_in_spring.model.Category;
 import com.example.tts_in_spring.model.Player;
 import com.example.tts_in_spring.model.User;
