@@ -17,8 +17,12 @@ public abstract class Base {
     @Column(nullable = false, updatable = false)
     private Instant dateCreated;
 
+    @Column(nullable = false)
+    private boolean active;
+
     @PrePersist
     protected void onCreate() {
         this.dateCreated = Instant.now();
+        this.active = true;
     }
 }
