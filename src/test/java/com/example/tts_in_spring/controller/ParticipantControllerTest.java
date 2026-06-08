@@ -138,6 +138,7 @@ class ParticipantControllerTest {
 
         Participant saved = createParticipant(1L, player, match);
         when(participantRepository.save(any(Participant.class))).thenReturn(saved);
+        when(participantRepository.findById(1L)).thenReturn(Optional.of(saved));
 
         ResponseEntity<?> response = participantController.createParticipant(incoming);
 
@@ -167,6 +168,7 @@ class ParticipantControllerTest {
 
         Participant saved = createParticipant(1L, team, match);
         when(participantRepository.save(any(Participant.class))).thenReturn(saved);
+        when(participantRepository.findById(1L)).thenReturn(Optional.of(saved));
 
         ResponseEntity<?> response = participantController.createParticipant(incoming);
 

@@ -129,6 +129,7 @@ class UserControllerTest {
 
         User saved = createUser(1L, "john@example.com");
         when(userRepository.save(any(User.class))).thenReturn(saved);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(saved));
 
         ResponseEntity<?> response = userController.createUser(incoming);
 

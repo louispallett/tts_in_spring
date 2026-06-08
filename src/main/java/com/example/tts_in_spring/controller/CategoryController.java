@@ -7,6 +7,7 @@ import com.example.tts_in_spring.dto.UserResponse;
 import com.example.tts_in_spring.model.Category;
 import com.example.tts_in_spring.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -62,6 +63,9 @@ public class CategoryController {
     @PostMapping("/create")
     public ResponseEntity<?> createCategory(@RequestBody Category incomingCategory) {
         Category savedCategory = categoryRepository.save(incomingCategory);
-        return ResponseEntity.ok(savedCategory);
+
+        return categoryRepository.findById(savedCategory.getId())
+                .map(category -> ResponseEntity.status(HttpStatus.CREATED).body(mapToResponse(category)))
+                .orElse(ResponseEntity.notFound().build());
     }
 }

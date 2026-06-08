@@ -101,6 +101,7 @@ class MatchControllerTest {
 
         Match saved = createMatch(1L, date, false, category);
         when(matchRepository.save(any(Match.class))).thenReturn(saved);
+        when(matchRepository.findById(1L)).thenReturn(Optional.of(saved));
 
         ResponseEntity<?> response = matchController.createMatch(incoming);
 

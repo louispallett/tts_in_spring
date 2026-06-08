@@ -77,6 +77,7 @@ public class TeamControllerTest {
 
         Team saved = createTeam(1L);
         when(teamRepository.save(any(Team.class))).thenReturn(saved);
+        when(teamRepository.findById(1L)).thenReturn(Optional.of(saved));
 
         ResponseEntity<?> response = teamController.createTeam(incoming);
 

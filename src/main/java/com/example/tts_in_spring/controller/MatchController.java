@@ -62,6 +62,8 @@ public class MatchController {
     public ResponseEntity<?> createMatch(@RequestBody Match incomingMatch) {
         Match savedMatch = matchRepository.save(incomingMatch);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(mapToResponse(savedMatch));
+        return matchRepository.findById(savedMatch.getId())
+                .map(m -> ResponseEntity.status(HttpStatus.CREATED).body(mapToResponse(m)))
+                .orElse(ResponseEntity.notFound().build());
     }
 }

@@ -76,7 +76,10 @@ public class UserController {
         incomingUser.setPassword(hashedPassword);
 
         User savedUser = userRepository.save(incomingUser);
-        return ResponseEntity.status(HttpStatus.CREATED).body(mapToResponse(savedUser));
+
+        return userRepository.findById(savedUser.getId())
+                .map(user -> ResponseEntity.status(HttpStatus.CREATED).body(mapToResponse(user)))
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @Autowired
