@@ -27,7 +27,7 @@ class PlayerRepositoryTest {
     private UserRepository userRepository;
 
     @Autowired
-    CategoryRepository categoryRepository;
+    private CategoryRepository categoryRepository;
 
     private User user;
     private Category category;

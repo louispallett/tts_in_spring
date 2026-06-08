@@ -1,6 +1,7 @@
 package com.example.tts_in_spring.controller;
 
 import com.example.tts_in_spring.dto.PlayerResponse;
+import com.example.tts_in_spring.dto.UserResponse;
 import com.example.tts_in_spring.model.Category;
 import com.example.tts_in_spring.model.Player;
 import com.example.tts_in_spring.model.User;
@@ -25,7 +26,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class PlayerControllerTest {
+class PlayerControllerTest {
     @Mock
     private PlayerRepository playerRepository;
 
@@ -77,12 +78,22 @@ public class PlayerControllerTest {
 
         ResponseEntity<PlayerResponse> response = playerController.getPlayer(1L);
 
-       assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-       assertThat(response.getBody()).isNotNull();
-       assertThat(response.getBody().id).isEqualTo(1L);
-       assertThat(response.getBody().male).isTrue();
-       assertThat(response.getBody().rank).isEqualTo(1);
-       assertThat(response.getBody().user).isNotNull();
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().id).isEqualTo(1L);
+        assertThat(response.getBody().male).isTrue();
+        assertThat(response.getBody().rank).isEqualTo(1);
+        assertThat(response.getBody().user).isNotNull();
+    }
+
+    @Test
+    void getUser_returnsNotFoundWhenMissing() {
+        when(playerRepository.findById(1L)).thenReturn(Optional.empty());
+
+        ResponseEntity<PlayerResponse> response = playerController.getPlayer(1L);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(response.getBody()).isNull();
     }
 
     @Test
