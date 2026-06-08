@@ -1,0 +1,81 @@
+package com.example.tts_in_spring.repository;
+
+import com.example.tts_in_spring.model.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+
+import java.time.Instant;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.*;
+
+@DataJpaTest
+class MatchRepositoryTest {
+    @Autowired
+    private TournamentRepository tournamentRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private CategoryRepository categoryRepository;
+
+    @Autowired
+    private MatchRepository matchRepository;
+
+    private Category category;
+
+    @BeforeEach
+    void setUp() {
+        User host = new User("John", "Doe", "john.doe@example.com", "secret", "44", "123456789", List.of());
+        userRepository.save(host);
+
+        Tournament tournament = new Tournament();
+        tournament.setName("Test");
+        tournament.setStage("SIGN_UP");
+        tournament.setHost(host);
+        tournament.setCode("ABC123");
+        tournament.setShowMobile(true);
+        tournamentRepository.save(tournament);
+
+        category = new Category();
+        category.setName("Mens Singles");
+        category.setLocked(false);
+        category.setDoubles(false);
+        category.setTournament(tournament);
+        categoryRepository.save(category);
+    }
+
+    @Test
+    void save_savesMatchSuccessfully() {
+        Match match = new Match();
+        Instant date = Instant.now();
+        match.setTournamentRoundText("5");
+        match.setState("SCHEDULED");
+        match.setDate(date);
+        match.setUpdateNumber(0);
+        match.setQualifyingMatch(false);
+        match.setCategory(category);
+
+        Match saved = matchRepository.save(match);
+
+        assertThat(saved.getId()).isNotNull();
+        assertThat(saved.getTournamentRoundText()).isEqualTo("5");
+        assertThat(saved.getState()).isEqualTo("SCHEDULED");
+        assertThat(saved.getDate()).isEqualTo(date);
+        assertThat(saved.getUpdateNumber()).isEqualTo(0);
+        assertThat(saved.isQualifyingMatch()).isFalse();
+        assertThat(saved.getCategory()).isSameAs(category);
+    }
+
+    @Test
+    void save_throwsException_whenRequiredFieldsMissing() {
+        Match match = new Match();
+
+        assertThatThrownBy(() -> {
+            matchRepository.saveAndFlush(match);
+        }).isInstanceOf(Exception.class);
+    }
+}
