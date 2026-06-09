@@ -1,5 +1,6 @@
 package com.example.tts_in_spring.controller;
 
+import com.example.tts_in_spring.dto.TournamentRequest;
 import com.example.tts_in_spring.dto.TournamentResponse;
 import com.example.tts_in_spring.model.Tournament;
 import com.example.tts_in_spring.model.User;
@@ -35,9 +36,7 @@ class TournamentControllerTest {
         Tournament t = new Tournament();
         t.setId(id);
         t.setName(name);
-        t.setStage("SIGN_UP");
         t.setHost(host);
-        t.setCode(id + "_isksdp");
         t.setShowMobile(true);
 
         return t;
@@ -49,18 +48,22 @@ class TournamentControllerTest {
         User t2Host = new User();
         Tournament t1 = createTournament(1L, "Test Tournament 1", t1Host);
         Tournament t2 = createTournament(2L, "Test Tournament 2", t2Host);
+        t1.setCode("okasdafji");
+        t2.setCode("adjiafe33w");
         when(tournamentRepository.findAll()).thenReturn(List.of(t1, t2));
 
         ResponseEntity<List<TournamentResponse>> response = tournamentController.getAllTournaments();
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).hasSize(2);
-        assertThat(response.getBody().get(0).id).isEqualTo(1);
-        assertThat(response.getBody().get(0).name).isEqualTo("Test Tournament 1");
-        assertThat(response.getBody().get(0).host).isNotNull();
+        assertThat(response.getBody().getFirst().id).isEqualTo(1);
+        assertThat(response.getBody().getFirst().name).isEqualTo("Test Tournament 1");
+        assertThat(response.getBody().getFirst().host).isNotNull();
+        assertThat(response.getBody().getFirst().code).isNull();
         assertThat(response.getBody().get(1).id).isEqualTo(2);
         assertThat(response.getBody().get(1).name).isEqualTo("Test Tournament 2");
         assertThat(response.getBody().get(1).host).isNotNull();
+        assertThat(response.getBody().get(1).code).isNull();
     }
 
     @Test
@@ -91,25 +94,34 @@ class TournamentControllerTest {
     void createTournament_createsTournament() {
         User host = new User();
 
-        // NOTE: Tournament.host is set by the authentication header, so we need to mock the class and
-        // tell the tests to return the host when authentication.getPrincipal() (in the createTournament() function)
-        // is called.
-        // This, therefore, DOES NOT test that the SecurityContextHolder actually works - this is intentional, as the
-        // tests here should only test the logic in the controller. But it's important to bear in mind.
         Authentication authentication = mock(Authentication.class);
         SecurityContext securityContext = mock(SecurityContext.class);
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(authentication.getPrincipal()).thenReturn(host);
-
         SecurityContextHolder.setContext(securityContext);
 
-        Tournament incoming = new Tournament();
+        TournamentRequest incoming = new TournamentRequest();
         incoming.setName("Test Tournament");
+        incoming.setStage("SIGN_UP");
         incoming.setShowMobile(true);
 
-        Tournament saved = createTournament(1L, "Test Tournament", host);
-        when(tournamentRepository.save(any(Tournament.class))).thenReturn(saved);
-        when(tournamentRepository.findById(1L)).thenReturn(Optional.of(saved));
+        Tournament saved = new Tournament();
+        saved.setId(1L);
+        when(tournamentRepository.save(any(Tournament.class))).thenAnswer(invocation -> {
+            Tournament toSave = invocation.getArgument(0);
+            toSave.setId(1L);
+            return toSave;
+        });
+        when(tournamentRepository.findById(1L)).thenAnswer(invocation -> {
+            Tournament toReturn = new Tournament();
+            toReturn.setId(1L);
+            toReturn.setName("Test Tournament");
+            toReturn.setStage("SIGN_UP");
+            toReturn.setHost(host);
+            toReturn.setShowMobile(true);
+            toReturn.setCode(incoming.generateCode(incoming.getName()));
+            return Optional.of(toReturn);
+        });
 
         ResponseEntity<?> response = tournamentController.createTournament(incoming);
 
@@ -120,6 +132,8 @@ class TournamentControllerTest {
         assertThat(body.id).isEqualTo(1L);
         assertThat(body.name).isEqualTo("Test Tournament");
         assertThat(body.showMobile).isTrue();
+        assertThat(body.code).isNotNull();
+        assertThat(body.stage).isEqualTo("SIGN_UP");
 
         ArgumentCaptor<Tournament> captor = ArgumentCaptor.forClass(Tournament.class);
         verify(tournamentRepository).save(captor.capture());
@@ -127,6 +141,7 @@ class TournamentControllerTest {
 
         assertThat(toSave.getName()).isEqualTo("Test Tournament");
         assertThat(toSave.isShowMobile()).isTrue();
+        assertThat(toSave.getCode()).isNotNull();
 
         SecurityContextHolder.clearContext();
     }
