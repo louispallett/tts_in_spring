@@ -30,6 +30,8 @@ public class PlayerController {
     }
 
     @GetMapping
+    // TODO: Uncomment for prod
+    //@PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<PlayerResponse>> getAllPlayers() {
         List<PlayerResponse> players = playerRepository.findAll()
                 .stream()

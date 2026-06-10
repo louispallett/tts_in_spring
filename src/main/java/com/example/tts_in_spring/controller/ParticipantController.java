@@ -34,6 +34,8 @@ public class ParticipantController {
     }
 
     @GetMapping
+    // TODO: Uncomment for prod
+    //@PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<ParticipantResponse>> getAllParticipants() {
         List<ParticipantResponse> participants = participantRepository.findAll()
                 .stream()

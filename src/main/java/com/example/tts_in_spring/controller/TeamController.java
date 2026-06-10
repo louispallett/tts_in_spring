@@ -40,6 +40,8 @@ public class TeamController {
     }
 
     @GetMapping
+    // TODO: Uncomment for prod
+    //@PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<TeamResponse>> getAllTeams() {
         List<TeamResponse> teams = teamRepository.findAll()
                 .stream()

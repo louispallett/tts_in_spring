@@ -42,6 +42,8 @@ public class MatchController {
     }
 
     @GetMapping
+    // TODO: Uncomment for prod
+    //@PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<MatchResponse>> getAllMatches() {
         List<MatchResponse> matches = matchRepository.findAll()
                 .stream()

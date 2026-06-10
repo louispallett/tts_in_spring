@@ -44,6 +44,8 @@ public class CategoryController {
     }
 
     @GetMapping
+    // TODO: Uncomment for prod
+    //@PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<CategoryResponse>> getAllCategories() {
         List<CategoryResponse> categories = categoryRepository.findAll()
                 .stream()

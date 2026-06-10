@@ -37,6 +37,8 @@ public class TournamentController {
     }
 
     @GetMapping
+    // TODO: Uncomment for prod
+    //@PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<TournamentResponse>> getAllTournaments() {
         List<TournamentResponse> tournaments = tournamentRepository.findAll()
                 .stream()
