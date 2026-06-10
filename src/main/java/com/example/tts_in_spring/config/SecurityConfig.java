@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -13,6 +14,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Autowired
@@ -37,28 +39,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/user/create",
-                                "/api/user",
-                                "/api/user/{id}",
-                                "/api/user/email/{email}",
-                                "/api/user/login",
-                                "/api/tournament/create",
-                                "/api/tournament",
-                                "/api/tournament/{id}",
-                                "/api/category/create",
-                                "/api/category",
-                                "/api/category/{id}",
-                                "/api/player/create",
-                                "/api/player",
-                                "/api/player/{id}",
-                                "/api/team/create",
-                                "/api/team",
-                                "/api/team/{id}",
-                                "/api/participant/create",
-                                "/api/participant",
-                                "/api/participant/{id}",
-                                "/api/match/create",
-                                "/api/match",
-                                "/api/match/{id}"
+                                "/api/user/login"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
