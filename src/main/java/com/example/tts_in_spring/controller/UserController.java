@@ -43,23 +43,20 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<UserResponse> getUser(@PathVariable Long id) {
-        return userRepository.findById(id)
-                .map(u -> ResponseEntity.ok(mapToResponse(u)))
-                .orElse(ResponseEntity.notFound().build());
-    }
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse> getCurrentUser() {
+        User principal = (User) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
 
-    @GetMapping("/email/{email}")
-    public ResponseEntity<UserResponse> getUserByEmail(@PathVariable String email) {
-        return userRepository.findByEmail(email.toLowerCase())
-                .map(t -> ResponseEntity.ok(mapToResponse(t)))
+        return userRepository.findById(principal.getId())
+                .map(u -> ResponseEntity.ok(mapToResponse(u)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping("/create")
     public ResponseEntity<?> createUser(@Valid @RequestBody UserRequest userRequest) {
-
         // Check if email already used
         if (userRepository.findByEmail(userRequest.getEmail().toLowerCase()).isPresent()) {
             return ResponseEntity
@@ -76,7 +73,6 @@ public class UserController {
         validatedUser.setMobile(userRequest.getMobile());
 
         User savedUser = userRepository.save(validatedUser);
-
         return userRepository.findById(savedUser.getId())
                 .map(user -> ResponseEntity.status(HttpStatus.CREATED).body(mapToResponse(user)))
                 .orElse(ResponseEntity.notFound().build());
