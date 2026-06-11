@@ -1,6 +1,10 @@
 package com.example.tts_in_spring.controller;
 
-import com.example.tts_in_spring.dto.*;
+import com.example.tts_in_spring.dto.Auth.AuthResponse;
+import com.example.tts_in_spring.dto.Auth.LoginRequest;
+import com.example.tts_in_spring.dto.User.UserRequest;
+import com.example.tts_in_spring.dto.User.UserResponse;
+import com.example.tts_in_spring.mapper.UserMapper;
 import com.example.tts_in_spring.model.User;
 import com.example.tts_in_spring.repository.UserRepository;
 import com.example.tts_in_spring.security.JwtUtil;
@@ -23,16 +27,8 @@ public class UserController {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
-    private UserResponse mapToResponse(User user) {
-        UserResponse userResponse = new UserResponse(user);
-
-        userResponse.tournaments = user.getTournaments().stream().map(i -> {
-            TournamentResponse r = new TournamentResponse(i);
-            return r;
-        }).toList();
-
-        return userResponse;
-    }
+    @Autowired
+    private UserMapper userMapper;
 
     @GetMapping
     // TODO: Uncomment for prod
@@ -40,7 +36,7 @@ public class UserController {
     public ResponseEntity<List<UserResponse>> getAllUsers() {
         List<UserResponse> users = userRepository.findAll()
                 .stream()
-                .map(this::mapToResponse)
+                .map(u -> userMapper.toResponse(u))
                 .toList();
 
         return ResponseEntity.ok(users);
@@ -54,9 +50,8 @@ public class UserController {
                 .getAuthentication()
                 .getPrincipal();
 
-        return userRepository.findById(principal.getId())
-                .map(u -> ResponseEntity.ok(mapToResponse(u)))
-                .orElse(ResponseEntity.notFound().build());
+        User user = userRepository.findById(principal.getId()).orElseThrow();
+        return ResponseEntity.ok(userMapper.toResponse(user));
     }
 
     @PostMapping("/create")
@@ -78,7 +73,7 @@ public class UserController {
 
         User savedUser = userRepository.save(validatedUser);
         return userRepository.findById(savedUser.getId())
-                .map(user -> ResponseEntity.status(HttpStatus.CREATED).body(mapToResponse(user)))
+                .map(user -> ResponseEntity.status(HttpStatus.CREATED).body(userMapper.toResponse(user)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
