@@ -1,9 +1,9 @@
 package com.example.tts_in_spring.controller;
 
-import com.example.tts_in_spring.dto.auth.AuthResponse;
 import com.example.tts_in_spring.dto.auth.LoginRequest;
 import com.example.tts_in_spring.dto.user.UserRequest;
 import com.example.tts_in_spring.dto.user.UserResponse;
+import com.example.tts_in_spring.mapper.AuthMapper;
 import com.example.tts_in_spring.mapper.UserMapper;
 import com.example.tts_in_spring.model.User;
 import com.example.tts_in_spring.repository.UserRepository;
@@ -29,6 +29,9 @@ public class UserController {
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private AuthMapper authMapper;
 
     @GetMapping
     // TODO: Uncomment for prod
@@ -89,7 +92,7 @@ public class UserController {
                         passwordEncoder.matches(loginRequest.getPassword(), userOptional.get().getPassword())
         ) {
             String token = jwtUtil.generateToken(userOptional.get().getEmail());
-            return ResponseEntity.ok(new AuthResponse(token));
+            return ResponseEntity.ok(authMapper.toResponse(token));
         }
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid Credentials");
