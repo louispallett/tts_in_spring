@@ -1,9 +1,7 @@
 package com.example.tts_in_spring.controller;
 
-import com.example.tts_in_spring.dto.CategoryResponse;
-import com.example.tts_in_spring.dto.ParticipantResponse;
-import com.example.tts_in_spring.dto.PlayerResponse;
-import com.example.tts_in_spring.dto.TeamResponse;
+import com.example.tts_in_spring.dto.team.TeamResponse;
+import com.example.tts_in_spring.mapper.TeamMapper;
 import com.example.tts_in_spring.model.Team;
 import com.example.tts_in_spring.repository.TeamRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/team")
@@ -20,24 +17,8 @@ public class TeamController {
     @Autowired
     TeamRepository teamRepository;
 
-    private TeamResponse mapToResponse(Team team) {
-        TeamResponse teamResponse = new TeamResponse(team);
-        teamResponse.category = new CategoryResponse(team.getCategory());
-
-        teamResponse.players = Optional.ofNullable(team.getPlayers())
-                .orElse(List.of())
-                .stream()
-                .map(PlayerResponse::new)
-                .toList();
-
-        teamResponse.participants = Optional.ofNullable(team.getParticipants())
-                .orElse(List.of())
-                .stream()
-                .map(ParticipantResponse::new)
-                .toList();
-
-        return teamResponse;
-    }
+    @Autowired
+    TeamMapper teamMapper;
 
     @GetMapping
     // TODO: Uncomment for prod
@@ -45,7 +26,7 @@ public class TeamController {
     public ResponseEntity<List<TeamResponse>> getAllTeams() {
         List<TeamResponse> teams = teamRepository.findAll()
                 .stream()
-                .map(this::mapToResponse)
+                .map(t -> teamMapper.toResponse(t))
                 .toList();
 
         return ResponseEntity.ok(teams);
@@ -54,7 +35,7 @@ public class TeamController {
     @GetMapping("/{id}")
     public ResponseEntity<TeamResponse> getTeam(@PathVariable Long id) {
         return teamRepository.findById(id)
-                .map(team -> ResponseEntity.ok(mapToResponse(team)))
+                .map(team -> ResponseEntity.ok(teamMapper.toResponse(team)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
@@ -63,7 +44,7 @@ public class TeamController {
         Team savedTeam = teamRepository.save(incomingTeam);
 
         return teamRepository.findById(savedTeam.getId())
-                .map(t -> ResponseEntity.status(HttpStatus.CREATED).body(mapToResponse(t)))
+                .map(t -> ResponseEntity.status(HttpStatus.CREATED).body(teamMapper.toResponseLite(t)))
                 .orElse(ResponseEntity.notFound().build());
     }
 }

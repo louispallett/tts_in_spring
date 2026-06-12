@@ -1,6 +1,6 @@
-package com.example.tts_in_spring.dto.User;
+package com.example.tts_in_spring.dto.user;
 
-import com.example.tts_in_spring.dto.Tournament.TournamentResponse;
+import com.example.tts_in_spring.dto.tournament.TournamentResponseLite;
 
 import java.util.List;
 
@@ -11,5 +11,5 @@ public record UserResponse(
         String email,
         String mobCode,
         String mobile,
-        List<TournamentResponse> tournaments
+        List<TournamentResponseLite> tournaments
 ) {}

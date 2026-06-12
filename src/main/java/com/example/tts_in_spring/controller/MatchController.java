@@ -1,7 +1,8 @@
 package com.example.tts_in_spring.controller;
 
-import com.example.tts_in_spring.dto.MatchResponse;
-import com.example.tts_in_spring.dto.ParticipantResponse;
+import com.example.tts_in_spring.dto.match.MatchResponse;
+import com.example.tts_in_spring.dto.participant.ParticipantResponse;
+import com.example.tts_in_spring.mapper.MatchMapper;
 import com.example.tts_in_spring.model.Match;
 import com.example.tts_in_spring.repository.MatchRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,28 +19,8 @@ public class MatchController {
     @Autowired
     MatchRepository matchRepository;
 
-    private MatchResponse mapToResponse(Match match) {
-        MatchResponse matchResponse = new MatchResponse(match);
-
-        matchResponse.category = match.getCategory();
-        if (match.getNextMatch() != null) {
-            matchResponse.nextMatch = match.getNextMatch();
-        }
-
-        matchResponse.previousMatches = Optional.ofNullable(match.getPreviousMatches())
-                .orElse(List.of())
-                .stream()
-                .map(MatchResponse::new)
-                .toList();
-
-        matchResponse.participants = Optional.ofNullable(match.getParticipants())
-                .orElse(List.of())
-                .stream()
-                .map(ParticipantResponse::new)
-                .toList();
-
-        return matchResponse;
-    }
+    @Autowired
+    MatchMapper matchMapper;
 
     @GetMapping
     // TODO: Uncomment for prod
@@ -47,7 +28,7 @@ public class MatchController {
     public ResponseEntity<List<MatchResponse>> getAllMatches() {
         List<MatchResponse> matches = matchRepository.findAll()
                 .stream()
-                .map(this::mapToResponse)
+                .map(m -> matchMapper.toResponse(m))
                 .toList();
 
         return ResponseEntity.ok(matches);
@@ -56,7 +37,7 @@ public class MatchController {
     @GetMapping("/{id}")
     public ResponseEntity<MatchResponse> getMatch(@PathVariable Long id) {
         return matchRepository.findById(id)
-                .map(match -> ResponseEntity.ok(mapToResponse(match)))
+                .map(m-> ResponseEntity.ok(matchMapper.toResponse(m)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
@@ -65,7 +46,7 @@ public class MatchController {
         Match savedMatch = matchRepository.save(incomingMatch);
 
         return matchRepository.findById(savedMatch.getId())
-                .map(m -> ResponseEntity.status(HttpStatus.CREATED).body(mapToResponse(m)))
+                .map(m -> ResponseEntity.status(HttpStatus.CREATED).body(matchMapper.toResponseLite(m)))
                 .orElse(ResponseEntity.notFound().build());
     }
 }

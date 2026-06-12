@@ -1,9 +1,10 @@
 package com.example.tts_in_spring.controller;
 
-import com.example.tts_in_spring.dto.CategoryResponse;
-import com.example.tts_in_spring.dto.PlayerResponse;
-import com.example.tts_in_spring.dto.TournamentResponse;
-import com.example.tts_in_spring.dto.UserResponse;
+import com.example.tts_in_spring.dto.category.CategoryResponse;
+import com.example.tts_in_spring.dto.player.PlayerResponse;
+import com.example.tts_in_spring.dto.tournament.TournamentResponse;
+import com.example.tts_in_spring.dto.user.UserResponse;
+import com.example.tts_in_spring.mapper.CategoryMapper;
 import com.example.tts_in_spring.model.Category;
 import com.example.tts_in_spring.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,28 +21,8 @@ public class CategoryController {
     @Autowired
     private CategoryRepository categoryRepository;
 
-    private CategoryResponse mapToResponse(Category category) {
-        CategoryResponse categoryResponse = new CategoryResponse(category);
-
-        categoryResponse.tournament = new TournamentResponse(category.getTournament());
-        categoryResponse.tournament.host = new UserResponse(category.getTournament().getHost());
-
-        categoryResponse.players = Optional.ofNullable(category.getPlayers())
-                .orElse(List.of())
-                .stream()
-                .map(player -> {
-                    PlayerResponse response = new PlayerResponse(player);
-
-                    if (player.getUser() != null) {
-                        response.user = new UserResponse(player.getUser());
-                    }
-
-                    return response;
-                })
-                .toList();
-
-        return categoryResponse;
-    }
+    @Autowired
+    private CategoryMapper categoryMapper;
 
     @GetMapping
     // TODO: Uncomment for prod
@@ -49,7 +30,7 @@ public class CategoryController {
     public ResponseEntity<List<CategoryResponse>> getAllCategories() {
         List<CategoryResponse> categories = categoryRepository.findAll()
                 .stream()
-                .map(this::mapToResponse)
+                .map(c -> categoryMapper.toResponse(c))
                 .toList();
 
         return ResponseEntity.ok(categories);
@@ -57,9 +38,9 @@ public class CategoryController {
 
     @GetMapping("/{id}")
     public ResponseEntity<CategoryResponse> getCategory(@PathVariable Long id) {
-        return categoryRepository.findById(id)
-                .map(c -> ResponseEntity.ok(mapToResponse(c)))
-                .orElse(ResponseEntity.notFound().build());
+        Category category = categoryRepository.findById(id).orElseThrow();
+
+        return ResponseEntity.ok(categoryMapper.toResponse(category));
     }
 
     @PostMapping("/create")
@@ -67,7 +48,7 @@ public class CategoryController {
         Category savedCategory = categoryRepository.save(incomingCategory);
 
         return categoryRepository.findById(savedCategory.getId())
-                .map(category -> ResponseEntity.status(HttpStatus.CREATED).body(mapToResponse(category)))
+                .map(category -> ResponseEntity.status(HttpStatus.CREATED).body(categoryMapper.toResponse(category)))
                 .orElse(ResponseEntity.notFound().build());
     }
 }

@@ -1,4 +1,4 @@
-package com.example.tts_in_spring.dto;
+package com.example.tts_in_spring.dto.auth;
 
 public class LoginRequest {
     private String email;

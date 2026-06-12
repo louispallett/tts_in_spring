@@ -1,8 +1,7 @@
 package com.example.tts_in_spring.controller;
 
-import com.example.tts_in_spring.dto.CategoryResponse;
-import com.example.tts_in_spring.dto.PlayerResponse;
-import com.example.tts_in_spring.dto.UserResponse;
+import com.example.tts_in_spring.dto.player.PlayerResponse;
+import com.example.tts_in_spring.mapper.PlayerMapper;
 import com.example.tts_in_spring.model.Player;
 import com.example.tts_in_spring.model.User;
 import com.example.tts_in_spring.repository.PlayerRepository;
@@ -21,13 +20,8 @@ public class PlayerController {
     @Autowired
     private PlayerRepository playerRepository;
 
-    private PlayerResponse mapToResponse(Player player) {
-        PlayerResponse playerResponse = new PlayerResponse(player);
-        playerResponse.user = new UserResponse(player.getUser());
-        playerResponse.category = new CategoryResponse(player.getCategory());
-
-        return playerResponse;
-    }
+    @Autowired
+    private PlayerMapper playerMapper;
 
     @GetMapping
     // TODO: Uncomment for prod
@@ -35,7 +29,7 @@ public class PlayerController {
     public ResponseEntity<List<PlayerResponse>> getAllPlayers() {
         List<PlayerResponse> players = playerRepository.findAll()
                 .stream()
-                .map(this::mapToResponse)
+                .map(p -> playerMapper.toResponse(p))
                 .toList();
 
         return ResponseEntity.ok(players);
@@ -44,7 +38,7 @@ public class PlayerController {
     @GetMapping("/{id}")
     public ResponseEntity<PlayerResponse> getPlayer(@PathVariable Long id) {
         return playerRepository.findById(id)
-                .map(p -> ResponseEntity.ok(mapToResponse(p)))
+                .map(p -> ResponseEntity.ok(playerMapper.toResponse(p)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
@@ -57,7 +51,7 @@ public class PlayerController {
 
         Player savedPlayer = playerRepository.save(incomingPlayer);
         return playerRepository.findById(savedPlayer.getId())
-                .map(p -> ResponseEntity.status(HttpStatus.CREATED).body(mapToResponse(p)))
+                .map(p -> ResponseEntity.status(HttpStatus.CREATED).body(playerMapper.toResponseLite(p)))
                 .orElse(ResponseEntity.notFound().build());
     }
 

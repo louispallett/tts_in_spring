@@ -1,4 +1,4 @@
-package com.example.tts_in_spring.dto.User;
+package com.example.tts_in_spring.dto.user;
 
 import jakarta.validation.constraints.*;
 import lombok.Getter;
@@ -26,7 +26,7 @@ public class UserRequest {
     // - .{8,} --> At least 8 characters total
     @NotBlank(message = "Password is required")
     @Pattern(
-            regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]).{8,}$",
+            regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]).{8,}$",
             message = "Password must be at least 8 characters and contain one uppercase letter, one lowercase letter, one number, and one special character"
     )
     private String password;

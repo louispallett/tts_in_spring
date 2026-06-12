@@ -1,9 +1,9 @@
 package com.example.tts_in_spring.controller;
 
-import com.example.tts_in_spring.dto.Auth.AuthResponse;
-import com.example.tts_in_spring.dto.Auth.LoginRequest;
-import com.example.tts_in_spring.dto.User.UserRequest;
-import com.example.tts_in_spring.dto.User.UserResponse;
+import com.example.tts_in_spring.dto.auth.AuthResponse;
+import com.example.tts_in_spring.dto.auth.LoginRequest;
+import com.example.tts_in_spring.dto.user.UserRequest;
+import com.example.tts_in_spring.dto.user.UserResponse;
 import com.example.tts_in_spring.mapper.UserMapper;
 import com.example.tts_in_spring.model.User;
 import com.example.tts_in_spring.repository.UserRepository;
@@ -73,7 +73,7 @@ public class UserController {
 
         User savedUser = userRepository.save(validatedUser);
         return userRepository.findById(savedUser.getId())
-                .map(user -> ResponseEntity.status(HttpStatus.CREATED).body(userMapper.toResponse(user)))
+                .map(user -> ResponseEntity.status(HttpStatus.CREATED).body(userMapper.toResponseLite(user)))
                 .orElse(ResponseEntity.notFound().build());
     }
 

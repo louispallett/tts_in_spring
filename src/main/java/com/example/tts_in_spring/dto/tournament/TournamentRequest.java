@@ -1,4 +1,4 @@
-package com.example.tts_in_spring.dto;
+package com.example.tts_in_spring.dto.tournament;
 
 import com.example.tts_in_spring.model.User;
 import jakarta.validation.constraints.NotBlank;
