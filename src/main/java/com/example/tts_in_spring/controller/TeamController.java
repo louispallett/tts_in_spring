@@ -1,9 +1,8 @@
 package com.example.tts_in_spring.controller;
 
+import com.example.tts_in_spring.dto.team.TeamRequest;
 import com.example.tts_in_spring.dto.team.TeamResponse;
-import com.example.tts_in_spring.mapper.TeamMapper;
-import com.example.tts_in_spring.model.Team;
-import com.example.tts_in_spring.repository.TeamRepository;
+import com.example.tts_in_spring.service.TeamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,36 +14,22 @@ import java.util.List;
 @RequestMapping("/api/team")
 public class TeamController {
     @Autowired
-    TeamRepository teamRepository;
-
-    @Autowired
-    TeamMapper teamMapper;
+    private TeamService teamService;
 
     @GetMapping
     // TODO: Uncomment for prod
     //@PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<TeamResponse>> getAllTeams() {
-        List<TeamResponse> teams = teamRepository.findAll()
-                .stream()
-                .map(t -> teamMapper.toResponse(t))
-                .toList();
-
-        return ResponseEntity.ok(teams);
+        return ResponseEntity.ok(teamService.getAllTeams());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<TeamResponse> getTeam(@PathVariable Long id) {
-        return teamRepository.findById(id)
-                .map(team -> ResponseEntity.ok(teamMapper.toResponse(team)))
-                .orElse(ResponseEntity.notFound().build());
+        return ResponseEntity.ok(teamService.getTeamById(id));
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createTeam(@RequestBody Team incomingTeam) {
-        Team savedTeam = teamRepository.save(incomingTeam);
-
-        return teamRepository.findById(savedTeam.getId())
-                .map(t -> ResponseEntity.status(HttpStatus.CREATED).body(teamMapper.toResponseLite(t)))
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<?> createTeam(@RequestBody TeamRequest teamRequest) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(teamService.createTeam(teamRequest));
     }
 }

@@ -3,17 +3,13 @@ package com.example.tts_in_spring.controller;
 import com.example.tts_in_spring.dto.auth.LoginRequest;
 import com.example.tts_in_spring.dto.user.UserRequest;
 import com.example.tts_in_spring.dto.user.UserResponse;
-import com.example.tts_in_spring.mapper.AuthMapper;
-import com.example.tts_in_spring.mapper.UserMapper;
 import com.example.tts_in_spring.model.User;
-import com.example.tts_in_spring.repository.UserRepository;
-import com.example.tts_in_spring.security.JwtUtil;
+import com.example.tts_in_spring.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,27 +18,13 @@ import java.util.List;
 @RequestMapping("/api/user")
 public class UserController {
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
-
-    @Autowired
-    private UserMapper userMapper;
-
-    @Autowired
-    private AuthMapper authMapper;
+    UserService userService;
 
     @GetMapping
     // TODO: Uncomment for prod
     //@PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UserResponse>> getAllUsers() {
-        List<UserResponse> users = userRepository.findAll()
-                .stream()
-                .map(u -> userMapper.toResponse(u))
-                .toList();
-
-        return ResponseEntity.ok(users);
+        return ResponseEntity.ok(userService.getAllUsers());
     }
 
     /* Request restricted current user */
@@ -53,48 +35,16 @@ public class UserController {
                 .getAuthentication()
                 .getPrincipal();
 
-        User user = userRepository.findById(principal.getId()).orElseThrow();
-        return ResponseEntity.ok(userMapper.toResponse(user));
+        return ResponseEntity.ok(userService.getUserById(principal.getId()));
     }
 
     @PostMapping("/create")
     public ResponseEntity<?> createUser(@Valid @RequestBody UserRequest userRequest) {
-        // Check if email already used
-        if (userRepository.findByEmail(userRequest.getEmail().toLowerCase()).isPresent()) {
-            return ResponseEntity
-                    .status(HttpStatus.CONFLICT)
-                    .body("Email already registered");
-        }
-
-        User validatedUser = new User();
-        validatedUser.setFirstName(userRequest.getFirstName());
-        validatedUser.setLastName(userRequest.getLastName());
-        validatedUser.setEmail(userRequest.getEmail().toLowerCase());
-        validatedUser.setPassword(passwordEncoder.encode(userRequest.getPassword()));
-        validatedUser.setMobCode(userRequest.getMobCode());
-        validatedUser.setMobile(userRequest.getMobile());
-
-        User savedUser = userRepository.save(validatedUser);
-        return userRepository.findById(savedUser.getId())
-                .map(user -> ResponseEntity.status(HttpStatus.CREATED).body(userMapper.toResponseLite(user)))
-                .orElse(ResponseEntity.notFound().build());
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(userRequest));
     }
-
-    @Autowired
-    private JwtUtil jwtUtil;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
-        var userOptional = userRepository.findByEmail(loginRequest.getEmail().toLowerCase());
-
-        if (
-                userOptional.isPresent() &&
-                        passwordEncoder.matches(loginRequest.getPassword(), userOptional.get().getPassword())
-        ) {
-            String token = jwtUtil.generateToken(userOptional.get().getEmail());
-            return ResponseEntity.ok(authMapper.toResponse(token));
-        }
-
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid Credentials");
+        return ResponseEntity.ok(userService.login(loginRequest));
     }
 }
