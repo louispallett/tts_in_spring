@@ -41,8 +41,8 @@ public class CategoryService {
         validatedCategory.setLocked(false);
         validatedCategory.setTournament(categoryRequest.getTournament());
 
-        validatedCategory.setDoubles(!Objects.equals(categoryRequest.getName(), "Men's Singles")
-                && !Objects.equals(categoryRequest.getName(), "Women's Singles"));
+        validatedCategory.setDoubles(!Objects.equals(categoryRequest.getName(), "Mens Singles")
+                && !Objects.equals(categoryRequest.getName(), "Womens Singles"));
 
         Category savedCategory = categoryRepository.save(validatedCategory);
         return categoryMapper.toResponseLite(savedCategory);
