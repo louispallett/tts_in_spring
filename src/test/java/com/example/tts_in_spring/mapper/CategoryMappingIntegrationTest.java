@@ -1,10 +1,13 @@
 package com.example.tts_in_spring.mapper;
 
 import com.example.tts_in_spring.builder.CategoryTestBuilder;
+import com.example.tts_in_spring.builder.MatchTestBuilder;
 import com.example.tts_in_spring.builder.PlayerTestBuilder;
 import com.example.tts_in_spring.dto.category.CategoryResponse;
+import com.example.tts_in_spring.dto.match.MatchResponseLite;
 import com.example.tts_in_spring.dto.player.PlayerResponseLite;
 import com.example.tts_in_spring.model.Category;
+import com.example.tts_in_spring.model.Match;
 import com.example.tts_in_spring.model.Player;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -61,5 +64,21 @@ public class CategoryMappingIntegrationTest {
         assertThat(mapped.male()).isTrue();
         assertThat(mapped.seeded()).isFalse();
         assertThat(mapped.rank()).isEqualTo(0);
+    }
+
+    @Test
+    void toResponse_withMatches_mapsFullChain() {
+        Category category = CategoryTestBuilder.aCategory().build();
+        Match match = MatchTestBuilder.aMatch().build();
+        category.getMatches().add(match);
+
+        CategoryResponse response = categoryMapper.toResponse(category);
+
+        assertThat(response.matches()).hasSize(1);
+
+        MatchResponseLite mapped = response.matches().getFirst();
+        assertThat(mapped.id()).isEqualTo(100000L);
+
+
     }
 }

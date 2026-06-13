@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -27,14 +28,10 @@ public class Category extends Base {
     private Tournament tournament;
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Player> players;
+    private List<Player> players = new ArrayList<>();
 
-    public Category(String name, Tournament tournament, Boolean doubles) {
-        this.name = name;
-        this.tournament = tournament;
-        this.locked = false;
-        this.doubles = doubles;
-    }
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Match> matches = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {

@@ -1,5 +1,6 @@
 package com.example.tts_in_spring.dto.category;
 
+import com.example.tts_in_spring.dto.match.MatchResponseLite;
 import com.example.tts_in_spring.dto.player.PlayerResponseLite;
 import com.example.tts_in_spring.dto.tournament.TournamentResponseLite;
 
@@ -11,5 +12,6 @@ public record CategoryResponse (
     Boolean locked,
     Boolean doubles,
     TournamentResponseLite tournament,
-    List<PlayerResponseLite> players
+    List<PlayerResponseLite> players,
+    List<MatchResponseLite> matches
 ) {}
