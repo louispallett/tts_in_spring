@@ -6,30 +6,30 @@ import com.example.tts_in_spring.model.Team;
 import com.example.tts_in_spring.model.User;
 
 public class PlayerTestBuilder {
-    private final Long id = 1000L;
-    private boolean male = true;
-    private boolean seeded = false;
-    private int rank = 0;
-    private final User user = UserTestBuilder.aUser().build();
-    private final Category category = CategoryTestBuilder.aCategory().build();
+    private Long id = 1000L;
+    private final boolean male = true;
+    private final boolean seeded = false;
+    private final int rank = 0;
+    private User user = UserTestBuilder.aUser().build();
+    private Category category = CategoryTestBuilder.aCategory().build();
     private Team team = null;
 
     public static PlayerTestBuilder aPlayer() {
         return new PlayerTestBuilder();
     }
 
-    public PlayerTestBuilder withMale(boolean male) {
-        this.male = male;
+    public PlayerTestBuilder withId(Long id) {
+        this.id = id;
         return this;
     }
 
-    public PlayerTestBuilder withSeeded(boolean seeded) {
-        this.seeded = seeded;
+    public PlayerTestBuilder withUser(User user) {
+        this.user = user;
         return this;
     }
 
-    public PlayerTestBuilder withRank(int rank) {
-        this.rank = rank;
+    public PlayerTestBuilder withCategory(Category category) {
+        this.category = category;
         return this;
     }
 

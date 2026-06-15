@@ -4,23 +4,23 @@ import com.example.tts_in_spring.model.Category;
 import com.example.tts_in_spring.model.Tournament;
 
 public class CategoryTestBuilder {
-    private final Long id = 100L;
-    private String name = "Mens Singles";
+    private Long id = 100L;
+    private final String name = "Mens Singles";
     private final boolean locked = false;
-    private boolean doubles = false;
-    private final Tournament tournament = TournamentTestBuilder.aTournament().build();
+    private final boolean doubles = false;
+    private Tournament tournament = TournamentTestBuilder.aTournament().build();
 
     public static CategoryTestBuilder aCategory() {
         return new CategoryTestBuilder();
     }
 
-    public CategoryTestBuilder withName(String name) {
-        this.name = name;
+    public CategoryTestBuilder withId(Long id) {
+        this.id = id;
         return this;
     }
 
-    public CategoryTestBuilder withDoubles(boolean isDoubles) {
-        this.doubles = isDoubles;
+    public CategoryTestBuilder withTournament(Tournament tournament) {
+        this.tournament = tournament;
         return this;
     }
 

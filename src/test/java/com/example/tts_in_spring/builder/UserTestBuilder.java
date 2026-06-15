@@ -3,7 +3,7 @@ package com.example.tts_in_spring.builder;
 import com.example.tts_in_spring.model.User;
 
 public class UserTestBuilder {
-    private final Long id = 1L;
+    private Long id = 1L;
     private final String firstName = "John";
     private final String lastName = "Doe";
     private String email = "john.doe@example.com";
@@ -12,6 +12,11 @@ public class UserTestBuilder {
 
     public static UserTestBuilder aUser() {
         return new UserTestBuilder();
+    }
+
+    public UserTestBuilder withId(Long id) {
+        this.id = id;
+        return this;
     }
 
     public UserTestBuilder withEmail(String email) {

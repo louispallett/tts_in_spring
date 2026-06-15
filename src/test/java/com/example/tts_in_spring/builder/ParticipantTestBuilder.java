@@ -6,16 +6,26 @@ import com.example.tts_in_spring.model.Player;
 import com.example.tts_in_spring.model.Team;
 
 public class ParticipantTestBuilder {
-    private final Long id = 1000000L;
+    private Long id = 1000000L;
     private final String resultText = "";
     private final boolean isWinner = false;
     private final String status = "";
     private Team team = null;
     private Player player = null;
-    private final Match match = MatchTestBuilder.aMatch().build();
+    private Match match = MatchTestBuilder.aMatch().build();
 
     public static ParticipantTestBuilder aParticipant() {
         return new ParticipantTestBuilder();
+    }
+
+    public ParticipantTestBuilder withId(Long id) {
+        this.id = id;
+        return this;
+    }
+
+    public ParticipantTestBuilder withTeam(Team team) {
+        this.team = team;
+        return this;
     }
 
     public ParticipantTestBuilder withPlayer(Player player) {
@@ -23,8 +33,8 @@ public class ParticipantTestBuilder {
         return this;
     }
 
-    public ParticipantTestBuilder withTeam(Team team) {
-        this.team = team;
+    public ParticipantTestBuilder withMatch(Match match) {
+        this.match = match;
         return this;
     }
 

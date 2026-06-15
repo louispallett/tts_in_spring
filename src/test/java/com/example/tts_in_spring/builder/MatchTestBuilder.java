@@ -9,10 +9,10 @@ public class MatchTestBuilder {
     private Long id = 100000L;
     private final String tournamentRoundText = "1";
     private final String state = "SCHEDULED";
-    private Instant date = Instant.now();
+    private final Instant date = Instant.now();
     private final int updateNumber = 0;
     private final boolean qualifyingMatch = false;
-    private final Category category = CategoryTestBuilder.aCategory().build();
+    private Category category = CategoryTestBuilder.aCategory().build();
     private Match nextMatch = null;
 
     public static MatchTestBuilder aMatch() {
@@ -24,8 +24,8 @@ public class MatchTestBuilder {
         return this;
     }
 
-    public MatchTestBuilder withDate(Instant date) {
-        this.date = date;
+    public MatchTestBuilder withCategory(Category category) {
+        this.category = category;
         return this;
     }
 
