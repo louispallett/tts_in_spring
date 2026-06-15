@@ -32,20 +32,20 @@ class TournamentRepositoryTest {
     @Test
     void save_savesTournamentSuccessfully() {
         Tournament tournament = new Tournament();
-        tournament.setName("Spring Cup");
+        tournament.setName("Test Tournament");
         tournament.setStage("SIGN_UP");
         tournament.setHost(host);
-        tournament.setCode("ABC123");
+        tournament.setCode("1234567");
         tournament.setShowMobile(true);
         tournament.setCategories(List.of());
 
         Tournament saved = tournamentRepository.save(tournament);
 
         assertThat(saved.getId()).isNotNull();
-        assertThat(saved.getName()).isEqualTo("Spring Cup");
+        assertThat(saved.getName()).isEqualTo("Test Tournament");
         assertThat(saved.getStage()).isEqualTo("SIGN_UP");
         assertThat(saved.getHost()).isEqualTo(host);
-        assertThat(saved.getCode()).isEqualTo("ABC123");
+        assertThat(saved.getCode()).isEqualTo("1234567");
         assertThat(saved.isShowMobile()).isTrue();
     }
 
@@ -68,10 +68,10 @@ class TournamentRepositoryTest {
     @Test
     void save_persistsRelationships() {
         Tournament tournament = new Tournament();
-        tournament.setName("Rel Test");
+        tournament.setName("Test Tournament");
         tournament.setStage("DRAW");
         tournament.setHost(host);
-        tournament.setCode("REL001");
+        tournament.setCode("1234567");
         tournament.setShowMobile(true);
 
         Tournament saved = tournamentRepository.saveAndFlush(tournament);

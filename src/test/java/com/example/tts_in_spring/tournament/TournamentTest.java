@@ -34,7 +34,7 @@ class TournamentTest {
     }
 
     @Test
-    void categoriesAndPlayers_canBeAdded() {
+    void categories_canBeAdded() {
         Tournament tournament = new Tournament();
 
         Category category = new Category();
