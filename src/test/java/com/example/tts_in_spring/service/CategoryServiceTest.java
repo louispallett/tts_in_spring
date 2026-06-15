@@ -1,12 +1,14 @@
 package com.example.tts_in_spring.service;
 
+import com.example.tts_in_spring.builder.CategoryTestBuilder;
+import com.example.tts_in_spring.builder.TournamentTestBuilder;
+import com.example.tts_in_spring.builder.UserTestBuilder;
 import com.example.tts_in_spring.dto.category.CategoryRequest;
 import com.example.tts_in_spring.dto.category.CategoryResponse;
 import com.example.tts_in_spring.dto.category.CategoryResponseLite;
 import com.example.tts_in_spring.dto.tournament.TournamentResponseLite;
 import com.example.tts_in_spring.mapper.CategoryMapper;
 import com.example.tts_in_spring.model.Category;
-import com.example.tts_in_spring.model.Player;
 import com.example.tts_in_spring.model.Tournament;
 import com.example.tts_in_spring.model.User;
 import com.example.tts_in_spring.repository.CategoryRepository;
@@ -62,51 +64,13 @@ public class CategoryServiceTest {
         return tournament;
     }
 
-    private User buildUser(Long id) {
-        User user = new User();
-        user.setId(id);
-        return user;
-    }
-
-    private Category buildCategoryWithPlayer(User playerUser) {
-        Player player = new Player();
-        player.setUser(playerUser);
-
-        Category category = new Category();
-        category.setPlayers(List.of(player));
-
-        return category;
-    }
-
-    private Category buildCategoryWithHost(User host) {
-        Tournament tournament = new Tournament();
-        tournament.setHost(host);
-
-        Category category = new Category();
-        category.setTournament(tournament);
-
-        return category;
-    }
-
-    private Category buildCategory() {
-        Tournament tournament = new Tournament();
-        Category category = new Category();
-        category.setId(100L);
-        category.setTournament(tournament);
-        category.setName("Mens Singles");
-        category.setDoubles(false);
-        category.setLocked(false);
-
-        return category;
-    }
-
     private CategoryResponse buildCategoryResponse() {
         return new CategoryResponse(
                 100L,
                 "Mens Singles",
                 false,
                 false,
-                new TournamentResponseLite(10L, "Test Tournament", false),
+                new TournamentResponseLite(10L, "Test Tournament", "SIGN_UP", false),
                 null,
                 null
         );
@@ -123,7 +87,7 @@ public class CategoryServiceTest {
 
     @Test
     void getAllCategories_returnsMappedList() {
-        Category category = new Category();
+        Category category = CategoryTestBuilder.aCategory().build();
         CategoryResponse response = buildCategoryResponse();
 
         when(categoryRepository.findAll()).thenReturn(List.of(category));
@@ -134,39 +98,39 @@ public class CategoryServiceTest {
         assertThat(result).containsExactly(response);
     }
 
-    // In the tests below we create a scenario - a user tries to access this information, etc.
-    // Scenario: player from category
     @Test
     void getCategoryById_withPlayer_returnsMappedResponse() {
-        User currentUser = buildUser(2L);
+        User currentUser = UserTestBuilder.aUser().withId(2L).build();
         mockAuthenticatedUser(currentUser);
 
-        Category category = buildCategoryWithPlayer(currentUser);
+        User host = UserTestBuilder.aUser().build();
+        Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
+        Category category = CategoryTestBuilder.aCategory().withTournament(tournament).build();
         CategoryResponse response = buildCategoryResponse();
 
-        when(categoryRepository.findById(10L)).thenReturn(Optional.of(category));
+        when(categoryRepository.findById(100L)).thenReturn(Optional.of(category));
         when(categoryMapper.toResponse(category)).thenReturn(response);
 
-        Object result = categoryService.getCategoryById(10L);
+        Object result = categoryService.getCategoryById(100L);
 
         assertThat(result)
                 .isInstanceOf(CategoryResponse.class)
                 .isEqualTo(response);
     }
 
-    // Scenario: Host of tournament of category
     @Test
     void getCategoryById_withHost_returnsMappedResponse() {
-        User host = buildUser(2L);
+        User host = UserTestBuilder.aUser().build();
         mockAuthenticatedUser(host);
 
-        Category category = buildCategoryWithHost(host);
+        Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
+        Category category = CategoryTestBuilder.aCategory().withTournament(tournament).build();
         CategoryResponse response = buildCategoryResponse();
 
-        when(categoryRepository.findById(10L)).thenReturn(Optional.of(category));
+        when(categoryRepository.findById(100L)).thenReturn(Optional.of(category));
         when(categoryMapper.toResponse(category)).thenReturn(response);
 
-        Object result = categoryService.getCategoryById(10L);
+        Object result = categoryService.getCategoryById(100L);
 
         assertThat(result)
                 .isInstanceOf(CategoryResponse.class)
@@ -175,7 +139,7 @@ public class CategoryServiceTest {
 
     @Test
     void getCategoryById_whenNotFound_throws404() {
-        mockAuthenticatedUser(buildUser(1L));
+        mockAuthenticatedUser(UserTestBuilder.aUser().build());
 
         when(categoryRepository.findById(999L)).thenReturn(Optional.empty());
 
@@ -185,16 +149,16 @@ public class CategoryServiceTest {
                         assertThat(((ResponseStatusException) ex).getStatusCode())
                                 .isEqualTo(HttpStatus.NOT_FOUND)
                 );
-
     }
 
-    // Scenario: User not in category or host of tournament
     @Test
     void getCategoryById_whenNotAuthorised_throws403() {
-        User outsider = buildUser(3L);
+        User outsider = UserTestBuilder.aUser().withId(3L).build();
         mockAuthenticatedUser(outsider);
 
-        Category category = buildCategory();
+        User host = UserTestBuilder.aUser().build();
+        Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
+        Category category = CategoryTestBuilder.aCategory().withTournament(tournament).build();
 
         when(categoryRepository.findById(100L)).thenReturn(Optional.of(category));
 
@@ -210,7 +174,9 @@ public class CategoryServiceTest {
     void createCategory_savesAndReturnsMappedLite() {
         CategoryRequest request = buildCategoryRequest();
 
-        Category saved = new Category();
+        User host = UserTestBuilder.aUser().build();
+        Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
+        Category saved = CategoryTestBuilder.aCategory().withTournament(tournament).build();
         CategoryResponseLite lite = new CategoryResponseLite(
                 100L,
                 "Mens Singles",

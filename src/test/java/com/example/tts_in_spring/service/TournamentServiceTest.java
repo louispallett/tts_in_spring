@@ -1,5 +1,9 @@
 package com.example.tts_in_spring.service;
 
+import com.example.tts_in_spring.builder.CategoryTestBuilder;
+import com.example.tts_in_spring.builder.PlayerTestBuilder;
+import com.example.tts_in_spring.builder.TournamentTestBuilder;
+import com.example.tts_in_spring.builder.UserTestBuilder;
 import com.example.tts_in_spring.dto.tournament.TournamentRequest;
 import com.example.tts_in_spring.dto.tournament.TournamentResponse;
 import com.example.tts_in_spring.dto.tournament.TournamentResponseHost;
@@ -57,27 +61,13 @@ public class TournamentServiceTest {
         SecurityContextHolder.setContext(securityContext);
     }
 
-    private User buildUser(Long id) {
-        User user = new User();
-        user.setId(id);
-        return user;
-    }
+    private Tournament buildTournamentWithHostAndPlayers(User host, User playerUser) {
+        Player player = PlayerTestBuilder.aPlayer().withUser(playerUser).build();
 
-    private Tournament buildTournamentWithHost(User host) {
-        Tournament tournament = new Tournament();
-        tournament.setHost(host);
-        return tournament;
-    }
-
-    private Tournament buildTournamentWithHostAndPlayer(User host, User playerUser) {
-        Player player = new Player();
-        player.setUser(playerUser);
-
-        Category category = new Category();
+        Category category = CategoryTestBuilder.aCategory().build();
         category.setPlayers(List.of(player));
 
-        Tournament tournament = new Tournament();
-        tournament.setHost(host);
+        Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
         tournament.setCategories(List.of(category));
         return tournament;
     }
@@ -87,7 +77,7 @@ public class TournamentServiceTest {
                 10L,
                 "Test Tournament",
                 "SIGN_UP",
-                true,
+                false,
                 new UserResponseLite(1L, "John", "Doe"),
                 null
         );
@@ -99,7 +89,7 @@ public class TournamentServiceTest {
                 "Test Tournament",
                 "SIGN_UP",
                 "Test_secretcode",
-                true,
+                false,
                 new UserResponseLite(1L, "John", "Doe"),
                 null
         );
@@ -116,7 +106,7 @@ public class TournamentServiceTest {
 
     @Test
     void getAllTournaments_returnsMappedList() {
-        Tournament tournament = new Tournament();
+        Tournament tournament = TournamentTestBuilder.aTournament().build();
         TournamentResponse response = buildTournamentResponse();
 
         when(tournamentRepository.findAll()).thenReturn(List.of(tournament));
@@ -129,17 +119,17 @@ public class TournamentServiceTest {
 
     @Test
     void getTournamentById_whenPlayer_returnsMappedResponseWithoutCode() {
-        User host = buildUser(1L);
-        User currentUser = buildUser(2L);
+        User host = UserTestBuilder.aUser().build();
+        User currentUser = UserTestBuilder.aUser().withId(2L).build();
         mockAuthenticatedUser(currentUser);
 
-        Tournament tournament = buildTournamentWithHostAndPlayer(host, currentUser);
+        Tournament tournament = buildTournamentWithHostAndPlayers(host, currentUser);
         TournamentResponse response = buildTournamentResponse();
 
         when(tournamentRepository.findById(10L)).thenReturn(Optional.of(tournament));
         when(tournamentMapper.toResponse(tournament)).thenReturn(response);
 
-        Object result = tournamentService.getTournamentById(10L);
+        TournamentResponse result = tournamentService.getTournamentById(10L);
 
         assertThat(result)
                 .isInstanceOf(TournamentResponse.class)
@@ -149,27 +139,27 @@ public class TournamentServiceTest {
 
     @Test
     void getTournamentById_whenHost_returnsMappedResponseWithCode() {
-        User host = buildUser(1L);
+        User host = UserTestBuilder.aUser().build();
         mockAuthenticatedUser(host);
 
-        Tournament tournament = buildTournamentWithHost(host);
+        Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
         TournamentResponseHost responseHost = buildTournamentResponseHost();
 
         when(tournamentRepository.findById(10L)).thenReturn(Optional.of(tournament));
         when(tournamentMapper.toResponseHost(tournament)).thenReturn(responseHost);
 
-        Object result = tournamentService.getTournamentById(10L);
+        TournamentResponseHost result = tournamentService.getTournamentById(10L);
 
         assertThat(result)
                 .isInstanceOf(TournamentResponseHost.class)
                 .isEqualTo(responseHost);
 
-        assertThat(((TournamentResponseHost) result).code()).isEqualTo("Test_secretcode");
+        assertThat((result).code()).isEqualTo("Test_secretcode");
     }
 
     @Test
     void getTournamentById_whenNotFound_throws404() {
-        mockAuthenticatedUser(buildUser(1L));
+        mockAuthenticatedUser(UserTestBuilder.aUser().build());
 
         when(tournamentRepository.findById(99L)).thenReturn(Optional.empty());
 
@@ -183,11 +173,11 @@ public class TournamentServiceTest {
 
     @Test
     void getTournamentById_whenNotAuthorised_throws403() {
-        User host = buildUser(1L);
-        User outsider = buildUser(3L);
+        User host = UserTestBuilder.aUser().build();
+        User outsider = UserTestBuilder.aUser().withId(3L).build();
         mockAuthenticatedUser(outsider);
 
-        Tournament tournament = buildTournamentWithHost(host);
+        Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
 
         when(tournamentRepository.findById(10L)).thenReturn(Optional.of(tournament));
 
@@ -202,20 +192,136 @@ public class TournamentServiceTest {
     @Test
     void createTournament_savesAndReturnsMappedLite() {
         TournamentRequest request = buildTournamentRequest();
-        User currentUser = buildUser(1L);
+        User currentUser = UserTestBuilder.aUser().build();
         mockAuthenticatedUser(currentUser);
 
-        Tournament saved = new Tournament();
-        TournamentResponseLite lite = new TournamentResponseLite(
-               1L,
+        Tournament saved = TournamentTestBuilder.aTournament().build();
+        TournamentResponseHost responseHost = new TournamentResponseHost(
+               10L,
                "Test Tournament",
-                true
+                "SIGN_UP",
+                "1234567",
+                false,
+                new UserResponseLite(1L, "John", "Doe"),
+                List.of()
         );
 
         when(tournamentRepository.save(any(Tournament.class))).thenReturn(saved);
-        when(tournamentMapper.toResponseLite(saved)).thenReturn(lite);
+        when(tournamentMapper.toResponseHost(saved)).thenReturn(responseHost);
 
-        assertThat(tournamentService.createTournament(request)).isEqualTo(lite);
+        assertThat(tournamentService.createTournament(request)).isEqualTo(responseHost);
         verify(tournamentRepository).save(any(Tournament.class));
+    }
+
+    @Test
+    void updateTournamentName_whenHost_savesAndReturnsMappedLite() {
+        User host = UserTestBuilder.aUser().build();
+        mockAuthenticatedUser(host);
+
+        Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
+
+        TournamentRequest request = new TournamentRequest();
+        request.setName("New Tournament Name");
+
+        Tournament updatedTournament = TournamentTestBuilder.aTournament().withHost(host).build();
+        updatedTournament.setName("New Tournament Name");
+        TournamentResponseLite lite = new TournamentResponseLite(
+                10L,
+                "New Tournament Name",
+                "SIGN_UP",
+                false
+        );
+
+        when(tournamentRepository.findById(100L)).thenReturn(Optional.of(tournament));
+        when(tournamentRepository.save(any(Tournament.class))).thenReturn(updatedTournament);
+        when(tournamentMapper.toResponseLite(updatedTournament)).thenReturn(lite);
+
+        TournamentResponseLite result = tournamentService.updateName(10L, request);
+
+        assertThat(result).isEqualTo(lite);
+        assertThat(result.name()).isEqualTo("New Tournament Name");
+        verify(tournamentRepository).save(any(Tournament.class));
+    }
+
+    @Test
+    void updateTournamentName_whenNotHost_throws403() {
+        User user = UserTestBuilder.aUser().withId(2L).build();
+        mockAuthenticatedUser(user);
+
+        User host = UserTestBuilder.aUser().build();
+        Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
+
+        TournamentNameUpdateRequest request = new TournamentRequest();
+        request.setName("New Tournament Name");
+
+        Tournament updatedTournament = TournamentTestBuilder.aTournament().withHost(host).build();
+        updatedTournament.setName("New Tournament Name");
+
+        when(tournamentRepository.findById(100L)).thenReturn(Optional.of(tournament));
+
+        assertThatThrownBy(() -> tournamentService.updateName(10L, request))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex ->
+                        assertThat(((ResponseStatusException) ex).getStatusCode())
+                                .isEqualTo(HttpStatus.FORBIDDEN)
+                        );
+        verify(tournamentRepository, never()).save(any());
+        verifyNoInteractions(tournamentMapper);
+    }
+
+    @Test
+    void updateTournamentStage_whenHost_returnsMappedLite() {
+        User host = UserTestBuilder.aUser().build();
+        mockAuthenticatedUser(host);
+
+        Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
+
+        TournamentStageUpdateRequest updateRequest = new TournamentStageUpdateRequest();
+        updateRequest.setStage("DRAW");
+
+        Tournament updatedTournament = TournamentTestBuilder.aTournament().withHost(host).build();
+        updatedTournament.setStage("DRAW");
+        TournamentResponseLite lite = new TournamentResponseLite(
+                10L,
+                "New Tournament Name",
+                "DRAW",
+                false
+        );
+
+        when(tournamentRepository.findById(100L)).thenReturn(Optional.of(tournament));
+        when(tournamentRepository.save(any(Tournament.class))).thenReturn(updatedTournament);
+        when(tournamentMapper.toResponseLite(updatedTournament)).thenReturn(lite);
+
+        TournamentResponseLite result = tournamentService.updateStage(10L, updateRequest);
+
+        assertThat(result).isEqualTo(lite);
+        assertThat(result.stage()).isEqualTo("DRAW");
+        verify(tournamentRepository).save(any(Tournament.class));
+    }
+
+    @Test
+    void updateTournamentStage_whenNotHost_throws403() {
+        User user = UserTestBuilder.aUser().withId(3L).build();
+        mockAuthenticatedUser(user);
+
+        User host = UserTestBuilder.aUser().build();
+        Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
+
+        TournamentStageUpdateRequest updateRequest = new TournamentStageUpdateRequest();
+        updateRequest.setStage("DRAW");
+
+        Tournament updatedTournament = TournamentTestBuilder.aTournament().withHost(host).build();
+        updatedTournament.setStage("DRAW");
+
+        when(tournamentRepository.findById(100L)).thenReturn(Optional.of(tournament));
+
+        assertThatThrownBy(() -> tournamentService.updateStage(10L, request))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex ->
+                        assertThat(((ResponseStatusException) ex).getStatusCode())
+                                .isEqualTo(HttpStatus.FORBIDDEN)
+                );
+        verify(tournamentRepository, never()).save(any());
+        verifyNoInteractions(tournamentMapper);
     }
 }

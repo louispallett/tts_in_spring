@@ -78,7 +78,5 @@ public class CategoryMappingIntegrationTest {
 
         MatchResponseLite mapped = response.matches().getFirst();
         assertThat(mapped.id()).isEqualTo(100000L);
-
-
     }
 }

@@ -1,5 +1,6 @@
 package com.example.tts_in_spring.service;
 
+import com.example.tts_in_spring.builder.UserTestBuilder;
 import com.example.tts_in_spring.dto.auth.AuthResponse;
 import com.example.tts_in_spring.dto.auth.LoginRequest;
 import com.example.tts_in_spring.dto.user.UserRequest;
@@ -10,12 +11,16 @@ import com.example.tts_in_spring.mapper.UserMapper;
 import com.example.tts_in_spring.model.User;
 import com.example.tts_in_spring.repository.UserRepository;
 import com.example.tts_in_spring.security.JwtUtil;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -73,7 +78,7 @@ public class UserServiceTest {
 
     @Test
     void getAllUsers_returnsMappedList() {
-        User user = new User();
+        User user = UserTestBuilder.aUser().build();
         UserResponse response = buildUserResponse();
 
         when(userRepository.findAll()).thenReturn(List.of(user));
@@ -86,8 +91,7 @@ public class UserServiceTest {
 
     @Test
     void getUserById_whenFound_returnsMappedResponse() {
-        User user = new User();
-        user.setId(1L);
+        User user = UserTestBuilder.aUser().build();
         UserResponse response = buildUserResponse();
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
