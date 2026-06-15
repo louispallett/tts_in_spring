@@ -1,7 +1,7 @@
 package com.example.tts_in_spring.security;
 
-import com.example.tts_in_spring.model.User;
-import com.example.tts_in_spring.repository.UserRepository;
+import com.example.tts_in_spring.user.User;
+import com.example.tts_in_spring.user.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
