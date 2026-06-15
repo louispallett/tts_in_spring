@@ -1,6 +1,5 @@
 package com.example.tts_in_spring.match;
 
-import com.example.tts_in_spring.mapper.MatchMapperImpl;
 import com.example.tts_in_spring.participant.ParticipantMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

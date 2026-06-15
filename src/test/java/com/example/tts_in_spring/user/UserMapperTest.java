@@ -1,6 +1,5 @@
 package com.example.tts_in_spring.user;
 
-import com.example.tts_in_spring.mapper.UserMapperImpl;
 import com.example.tts_in_spring.tournament.TournamentMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,9 +1,13 @@
 package com.example.tts_in_spring.tournament;
 
+import com.example.tts_in_spring.category.CategoryMapperImpl;
 import com.example.tts_in_spring.category.CategoryTestBuilder;
-import com.example.tts_in_spring.mapper.*;
 import com.example.tts_in_spring.category.CategoryResponseLite;
 import com.example.tts_in_spring.category.Category;
+import com.example.tts_in_spring.match.MatchMapperImpl;
+import com.example.tts_in_spring.participant.ParticipantMapperImpl;
+import com.example.tts_in_spring.player.PlayerMapperImpl;
+import com.example.tts_in_spring.team.TeamMapperImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;

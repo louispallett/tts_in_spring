@@ -1,10 +1,9 @@
 package com.example.tts_in_spring.player;
 
-import com.example.tts_in_spring.mapper.MatchMapperImpl;
-import com.example.tts_in_spring.mapper.ParticipantMapperImpl;
-import com.example.tts_in_spring.mapper.PlayerMapperImpl;
-import com.example.tts_in_spring.mapper.TeamMapperImpl;
+import com.example.tts_in_spring.match.MatchMapperImpl;
+import com.example.tts_in_spring.participant.ParticipantMapperImpl;
 import com.example.tts_in_spring.participant.ParticipantTestBuilder;
+import com.example.tts_in_spring.team.TeamMapperImpl;
 import com.example.tts_in_spring.team.TeamTestBuilder;
 import com.example.tts_in_spring.participant.ParticipantResponseLite;
 import com.example.tts_in_spring.participant.Participant;
