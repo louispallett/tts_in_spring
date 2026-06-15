@@ -18,7 +18,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class Category extends Base {
-    @Column(nullable = false)
+    @Column(name = "name", nullable = false)
     private String name;
 
     @Column(name = "locked", nullable = false)
