@@ -1,5 +1,13 @@
 package com.example.tts_in_spring.user;
 
+/* UserTestBuilder
+For id values, use:
+- 1L (default) for host or standard user test without tournament
+- 2L for authorized user who is not host (if tournament present)
+- 3L for other/unauthorized user
+- 9L for non-existent user
+ */
+
 public class UserTestBuilder {
     private Long id = 1L;
     private String firstName = "John";
