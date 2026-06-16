@@ -39,11 +39,4 @@ public class TournamentMapperTest {
         assertThat(response.name()).isEqualTo("Test Tournament");
         assertThat(response.showMobile()).isFalse();
     }
-
-    @Test
-    void toResponseHost_mapsAllFields() {
-        TournamentResponseHost response = tournamentMapper.toResponseHost(TournamentTestBuilder.aTournament().build());
-
-        assertThat(response.code()).isEqualTo("1234567");
-    }
 }

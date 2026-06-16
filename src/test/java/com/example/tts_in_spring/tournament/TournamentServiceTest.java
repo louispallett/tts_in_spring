@@ -69,18 +69,7 @@ public class TournamentServiceTest {
                 10L,
                 "Test Tournament",
                 "SIGN_UP",
-                false,
-                new UserResponseLite(1L, "John", "Doe"),
-                null
-        );
-    }
-
-    private TournamentResponseHost buildTournamentResponseHost() {
-        return new TournamentResponseHost(
-                10L,
-                "Test Tournament",
-                "SIGN_UP",
-                "Test_secretcode",
+                "1234567",
                 false,
                 new UserResponseLite(1L, "John", "Doe"),
                 null
@@ -110,7 +99,7 @@ public class TournamentServiceTest {
     }
 
     @Test
-    void getTournamentById_whenPlayer_returnsMappedResponseWithoutCode() {
+    void getTournamentById_whenPlayer_returnsMappedResponse() {
         User host = UserTestBuilder.aUser().build();
         User currentUser = UserTestBuilder.aUser().withId(2L).build();
         mockAuthenticatedUser(currentUser);
@@ -125,28 +114,27 @@ public class TournamentServiceTest {
 
         assertThat(result)
                 .isInstanceOf(TournamentResponse.class)
-                .isNotInstanceOf(TournamentResponseHost.class)
+                .isNotInstanceOf(TournamentResponse.class)
                 .isEqualTo(response);
     }
 
     @Test
-    void getTournamentById_whenHost_returnsMappedResponseWithCode() {
+    void getTournamentById_whenHost_returnsMappedResponse() {
         User host = UserTestBuilder.aUser().build();
         mockAuthenticatedUser(host);
 
         Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
-        TournamentResponseHost responseHost = buildTournamentResponseHost();
+        TournamentResponse response = buildTournamentResponse();
 
         when(tournamentRepository.findById(10L)).thenReturn(Optional.of(tournament));
-        when(tournamentMapper.toResponseHost(tournament)).thenReturn(responseHost);
+        when(tournamentMapper.toResponse(tournament)).thenReturn(response);
 
-        TournamentResponseHost result = tournamentService.getTournamentById(10L);
+        TournamentResponse result = tournamentService.getTournamentById(10L);
 
         assertThat(result)
-                .isInstanceOf(TournamentResponseHost.class)
-                .isEqualTo(responseHost);
-
-        assertThat((result).code()).isEqualTo("Test_secretcode");
+                .isInstanceOf(TournamentResponse.class)
+                .isNotInstanceOf(TournamentResponse.class)
+                .isEqualTo(response);
     }
 
     @Test
@@ -188,21 +176,22 @@ public class TournamentServiceTest {
         mockAuthenticatedUser(currentUser);
 
         Tournament saved = TournamentTestBuilder.aTournament().build();
-        TournamentResponseHost responseHost = new TournamentResponseHost(
+        TournamentResponseLite response = new TournamentResponseLite(
                10L,
                "Test Tournament",
                 "SIGN_UP",
-                "1234567",
-                false,
-                new UserResponseLite(1L, "John", "Doe"),
-                List.of()
+                false
         );
 
         when(tournamentRepository.save(any(Tournament.class))).thenReturn(saved);
-        when(tournamentMapper.toResponseHost(saved)).thenReturn(responseHost);
+        when(tournamentMapper.toResponseLite(saved)).thenReturn(response);
 
-        assertThat(tournamentService.createTournament(request)).isEqualTo(responseHost);
-        verify(tournamentRepository).save(any(Tournament.class));
+        assertThat(tournamentService.createTournament(request)).isEqualTo(response);
+
+        ArgumentCaptor<Tournament> captor = ArgumentCaptor.forClass(Tournament.class);
+        verify(tournamentRepository).save(captor.capture());
+        assertThat(captor.getValue().getHost()).isEqualTo(currentUser);
+        assertThat(captor.getValue().getName()).isEqualTo("Test Tournament");
     }
 
     @Test

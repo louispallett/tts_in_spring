@@ -25,8 +25,7 @@ public class TournamentService {
                 .toList();
     }
 
-    // FIXME: Authenticate only tournament players
-    // FIXME: Show code to only host
+    // FIXME: Authenticate only tournament players and host
     public TournamentResponse getTournamentById(Long id) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) auth.getPrincipal();
@@ -36,7 +35,7 @@ public class TournamentService {
         return tournamentMapper.toResponse(tournament);
     }
 
-    public TournamentResponseHost createTournament(TournamentRequest tournamentRequest) {
+    public TournamentResponseLite createTournament(TournamentRequest tournamentRequest) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) auth.getPrincipal();
 
@@ -50,6 +49,6 @@ public class TournamentService {
         validatedTournament.setShowMobile(tournamentRequest.isShowMobile());
 
         Tournament savedTournament = tournamentRepository.save(validatedTournament);
-        return tournamentMapper.toResponseHost(savedTournament);
+        return tournamentMapper.toResponseLite(savedTournament);
     }
 }

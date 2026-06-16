@@ -9,6 +9,7 @@ public record TournamentResponse (
     Long id,
     String name,
     String stage,
+    String code,
     Boolean showMobile,
     UserResponseLite host,
     List<CategoryResponseLite> categories

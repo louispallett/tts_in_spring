@@ -8,6 +8,4 @@ public interface TournamentMapper {
     TournamentResponse toResponse(Tournament tournament);
 
     TournamentResponseLite toResponseLite(Tournament tournament);
-
-    TournamentResponseHost toResponseHost(Tournament tournament);
 }
