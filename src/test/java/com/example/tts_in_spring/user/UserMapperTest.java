@@ -39,4 +39,51 @@ class UserMapperTest {
         assertThat(lite.firstName()).isEqualTo("John");
         assertThat(lite.lastName()).isEqualTo("Doe");
     }
+
+    @Test
+    void toEntity_mapsAllowedFieldsOnly() {
+        UserRequest request = new UserRequest();
+        request.setFirstName("John");
+        request.setLastName("Doe");
+        request.setEmail("john.doe@example.com");
+        request.setPassword("Hello123!");
+        request.setMobCode("+44");
+        request.setMobile("1234567890");
+
+        User user = userMapper.toEntity(request);
+
+        assertThat(user).isNotNull();
+
+        assertThat(user.getFirstName()).isEqualTo("John");
+        assertThat(user.getLastName()).isEqualTo("Doe");
+        assertThat(user.getMobCode()).isEqualTo("+44");
+        assertThat(user.getMobile()).isEqualTo("1234567890");
+
+        assertThat(user.getId()).isNull();
+        assertThat(user.getEmail()).isNull();
+        assertThat(user.getPassword()).isNull();
+    }
+
+    @Test
+    void updateEntity_updatesAllowedFieldsOnly() {
+        User user = UserTestBuilder.aUser().build();
+
+        UserUpdateRequest request = new UserUpdateRequest();
+        request.setFirstName("Simon");
+        request.setLastName("Smith");
+        request.setEmail("simon.smith@example.com");
+        request.setMobCode("+1");
+        request.setMobile("987654321");
+
+        userMapper.updateEntity(request, user);
+
+        assertThat(user.getFirstName()).isEqualTo("Simon");
+        assertThat(user.getLastName()).isEqualTo("Smith");
+        assertThat(user.getEmail()).isEqualTo("simon.smith@example.com");
+        assertThat(user.getMobCode()).isEqualTo("+1");
+        assertThat(user.getMobile()).isEqualTo("987654321");
+
+        assertThat(user.getId()).isEqualTo(1L);
+        assertThat(user.getPassword()).isEqualTo("Hello123!");
+    }
 }
