@@ -16,6 +16,11 @@ public class CategoryService {
     @Autowired
     private CategoryMapper categoryMapper;
 
+    private Category getCategoryOrThrow(Long id) {
+        return categoryRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found"));
+    }
+
     public List<CategoryResponse> getAllCategories() {
         return categoryRepository.findAll()
                 .stream()
@@ -23,22 +28,44 @@ public class CategoryService {
                 .toList();
     }
 
-    public CategoryResponse getCategoryById(Long id) {
-        Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found"));
-        return categoryMapper.toResponse(category);
+    public CategoryResponse getCategoryById(Long id, Long userId) {
+        Category category = getCategoryOrThrow(id);
+
+        if (userId.equals(category.getTournament().getHost().getId())) return categoryMapper.toResponse(category);
+
+        boolean isPlayer = category.getPlayers().stream()
+                .anyMatch(player -> player.getUser().getId().equals(userId));
+
+        if (isPlayer) return categoryMapper.toResponse(category);
+
+        throw(new ResponseStatusException(HttpStatus.FORBIDDEN));
     }
 
-    public CategoryResponseLite createCategory(CategoryRequest categoryRequest) {
-        Category validatedCategory = new Category();
-        validatedCategory.setName(categoryRequest.getName());
-        validatedCategory.setLocked(false);
-        validatedCategory.setTournament(categoryRequest.getTournament());
+    public CategoryResponseLite createCategory(CategoryRequest categoryRequest, Long userId) {
+        if (categoryRequest.getTournament().getHost().getId().equals(userId)) {
+            Category category = categoryMapper.toEntity(categoryRequest);
+            category.setLocked(false);
 
-        validatedCategory.setDoubles(!Objects.equals(categoryRequest.getName(), "Mens Singles")
-                && !Objects.equals(categoryRequest.getName(), "Womens Singles"));
+            category.setDoubles(!Objects.equals(categoryRequest.getName(), "Men's Singles")
+                    && !Objects.equals(categoryRequest.getName(), "Women's Singles"));
 
-        Category savedCategory = categoryRepository.save(validatedCategory);
-        return categoryMapper.toResponseLite(savedCategory);
+            Category savedCategory = categoryRepository.save(category);
+            return categoryMapper.toResponseLite(savedCategory);
+        }
+
+        throw(new ResponseStatusException(HttpStatus.FORBIDDEN));
+    }
+
+    public CategoryResponseLite updateLocked(Long id, CategoryLockedUpdateRequest request, Long userId) {
+        Category category = getCategoryOrThrow(id);
+
+        if (userId.equals(category.getTournament().getHost().getId())) {
+            categoryMapper.updateLockedEntity(request, category);
+
+            Category savedCategory = categoryRepository.save(category);
+            return categoryMapper.toResponseLite(savedCategory);
+        }
+
+        throw(new ResponseStatusException(HttpStatus.FORBIDDEN));
     }
 }
