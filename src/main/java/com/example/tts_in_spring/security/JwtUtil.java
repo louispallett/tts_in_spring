@@ -23,22 +23,26 @@ public class JwtUtil {
         this.expiration = expiration;
     }
 
-    public String generateToken(String email) {
+    public String generateToken(Long userId) {
         return Jwts.builder()
-                .setSubject(email)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .subject(String.valueOf(userId))
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public String extractEmail(String token) {
-        return getClaims(token).getSubject();
+    public Long extractUserId(String token) {
+        return Long.valueOf(getClaims(token).getSubject());
     }
 
-    public boolean validateToken(String token, String email) {
-        String extractedEmail = extractEmail(token);
-        return (email.equals(extractedEmail) && !isTokenExpired(token));
+    public boolean validateToken(String token) {
+        try {
+            getClaims(token);
+            return !isTokenExpired(token);
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public boolean isTokenExpired(String token) {
@@ -49,7 +53,7 @@ public class JwtUtil {
         return Jwts.parser()
                 .setSigningKey(key)
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
+                .parseSignedClaims(token)
+                .getPayload();
     }
 }

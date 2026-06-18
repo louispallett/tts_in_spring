@@ -95,7 +95,7 @@ public class UserServiceTest {
         User user = UserTestBuilder.aUser().build();
         UserResponse response = buildUserResponse();
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         when(userMapper.toResponse(user)).thenReturn(response);
 
         assertThat(userService.getUserById(1L)).isEqualTo(response);
@@ -184,9 +184,9 @@ public class UserServiceTest {
 
     @Test
     void updateUserDetails_whenNotFound_throws404() {
-        when(userRepository.findById(1L)).thenReturn(Optional.empty());
+        when(userRepository.findById(9L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> userService.updateDetails(1L, new UserUpdateRequest()))
+        assertThatThrownBy(() -> userService.updateDetails(9L, new UserUpdateRequest()))
                 .isInstanceOf(ResponseStatusException.class)
                 .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
                         .isEqualTo(HttpStatus.NOT_FOUND));
@@ -209,7 +209,7 @@ public class UserServiceTest {
         when(userRepository.save(any(User.class))).thenReturn(user);
         when(userMapper.toResponseLite(user)).thenReturn(lite);
 
-        assertThat(userService.updatePassword(1L, request)).isEqualTo(lite);
+        assertThat(userService.updatePassword(user.getId(), request)).isEqualTo(lite);
 
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(captor.capture());
@@ -228,7 +228,7 @@ public class UserServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("WrongPassword!", "hashed_old_password")).thenReturn(false);
 
-        assertThatThrownBy(() -> userService.updatePassword(1L, request))
+        assertThatThrownBy(() -> userService.updatePassword(user.getId(), request))
                 .isInstanceOf(ResponseStatusException.class)
                 .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
                         .isEqualTo(HttpStatus.BAD_REQUEST));
@@ -257,17 +257,18 @@ public class UserServiceTest {
         request.setEmail("john.doe@example.com");
         request.setPassword("Hello123!");
         User user = new User();
+        user.setId(1L);
         user.setEmail("john.doe@example.com");
         user.setPassword("hashed_password");
         AuthResponse authResponse = new AuthResponse("asbcsdefsg");
 
         when(userRepository.findByEmail("john.doe@example.com")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("Hello123!", "hashed_password")).thenReturn(true);
-        when(jwtUtil.generateToken("john.doe@example.com")).thenReturn("jwt-token");
+        when(jwtUtil.generateToken(user.getId())).thenReturn("jwt-token");
         when(authMapper.toResponse("jwt-token")).thenReturn(authResponse);
 
         assertThat(userService.login(request)).isEqualTo(authResponse);
-        verify(jwtUtil).generateToken("john.doe@example.com");
+        verify(jwtUtil).generateToken(user.getId());
     }
 
     @Test
