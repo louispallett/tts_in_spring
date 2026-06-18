@@ -1,12 +1,14 @@
 package com.example.tts_in_spring.user;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class UserRequest {
+public class UserUpdateRequest {
     @NotBlank(message = "First name is required")
     private String firstName;
 
@@ -16,19 +18,6 @@ public class UserRequest {
     @NotBlank(message = "Email is required")
     @Email(message = "Email must be valid")
     private String email;
-
-    // Regex:
-    // - (?=.*[a-z]) --> At least one lowercase
-    // - (?=.*[A-Z]) --> At least one uppercase
-    // - (?=.*\\d) --> At least one number/digit
-    // - (?=.*[!@#$%^&*...]) --> At least one special character
-    // - .{8,} --> At least 8 characters total
-    @NotBlank(message = "Password is required")
-    @Pattern(
-            regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]).{8,}$",
-            message = "Password must be at least 8 characters and contain one uppercase letter, one lowercase letter, one number, and one special character"
-    )
-    private String password;
 
     @NotBlank(message = "Mobile country code is required")
     @Pattern(regexp = "\\+\\d{1,4}", message = "Mobile code must be in the format +XX or +XXX")
