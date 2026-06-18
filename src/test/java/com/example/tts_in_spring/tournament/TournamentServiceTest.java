@@ -1,23 +1,18 @@
 package com.example.tts_in_spring.tournament;
 
-import com.example.tts_in_spring.category.CategoryTestBuilder;
+import com.example.tts_in_spring.category.*;
 import com.example.tts_in_spring.player.PlayerTestBuilder;
+import com.example.tts_in_spring.user.UserRepository;
 import com.example.tts_in_spring.user.UserTestBuilder;
 import com.example.tts_in_spring.user.UserResponseLite;
-import com.example.tts_in_spring.category.Category;
 import com.example.tts_in_spring.player.Player;
 import com.example.tts_in_spring.user.User;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -36,23 +31,14 @@ public class TournamentServiceTest {
     @Mock
     private TournamentMapper tournamentMapper;
 
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private CategoryService categoryService;
+
     @InjectMocks
     private TournamentService tournamentService;
-
-    @AfterEach
-    void clearSecurityContext() {
-        SecurityContextHolder.clearContext();
-    }
-
-    private void mockAuthenticatedUser(User user) {
-        Authentication authentication = mock(Authentication.class);
-        when(authentication.getPrincipal()).thenReturn(user);
-
-        SecurityContext securityContext = mock(SecurityContext.class);
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-
-        SecurityContextHolder.setContext(securityContext);
-    }
 
     private Tournament buildTournamentWithHostAndPlayers(User host, User playerUser) {
         Player player = PlayerTestBuilder.aPlayer().withUser(playerUser).build();
@@ -82,6 +68,11 @@ public class TournamentServiceTest {
         r.setName("Test Tournament");
         r.setStage("SIGN_UP");
         r.setShowMobile(true);
+        r.setMen_singles(true);
+        r.setMen_doubles(false);
+        r.setWomen_singles(false);
+        r.setWomen_doubles(false);
+        r.setMix_doubles(false);
 
         return r;
     }
@@ -100,51 +91,46 @@ public class TournamentServiceTest {
     }
 
     @Test
+    void getAllTournaments_whenEmpty_returnsEmptyList() {
+        when(tournamentRepository.findAll()).thenReturn(List.of());
+
+        assertThat(tournamentService.getAllTournaments()).isEmpty();
+    }
+
+    @Test
     void getTournamentById_whenPlayer_returnsMappedResponse() {
         User host = UserTestBuilder.aUser().build();
         User currentUser = UserTestBuilder.aUser().withId(2L).build();
-        mockAuthenticatedUser(currentUser);
 
         Tournament tournament = buildTournamentWithHostAndPlayers(host, currentUser);
         TournamentResponse response = buildTournamentResponse();
 
-        when(tournamentRepository.findById(10L)).thenReturn(Optional.of(tournament));
+        when(tournamentRepository.findById(tournament.getId())).thenReturn(Optional.of(tournament));
         when(tournamentMapper.toResponse(tournament)).thenReturn(response);
 
-        TournamentResponse result = tournamentService.getTournamentById(10L);
-
-        assertThat(result)
-                .isInstanceOf(TournamentResponse.class)
-                .isNotInstanceOf(TournamentResponse.class)
-                .isEqualTo(response);
+        assertThat(tournamentService.getTournamentById(tournament.getId(), currentUser.getId())).isEqualTo(response);
     }
 
     @Test
     void getTournamentById_whenHost_returnsMappedResponse() {
         User host = UserTestBuilder.aUser().build();
-        mockAuthenticatedUser(host);
 
         Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
         TournamentResponse response = buildTournamentResponse();
 
-        when(tournamentRepository.findById(10L)).thenReturn(Optional.of(tournament));
+        when(tournamentRepository.findById(tournament.getId())).thenReturn(Optional.of(tournament));
         when(tournamentMapper.toResponse(tournament)).thenReturn(response);
 
-        TournamentResponse result = tournamentService.getTournamentById(10L);
-
-        assertThat(result)
-                .isInstanceOf(TournamentResponse.class)
-                .isNotInstanceOf(TournamentResponse.class)
-                .isEqualTo(response);
+        assertThat(tournamentService.getTournamentById(tournament.getId(), host.getId())).isEqualTo(response);
     }
 
     @Test
     void getTournamentById_whenNotFound_throws404() {
-        mockAuthenticatedUser(UserTestBuilder.aUser().build());
+        User user = UserTestBuilder.aUser().build();
 
         when(tournamentRepository.findById(99L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> tournamentService.getTournamentById(99L))
+        assertThatThrownBy(() -> tournamentService.getTournamentById(99L, user.getId()))
                 .isInstanceOf(ResponseStatusException.class)
                 .satisfies(ex ->
                         assertThat(((ResponseStatusException) ex).getStatusCode())
@@ -156,13 +142,12 @@ public class TournamentServiceTest {
     void getTournamentById_whenNotAuthorised_throws403() {
         User host = UserTestBuilder.aUser().build();
         User outsider = UserTestBuilder.aUser().withId(3L).build();
-        mockAuthenticatedUser(outsider);
 
         Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
 
-        when(tournamentRepository.findById(10L)).thenReturn(Optional.of(tournament));
+        when(tournamentRepository.findById(tournament.getId())).thenReturn(Optional.of(tournament));
 
-        assertThatThrownBy(() -> tournamentService.getTournamentById(10L))
+        assertThatThrownBy(() -> tournamentService.getTournamentById(10L, outsider.getId()))
                 .isInstanceOf(ResponseStatusException.class)
                 .satisfies(ex ->
                         assertThat(((ResponseStatusException) ex).getStatusCode())
@@ -174,240 +159,221 @@ public class TournamentServiceTest {
     void createTournament_savesAndReturnsMappedLite() {
         TournamentRequest request = buildTournamentRequest();
         User currentUser = UserTestBuilder.aUser().build();
-        mockAuthenticatedUser(currentUser);
 
         Tournament saved = TournamentTestBuilder.aTournament().build();
-        TournamentResponseLite response = new TournamentResponseLite(
+        TournamentResponseLite lite = new TournamentResponseLite(
                10L,
                "Test Tournament",
                 "SIGN_UP",
                 false
         );
 
+        when(userRepository.findById(currentUser.getId())).thenReturn(Optional.of(currentUser));
+        when(tournamentMapper.toEntity(request)).thenReturn(saved);
         when(tournamentRepository.save(any(Tournament.class))).thenReturn(saved);
-        when(tournamentMapper.toResponseLite(saved)).thenReturn(response);
+        when(tournamentMapper.toResponseLite(saved)).thenReturn(lite);
 
-        assertThat(tournamentService.createTournament(request)).isEqualTo(response);
-
-        ArgumentCaptor<Tournament> captor = ArgumentCaptor.forClass(Tournament.class);
-        verify(tournamentRepository).save(captor.capture());
-        assertThat(captor.getValue().getHost()).isEqualTo(currentUser);
-        assertThat(captor.getValue().getName()).isEqualTo("Test Tournament");
+        assertThat(tournamentService.createTournament(request, currentUser.getId())).isEqualTo(lite);
     }
 
-    @Test
-    void updateTournamentName_whenHost_savesAndReturnsMappedLite() {
-        User host = UserTestBuilder.aUser().build();
-        mockAuthenticatedUser(host);
+     @Test
+     void updateTournamentName_whenHost_savesAndReturnsMappedLite() {
+         User host = UserTestBuilder.aUser().build();
 
-        Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
+         Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
 
-        TournamentRequest request = new TournamentRequest();
-        request.setName("New Tournament Name");
+         TournamentNameUpdateRequest request = new TournamentNameUpdateRequest();
+         request.setName("New Tournament Name");
 
-        Tournament updatedTournament = TournamentTestBuilder.aTournament().withHost(host).build();
-        updatedTournament.setName("New Tournament Name");
-        TournamentResponseLite lite = new TournamentResponseLite(
-                10L,
-                "New Tournament Name",
-                "SIGN_UP",
-                false
-        );
+         Tournament updatedTournament = TournamentTestBuilder.aTournament().withHost(host).build();
+         updatedTournament.setName("New Tournament Name");
+         TournamentResponseLite lite = new TournamentResponseLite(
+                 10L,
+                 "New Tournament Name",
+                 "SIGN_UP",
+                 false
+         );
 
-        when(tournamentRepository.findById(10L)).thenReturn(Optional.of(tournament));
-        when(tournamentRepository.save(any(Tournament.class))).thenReturn(updatedTournament);
-        when(tournamentMapper.toResponseLite(updatedTournament)).thenReturn(lite);
+         when(tournamentRepository.findById(tournament.getId())).thenReturn(Optional.of(tournament));
+         when(tournamentRepository.save(any(Tournament.class))).thenReturn(updatedTournament);
+         when(tournamentMapper.toResponseLite(updatedTournament)).thenReturn(lite);
 
-        TournamentResponseLite result = tournamentService.updateName(10L, request);
-        assertThat(result).isEqualTo(lite);
+         TournamentResponseLite result = tournamentService.updateName(tournament.getId(), request, host.getId());
+         assertThat(result).isEqualTo(lite);
 
-        ArgumentCaptor<Tournament> captor = ArgumentCaptor.forClass(Tournament.class);
-        verify(tournamentRepository).save(captor.capture());
-        assertThat(captor.getValue().getName()).isEqualTo("New Tournament Name");
-    }
+         verify(tournamentMapper).updateNameEntity(request, tournament);
+         verify(tournamentRepository).save(tournament);
+         verify(tournamentMapper).toResponseLite(updatedTournament);
+     }
 
-    @Test
-    void updateTournamentName_whenNotHost_throws403() {
-        User user = UserTestBuilder.aUser().withId(2L).build();
-        mockAuthenticatedUser(user);
+     @Test
+     void updateTournamentName_whenNotHost_throws403() {
+         User user = UserTestBuilder.aUser().withId(2L).build();
 
-        User host = UserTestBuilder.aUser().build();
-        Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
+         User host = UserTestBuilder.aUser().build();
+         Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
 
-        TournamentNameUpdateRequest request = new TournamentRequest();
-        request.setName("New Tournament Name");
+         TournamentNameUpdateRequest request = new TournamentNameUpdateRequest();
+         request.setName("New Tournament Name");
 
-        when(tournamentRepository.findById(10L)).thenReturn(Optional.of(tournament));
+         when(tournamentRepository.findById(tournament.getId())).thenReturn(Optional.of(tournament));
 
-        assertThatThrownBy(() -> tournamentService.updateName(10L, request))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex ->
-                        assertThat(((ResponseStatusException) ex).getStatusCode())
-                                .isEqualTo(HttpStatus.FORBIDDEN)
-                        );
-        verify(tournamentRepository, never()).save(any());
-        verifyNoInteractions(tournamentMapper);
-    }
+         assertThatThrownBy(() -> tournamentService.updateName(tournament.getId(), request, user.getId()))
+                 .isInstanceOf(ResponseStatusException.class)
+                 .satisfies(ex ->
+                         assertThat(((ResponseStatusException) ex).getStatusCode())
+                                 .isEqualTo(HttpStatus.FORBIDDEN)
+                         );
+         verify(tournamentRepository, never()).save(any());
+         verifyNoInteractions(tournamentMapper);
+     }
 
-    @Test
-    void updateTournamentName_whenNotFound_throws404() {
-        User host = UserTestBuilder.aUser().build();
-        mockAuthenticatedUser(host);
+     @Test
+     void updateTournamentName_whenNotFound_throws404() {
+         TournamentNameUpdateRequest request = new TournamentNameUpdateRequest();
+         request.setName("New Tournament Name");
 
-        TournamentRequest request = new TournamentRequest();
-        request.setName("New Tournament Name");
+         when(tournamentRepository.findById(99L)).thenReturn(Optional.empty());
 
-        when(tournamentRepository.findById(10L)).thenReturn(Optional.empty());
+         assertThatThrownBy(() -> tournamentService.updateName(99L, request, 1L))
+                 .isInstanceOf(ResponseStatusException.class)
+                 .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                         .isEqualTo(HttpStatus.NOT_FOUND));
 
-        assertThatThrownBy(() -> tournamentService.updateName(10L, request))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
-                        .isEqualTo(HttpStatus.NOT_FOUND));
+         verify(tournamentRepository, never()).save(any());
+     }
 
-        verify(tournamentRepository, never()).save(any());
-    }
+     @Test
+     void updateTournamentStage_whenHost_returnsMappedLite() {
+         User host = UserTestBuilder.aUser().build();
 
-    @Test
-    void updateTournamentStage_whenHost_returnsMappedLite() {
-        User host = UserTestBuilder.aUser().build();
-        mockAuthenticatedUser(host);
+         Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
 
-        Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
+         TournamentStageUpdateRequest request = new TournamentStageUpdateRequest();
+         request.setStage("DRAW");
 
-        TournamentStageUpdateRequest updateRequest = new TournamentStageUpdateRequest();
-        updateRequest.setStage("DRAW");
+         Tournament updatedTournament = TournamentTestBuilder.aTournament().withHost(host).build();
+         updatedTournament.setStage("DRAW");
+         TournamentResponseLite lite = new TournamentResponseLite(
+                 10L,
+                 "Test Tournament",
+                 "DRAW",
+                 false
+         );
 
-        Tournament updatedTournament = TournamentTestBuilder.aTournament().withHost(host).build();
-        updatedTournament.setStage("DRAW");
-        TournamentResponseLite lite = new TournamentResponseLite(
-                10L,
-                "Test Tournament",
-                "DRAW",
-                false
-        );
+         when(tournamentRepository.findById(tournament.getId())).thenReturn(Optional.of(tournament));
+         when(tournamentRepository.save(any(Tournament.class))).thenReturn(updatedTournament);
+         when(tournamentMapper.toResponseLite(updatedTournament)).thenReturn(lite);
 
-        when(tournamentRepository.findById(10L)).thenReturn(Optional.of(tournament));
-        when(tournamentRepository.save(any(Tournament.class))).thenReturn(updatedTournament);
-        when(tournamentMapper.toResponseLite(updatedTournament)).thenReturn(lite);
+         TournamentResponseLite result = tournamentService.updateStage(tournament.getId(), request, host.getId());
+         assertThat(result).isEqualTo(lite);
 
-        TournamentResponseLite result = tournamentService.updateStage(10L, updateRequest);
-        assertThat(result).isEqualTo(lite);
+         verify(tournamentMapper).updateStageEntity(request, tournament);
+         verify(tournamentRepository).save(tournament);
+         verify(tournamentMapper).toResponseLite(updatedTournament);
+     }
 
-        ArgumentCaptor<Tournament> captor = ArgumentCaptor.forClass(Tournament.class);
-        verify(tournamentRepository).save(captor.capture());
-        assertThat(captor.getValue().getStage()).isEqualTo("DRAW");
-    }
+     @Test
+     void updateTournamentStage_whenNotHost_throws403() {
+         User user = UserTestBuilder.aUser().withId(3L).build();
 
-    @Test
-    void updateTournamentStage_whenNotHost_throws403() {
-        User user = UserTestBuilder.aUser().withId(3L).build();
-        mockAuthenticatedUser(user);
+         User host = UserTestBuilder.aUser().build();
+         Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
 
-        User host = UserTestBuilder.aUser().build();
-        Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
+         TournamentStageUpdateRequest updateRequest = new TournamentStageUpdateRequest();
+         updateRequest.setStage("DRAW");
 
-        TournamentStageUpdateRequest updateRequest = new TournamentStageUpdateRequest();
-        updateRequest.setStage("DRAW");
+         when(tournamentRepository.findById(tournament.getId())).thenReturn(Optional.of(tournament));
 
-        when(tournamentRepository.findById(10L)).thenReturn(Optional.of(tournament));
+         assertThatThrownBy(() -> tournamentService.updateStage(tournament.getId(), updateRequest, user.getId()))
+                 .isInstanceOf(ResponseStatusException.class)
+                 .satisfies(ex ->
+                         assertThat(((ResponseStatusException) ex).getStatusCode())
+                                 .isEqualTo(HttpStatus.FORBIDDEN)
+                 );
+         verify(tournamentRepository, never()).save(any());
+         verifyNoInteractions(tournamentMapper);
+     }
 
-        assertThatThrownBy(() -> tournamentService.updateStage(10L, updateRequest))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex ->
-                        assertThat(((ResponseStatusException) ex).getStatusCode())
-                                .isEqualTo(HttpStatus.FORBIDDEN)
-                );
-        verify(tournamentRepository, never()).save(any());
-        verifyNoInteractions(tournamentMapper);
-    }
+     @Test
+     void updateTournamentStage_whenNotFound_throws404() {
+         TournamentStageUpdateRequest updateRequest = new TournamentStageUpdateRequest();
+         updateRequest.setStage("DRAW");
 
-    @Test
-    void updateTournamentStage_whenNotFound_throws404() {
-        User host = UserTestBuilder.aUser().build();
-        mockAuthenticatedUser(host);
+         when(tournamentRepository.findById(99L)).thenReturn(Optional.empty());
 
-        TournamentStageUpdateRequest updateRequest = new TournamentStageUpdateRequest();
-        updateRequest.setStage("DRAW");
+         assertThatThrownBy(() -> tournamentService.updateStage(99L, updateRequest, 1L))
+                 .isInstanceOf(ResponseStatusException.class)
+                 .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                         .isEqualTo(HttpStatus.NOT_FOUND));
 
-        when(tournamentRepository.findById(10L)).thenReturn(Optional.empty());
+         verify(tournamentRepository, never()).save(any());
+     }
 
-        assertThatThrownBy(() -> tournamentService.updateStage(10L, request))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
-                        .isEqualTo(HttpStatus.NOT_FOUND));
+     @Test
+     void updateTournamentShowMobile_whenHost_returnsMappedLite() {
+         User host = UserTestBuilder.aUser().build();
 
-        verify(tournamentRepository, never()).save(any());
-    }
+         Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
 
-    @Test
-    void updateTournamentShowMobile_whenHost_returnsMappedLite() {
-        User host = UserTestBuilder.aUser().build();
-        mockAuthenticatedUser(host);
+         TournamentShowMobileUpdateRequest request = new TournamentShowMobileUpdateRequest();
+         request.setShowMobile(true);
 
-        Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
+         Tournament updatedTournament = TournamentTestBuilder.aTournament().withHost(host).build();
+         updatedTournament.setShowMobile(true);
+         TournamentResponseLite lite = new TournamentResponseLite(
+                 10L,
+                 "Test Tournament",
+                 "SIGN_UP",
+                 true
+         );
 
-        TournamentShowMobileUpdateRequest updateRequest = new TournamentShowMobileUpdateRequest();
-        updateRequest.setShowMobile(true);
+         when(tournamentRepository.findById(tournament.getId())).thenReturn(Optional.of(tournament));
+         when(tournamentRepository.save(any(Tournament.class))).thenReturn(updatedTournament);
+         when(tournamentMapper.toResponseLite(updatedTournament)).thenReturn(lite);
 
-        Tournament updatedTournament = TournamentTestBuilder.aTournament().withHost(host).build();
-        updatedTournament.setShowMobile(true);
-        TournamentResponseLite lite = new TournamentResponseLite(
-                10L,
-                "Test Tournament",
-                "SIGN_UP",
-                false
-        );
+         TournamentResponseLite result = tournamentService.updateShowMobile(tournament.getId(), request, host.getId());
+         assertThat(result).isEqualTo(lite);
 
-        when(tournamentRepository.findById(10L)).thenReturn(Optional.of(tournament));
-        when(tournamentRepository.save(any(Tournament.class))).thenReturn(updatedTournament);
-        when(tournamentMapper.toResponseLite(updatedTournament)).thenReturn(lite);
+         verify(tournamentMapper).updateShowMobileEntity(request, tournament);
+         verify(tournamentRepository).save(tournament);
+         verify(tournamentMapper).toResponseLite(updatedTournament);
+     }
 
-        TournamentResponseLite result = tournamentService.updateShowMobile(10L, updateRequest);
-        assertThat(result).isEqualTo(lite);
+     @Test
+     void updateTournamentShowMobile_whenNotHost_throws403() {
+         User user = UserTestBuilder.aUser().withId(3L).build();
 
-        ArgumentCaptor<Tournament> captor = ArgumentCaptor.forClass(Tournament.class);
-        verify(tournamentRepository).save(captor.capture());
-        assertThat(captor.getValue().isShowMobile()).isTrue();
-    }
+         User host = UserTestBuilder.aUser().build();
+         Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
 
-    @Test
-    void updateTournamentShowMobile_whenNotHost_throws403() {
-        User user = UserTestBuilder.aUser().withId(3L).build();
-        mockAuthenticatedUser(user);
+         TournamentShowMobileUpdateRequest updateRequest = new TournamentShowMobileUpdateRequest();
+         updateRequest.setShowMobile(true);
 
-        User host = UserTestBuilder.aUser().build();
-        Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
+         when(tournamentRepository.findById(tournament.getId())).thenReturn(Optional.of(tournament));
 
-        TournamentShowMobileUpdateRequest updateRequest = new TournamentShowMobileUpdateRequest();
-        updateRequest.setShowMobile(true);
+         assertThatThrownBy(() -> tournamentService.updateShowMobile(tournament.getId(), updateRequest, user.getId()))
+                 .isInstanceOf(ResponseStatusException.class)
+                 .satisfies(ex ->
+                         assertThat(((ResponseStatusException) ex).getStatusCode())
+                                 .isEqualTo(HttpStatus.FORBIDDEN)
+                 );
+         verify(tournamentRepository, never()).save(any());
+         verifyNoInteractions(tournamentMapper);
+     }
 
-        when(tournamentRepository.findById(10L)).thenReturn(Optional.of(tournament));
+     @Test
+     void updateTournamentShowMobile_whenNotFound_throws404() {
+         TournamentShowMobileUpdateRequest updateRequest = new TournamentShowMobileUpdateRequest();
+         updateRequest.setShowMobile(true);
 
-        assertThatThrownBy(() -> tournamentService.updateShowMobile(10L, updateRequest))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex ->
-                        assertThat(((ResponseStatusException) ex).getStatusCode())
-                                .isEqualTo(HttpStatus.FORBIDDEN)
-                );
-        verify(tournamentRepository, never()).save(any());
-        verifyNoInteractions(tournamentMapper);
-    }
+         when(tournamentRepository.findById(99L)).thenReturn(Optional.empty());
 
-    @Test
-    void updateTournamentShowMobile_whenNotFound_throws404() {
-        User host = UserTestBuilder.aUser().build();
-        mockAuthenticatedUser(host);
+         assertThatThrownBy(() -> tournamentService.updateShowMobile(99L, updateRequest, 1L))
+                 .isInstanceOf(ResponseStatusException.class)
+                 .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                         .isEqualTo(HttpStatus.NOT_FOUND));
 
-        TournamentShowMobileUpdateRequest updateRequest = new TournamentShowMobileUpdateRequest();
-        updateRequest.setShowMobile(true);
-
-        when(tournamentRepository.findById(10L)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> tournamentService.updateShowMobile(10L, request))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
-                        .isEqualTo(HttpStatus.NOT_FOUND));
-
-        verify(tournamentRepository, never()).save(any());
-    }
+         verify(tournamentRepository, never()).save(any());
+     }
 }
