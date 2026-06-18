@@ -27,7 +27,7 @@ public class Tournament extends Base {
    @JoinColumn(name = "host_id", nullable = false)
    private User host;
 
-   @Column(nullable = false)
+   @Column(nullable = false, unique = true)
    private String code;
 
    @Column(nullable = false)
