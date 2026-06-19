@@ -1,8 +1,11 @@
 package com.example.tts_in_spring.team;
 
+import com.example.tts_in_spring.security.UserPrincipal;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,12 +24,18 @@ public class TeamController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TeamResponse> getTeam(@PathVariable Long id) {
-        return ResponseEntity.ok(teamService.getTeamById(id));
+    public ResponseEntity<TeamResponse> getTeam(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserPrincipal user
+    ) {
+        return ResponseEntity.ok(teamService.getTeamById(id, user.userId()));
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createTeam(@RequestBody TeamRequest teamRequest) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(teamService.createTeam(teamRequest));
+    public ResponseEntity<?> createTeam(
+            @Valid @RequestBody TeamRequest teamRequest,
+            @AuthenticationPrincipal UserPrincipal user
+    ) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(teamService.createTeam(teamRequest, user.userId()));
     }
 }
