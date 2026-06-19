@@ -1,6 +1,5 @@
 package com.example.tts_in_spring.team;
 
-import com.example.tts_in_spring.category.Category;
 import com.example.tts_in_spring.category.CategoryResponseLite;
 import com.example.tts_in_spring.category.CategoryTestBuilder;
 import com.example.tts_in_spring.player.Player;
