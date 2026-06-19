@@ -1,8 +1,11 @@
 package com.example.tts_in_spring.player;
 
+import com.example.tts_in_spring.security.UserPrincipal;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,17 +24,45 @@ public class PlayerController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PlayerResponse> getPlayer(@PathVariable Long id) {
-        return ResponseEntity.ok(playerService.getPlayerById(id));
+    public ResponseEntity<PlayerResponse> getPlayer(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserPrincipal user
+    ) {
+        return ResponseEntity.ok(playerService.getPlayerById(id, user.userId()));
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createPlayer(@RequestBody PlayerRequest playerRequest) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(playerService.createPlayer(playerRequest));
+    public ResponseEntity<?> createPlayer(
+            @Valid @RequestBody PlayerRequest playerRequest,
+            @AuthenticationPrincipal UserPrincipal user
+    ) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(playerService.createPlayer(playerRequest, user.userId()));
     }
 
-    // @PatchMapping("/players/{id}")
-    // public ResponseEntity<PlayerResponse> updatePlayer(@PathVariable Long id, @RequestBody PlayerUpdateDto updatedPlayer) {
-    //
-    // }
+    @PatchMapping("/{id}/update-rank")
+    public ResponseEntity<PlayerResponseLite> updateRank(
+            @PathVariable Long id,
+            @Valid @RequestBody PlayerUpdateRankRequest request,
+            @AuthenticationPrincipal UserPrincipal user
+    ) {
+        return ResponseEntity.ok(playerService.updateRank(id, request, user.userId()));
+    }
+
+    @PatchMapping("/{id}/update-seeded")
+    public ResponseEntity<PlayerResponseLite> updateSeeded(
+            @PathVariable Long id,
+            @Valid @RequestBody PlayerUpdateSeededRequest request,
+            @AuthenticationPrincipal UserPrincipal user
+    ) {
+        return ResponseEntity.ok(playerService.updateSeeded(id, request, user.userId()));
+    }
+
+    @DeleteMapping("/{id}/delete")
+    public ResponseEntity<Void> delete(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserPrincipal user
+    ) {
+        playerService.delete(id, user.userId());
+        return ResponseEntity.noContent().build();
+    }
 }

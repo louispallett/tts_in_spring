@@ -3,7 +3,6 @@ package com.example.tts_in_spring.category;
 import com.example.tts_in_spring.player.Player;
 import com.example.tts_in_spring.player.PlayerTestBuilder;
 import com.example.tts_in_spring.tournament.TournamentTestBuilder;
-import com.example.tts_in_spring.user.UserRepository;
 import com.example.tts_in_spring.user.UserTestBuilder;
 import com.example.tts_in_spring.tournament.TournamentResponseLite;
 import com.example.tts_in_spring.tournament.Tournament;
@@ -31,9 +30,6 @@ public class CategoryServiceTest {
 
     @Mock
     private CategoryMapper categoryMapper;
-
-    @Mock
-    private UserRepository userRepository;
 
     @InjectMocks
     private CategoryService categoryService;
@@ -88,7 +84,7 @@ public class CategoryServiceTest {
 
     @Test
     void getCategoryById_withPlayer_returnsMappedResponse() {
-        User currentUser = UserTestBuilder.aUser().withId(2L).build();
+        User currentUser = UserTestBuilder.aUser().build();
 
         Tournament tournament = TournamentTestBuilder.aTournament().build();
         Category category = buildCategoryWithTournamentAndPlayers(tournament, currentUser);
@@ -102,16 +98,13 @@ public class CategoryServiceTest {
 
     @Test
     void getCategoryById_withHost_returnsMappedResponse() {
-        User host = UserTestBuilder.aUser().build();
-
-        Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
-        Category category = CategoryTestBuilder.aCategory().withTournament(tournament).build();
+        Category category = CategoryTestBuilder.aCategory().build();
         CategoryResponse response = buildCategoryResponse();
 
         when(categoryRepository.findById(category.getId())).thenReturn(Optional.of(category));
         when(categoryMapper.toResponse(category)).thenReturn(response);
 
-        assertThat(categoryService.getCategoryById(category.getId(), host.getId())).isEqualTo(response);
+        assertThat(categoryService.getCategoryById(category.getId(), category.getTournament().getHost().getId())).isEqualTo(response);
     }
 
     @Test
@@ -131,9 +124,7 @@ public class CategoryServiceTest {
     void getCategoryById_whenNotAuthorised_throws403() {
         User outsider = UserTestBuilder.aUser().withId(3L).build();
 
-        User host = UserTestBuilder.aUser().build();
-        Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
-        Category category = CategoryTestBuilder.aCategory().withTournament(tournament).build();
+        Category category = CategoryTestBuilder.aCategory().build();
 
         when(categoryRepository.findById(category.getId())).thenReturn(Optional.of(category));
 
@@ -149,9 +140,7 @@ public class CategoryServiceTest {
     void createCategory_savesAndReturnsMappedLite() {
         CategoryRequest request = buildCategoryRequest();
 
-        User host = UserTestBuilder.aUser().build();
-        Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
-        Category saved = CategoryTestBuilder.aCategory().withTournament(tournament).build();
+        Category saved = CategoryTestBuilder.aCategory().build();
         CategoryResponseLite lite = new CategoryResponseLite(
                 100L,
                 "Mens Singles",
@@ -163,20 +152,17 @@ public class CategoryServiceTest {
         when(categoryRepository.save(any(Category.class))).thenReturn(saved);
         when(categoryMapper.toResponseLite(saved)).thenReturn(lite);
 
-        assertThat(categoryService.createCategory(request, host.getId())).isEqualTo(lite);
+        assertThat(categoryService.createCategory(request, saved.getTournament().getHost().getId())).isEqualTo(lite);
     }
 
     @Test
     void updateCategoryLocked_whenHost_returnsMappedLite() {
-        User host = UserTestBuilder.aUser().build();
-
-        Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
-        Category category = CategoryTestBuilder.aCategory().withTournament(tournament).build();
+        Category category = CategoryTestBuilder.aCategory().build();
 
         CategoryLockedUpdateRequest request = new CategoryLockedUpdateRequest();
         request.setLocked(true);
 
-        Category updatedCategory = CategoryTestBuilder.aCategory().withTournament(tournament).build();
+        Category updatedCategory = CategoryTestBuilder.aCategory().build();
         updatedCategory.setLocked(true);
         CategoryResponseLite lite = new CategoryResponseLite(
                 100L,
@@ -189,7 +175,7 @@ public class CategoryServiceTest {
         when(categoryRepository.save(any(Category.class))).thenReturn(updatedCategory);
         when(categoryMapper.toResponseLite(updatedCategory)).thenReturn(lite);
 
-        CategoryResponseLite result = categoryService.updateLocked(category.getId(), request, host.getId());
+        CategoryResponseLite result = categoryService.updateLocked(category.getId(), request, category.getTournament().getHost().getId());
         assertThat(result).isEqualTo(lite);
 
         verify(categoryMapper).updateLockedEntity(request, category);
@@ -199,18 +185,14 @@ public class CategoryServiceTest {
 
     @Test
     void updateCategoryLocked_whenNotHost_throws403() {
-        User user = UserTestBuilder.aUser().withId(2L).build();
-
-        User host = UserTestBuilder.aUser().build();
-        Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
-        Category category = CategoryTestBuilder.aCategory().withTournament(tournament).build();
+        Category category = CategoryTestBuilder.aCategory().build();
 
         CategoryLockedUpdateRequest request = new CategoryLockedUpdateRequest();
         request.setLocked(true);
 
         when(categoryRepository.findById(category.getId())).thenReturn(Optional.of(category));
 
-        assertThatThrownBy(() -> categoryService.updateLocked(category.getId(), request, user.getId()))
+        assertThatThrownBy(() -> categoryService.updateLocked(category.getId(), request, 3L))
                 .isInstanceOf(ResponseStatusException.class)
                 .satisfies(ex ->
                         assertThat(((ResponseStatusException) ex).getStatusCode())

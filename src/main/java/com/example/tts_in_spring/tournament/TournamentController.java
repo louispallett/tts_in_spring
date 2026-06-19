@@ -1,6 +1,7 @@
 package com.example.tts_in_spring.tournament;
 
 import com.example.tts_in_spring.security.UserPrincipal;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,7 +42,7 @@ public class TournamentController {
     @PatchMapping("/{id}/update-name")
     public ResponseEntity<TournamentResponseLite> updateName(
             @PathVariable Long id,
-            @RequestBody TournamentNameUpdateRequest request,
+            @Valid @RequestBody TournamentNameUpdateRequest request,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
         return ResponseEntity.ok(tournamentService.updateName(id, request, principal.userId()));
@@ -50,7 +51,7 @@ public class TournamentController {
     @PatchMapping("/{id}/update-stage")
     public ResponseEntity<TournamentResponseLite> updateStage(
             @PathVariable Long id,
-            @RequestBody TournamentStageUpdateRequest request,
+            @Valid @RequestBody TournamentStageUpdateRequest request,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
         return ResponseEntity.ok(tournamentService.updateStage(id, request, principal.userId()));
@@ -59,7 +60,7 @@ public class TournamentController {
     @PatchMapping("/{id}/update-showMobile")
     public ResponseEntity<TournamentResponseLite> updateShowMobile(
             @PathVariable Long id,
-            @RequestBody TournamentShowMobileUpdateRequest request,
+            @Valid @RequestBody TournamentShowMobileUpdateRequest request,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
         return ResponseEntity.ok(tournamentService.updateShowMobile(id, request, principal.userId()));

@@ -3,6 +3,7 @@ package com.example.tts_in_spring.category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -21,6 +22,13 @@ public class CategoryService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found"));
     }
 
+    private void assertHost(Category category, Long userId) {
+        if (!category.getTournament().getHost().getId().equals(userId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
+    }
+
+    @Transactional(readOnly = true)
     public List<CategoryResponse> getAllCategories() {
         return categoryRepository.findAll()
                 .stream()
@@ -28,6 +36,7 @@ public class CategoryService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public CategoryResponse getCategoryById(Long id, Long userId) {
         Category category = getCategoryOrThrow(id);
 
@@ -41,6 +50,7 @@ public class CategoryService {
         throw(new ResponseStatusException(HttpStatus.FORBIDDEN));
     }
 
+    @Transactional
     public CategoryResponseLite createCategory(CategoryRequest categoryRequest, Long userId) {
         if (categoryRequest.getTournament().getHost().getId().equals(userId)) {
             Category category = categoryMapper.toEntity(categoryRequest);
@@ -56,16 +66,14 @@ public class CategoryService {
         throw(new ResponseStatusException(HttpStatus.FORBIDDEN));
     }
 
+    @Transactional
     public CategoryResponseLite updateLocked(Long id, CategoryLockedUpdateRequest request, Long userId) {
         Category category = getCategoryOrThrow(id);
+        assertHost(category, userId);
 
-        if (userId.equals(category.getTournament().getHost().getId())) {
-            categoryMapper.updateLockedEntity(request, category);
+        categoryMapper.updateLockedEntity(request, category);
 
-            Category savedCategory = categoryRepository.save(category);
-            return categoryMapper.toResponseLite(savedCategory);
-        }
-
-        throw(new ResponseStatusException(HttpStatus.FORBIDDEN));
+        Category savedCategory = categoryRepository.save(category);
+        return categoryMapper.toResponseLite(savedCategory);
     }
 }
