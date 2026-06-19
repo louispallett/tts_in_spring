@@ -1,6 +1,8 @@
 package com.example.tts_in_spring.category;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.tts_in_spring.tournament.Tournament;
+import com.example.tts_in_spring.tournament.TournamentService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,14 +12,13 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
+@RequiredArgsConstructor
 public class CategoryService {
-    @Autowired
-    private CategoryRepository categoryRepository;
+    private final CategoryRepository categoryRepository;
+    private final CategoryMapper categoryMapper;
+    private final TournamentService tournamentService;
 
-    @Autowired
-    private CategoryMapper categoryMapper;
-
-    private Category getCategoryOrThrow(Long id) {
+    public Category getCategoryOrThrow(Long id) {
         return categoryRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found"));
     }
@@ -52,8 +53,11 @@ public class CategoryService {
 
     @Transactional
     public CategoryResponseLite createCategory(CategoryRequest categoryRequest, Long userId) {
-        if (categoryRequest.getTournament().getHost().getId().equals(userId)) {
+        Tournament tournament = tournamentService.getTournamentOrThrow(categoryRequest.getTournamentId());
+
+        if (tournament.getHost().getId().equals(userId)) {
             Category category = categoryMapper.toEntity(categoryRequest);
+            category.setTournament(tournament);
             category.setLocked(false);
 
             category.setDoubles(!Objects.equals(categoryRequest.getName(), "Men's Singles")

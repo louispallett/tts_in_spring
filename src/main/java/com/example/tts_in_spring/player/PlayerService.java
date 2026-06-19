@@ -1,6 +1,10 @@
 package com.example.tts_in_spring.player;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.tts_in_spring.category.Category;
+import com.example.tts_in_spring.category.CategoryService;
+import com.example.tts_in_spring.user.User;
+import com.example.tts_in_spring.user.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,14 +13,14 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class PlayerService {
-    @Autowired
-    private PlayerRepository playerRepository;
+    private final PlayerRepository playerRepository;
+    private final PlayerMapper playerMapper;
+    private final CategoryService categoryService;
+    private final UserService userService;
 
-    @Autowired
-    private PlayerMapper playerMapper;
-
-    private Player getPlayerOrThrow(Long id) {
+    public Player getPlayerOrThrow(Long id) {
         return playerRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Player not found"));
     }
@@ -51,16 +55,17 @@ public class PlayerService {
 
     @Transactional
     public PlayerResponseLite createPlayer(PlayerRequest playerRequest, Long userId) {
-        if (playerRequest.getCategory().getTournament().getHost().getId().equals(userId)) {
-            Player player = playerMapper.toEntity(playerRequest);
-            player.setRank(0);
-            player.setSeeded(false);
+        User user = userService.getUserOrThrow(userId);
+        Category category = categoryService.getCategoryOrThrow(playerRequest.getCategoryId());
 
-            Player savedPlayer = playerRepository.save(player);
-            return playerMapper.toResponseLite(savedPlayer);
-        }
+        Player player = playerMapper.toEntity(playerRequest);
+        player.setUser(user);
+        player.setCategory(category);
+        player.setRank(0);
+        player.setSeeded(false);
 
-        throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        Player savedPlayer = playerRepository.save(player);
+        return playerMapper.toResponseLite(savedPlayer);
     }
 
     @Transactional

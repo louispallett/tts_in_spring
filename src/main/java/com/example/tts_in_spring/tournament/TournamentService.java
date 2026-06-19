@@ -3,9 +3,9 @@ package com.example.tts_in_spring.tournament;
 import com.example.tts_in_spring.category.CategoryRequest;
 import com.example.tts_in_spring.category.CategoryService;
 import com.example.tts_in_spring.user.User;
-import com.example.tts_in_spring.user.UserRepository;
+import com.example.tts_in_spring.user.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -14,20 +14,14 @@ import java.security.SecureRandom;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class TournamentService {
-    @Autowired
-    private TournamentRepository tournamentRepository;
+    private final TournamentRepository tournamentRepository;
+    private final UserService userService;
+    private final TournamentMapper tournamentMapper;
+    private final CategoryService categoryService;
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private TournamentMapper tournamentMapper;
-
-    @Autowired
-    private CategoryService categoryService;
-
-    private Tournament getTournamentOrThrow(Long id) {
+    public Tournament getTournamentOrThrow(Long id) {
         return tournamentRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Tournament not found"));
     }
@@ -93,8 +87,7 @@ public class TournamentService {
 
     @Transactional
     public TournamentResponseLite createTournament(TournamentRequest request, Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        User user = userService.getUserOrThrow(userId);
 
         Tournament newTournament = tournamentMapper.toEntity(request);
         newTournament.setStage("SIGN_UP");
@@ -104,23 +97,23 @@ public class TournamentService {
         Tournament savedTournament = tournamentRepository.save(newTournament);
 
         if (request.men_singles) categoryService.createCategory(
-                new CategoryRequest("Men's Singles", savedTournament), userId
+                new CategoryRequest("Men's Singles", savedTournament.getId()), userId
         );
 
         if (request.men_doubles) categoryService.createCategory(
-                new CategoryRequest("Men's Doubles", savedTournament), userId
+                new CategoryRequest("Men's Doubles", savedTournament.getId()), userId
         );
 
         if (request.women_singles) categoryService.createCategory(
-                new CategoryRequest("Women's Singles", savedTournament), userId
+                new CategoryRequest("Women's Singles", savedTournament.getId()), userId
         );
 
         if (request.women_doubles) categoryService.createCategory(
-                new CategoryRequest("Women's Doubles", savedTournament), userId
+                new CategoryRequest("Women's Doubles", savedTournament.getId()), userId
         );
 
         if (request.mix_doubles) categoryService.createCategory(
-                new CategoryRequest("Mixed Doubles", savedTournament), userId
+                new CategoryRequest("Mixed Doubles", savedTournament.getId()), userId
         );
 
         return tournamentMapper.toResponseLite(savedTournament);

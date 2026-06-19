@@ -1,6 +1,5 @@
 package com.example.tts_in_spring.tournament;
 
-import com.example.tts_in_spring.user.User;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
@@ -34,9 +33,6 @@ public class TournamentRequest {
 
     @Null(message = "Stage must be null")
     private String stage;
-
-    @Null(message = "Host must be null")
-    private User host;
 
     @Null(message = "Code must be null")
     private String code;

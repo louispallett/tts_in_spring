@@ -1,8 +1,6 @@
 package com.example.tts_in_spring.player;
 
-import com.example.tts_in_spring.category.Category;
 import com.example.tts_in_spring.team.Team;
-import com.example.tts_in_spring.user.User;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
 import lombok.Getter;
@@ -20,12 +18,12 @@ public class PlayerRequest {
     @NotNull(message = "Rank int cannot be null")
     private int rank;
 
-    @NotNull(message = "User cannot be null")
-    private User user;
+    @NotNull(message = "userId cannot be null")
+    private Long userId;
 
-    @NotNull(message = "Category cannot be null")
-    private Category category;
+    @NotNull(message = "categoryId cannot be null")
+    private Long categoryId;
 
-    @Null
+    @Null(message = "Team must be null")
     private Team team;
 }

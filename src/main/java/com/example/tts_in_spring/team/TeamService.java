@@ -1,6 +1,8 @@
 package com.example.tts_in_spring.team;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.tts_in_spring.category.Category;
+import com.example.tts_in_spring.category.CategoryService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,14 +11,13 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class TeamService {
-    @Autowired
-    TeamRepository teamRepository;
+    private final TeamRepository teamRepository;
+    private final TeamMapper teamMapper;
+    private final CategoryService categoryService;
 
-    @Autowired
-    TeamMapper teamMapper;
-
-    private Team getTeamOrThrow(Long id) {
+    public Team getTeamOrThrow(Long id) {
         return teamRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Team not found"));
     }
@@ -51,8 +52,11 @@ public class TeamService {
 
     @Transactional
     public TeamResponseLite createTeam(TeamRequest teamRequest, Long userId) {
-        if (teamRequest.getCategory().getTournament().getHost().getId().equals(userId)) {
+        Category category = categoryService.getCategoryOrThrow(teamRequest.getCategoryId());
+
+        if (category.getTournament().getHost().getId().equals(userId)) {
             Team team = teamMapper.toEntity(teamRequest);
+            team.setCategory(category);
 
             Team savedTeam = teamRepository.save(team);
             return teamMapper.toResponseLite(savedTeam);

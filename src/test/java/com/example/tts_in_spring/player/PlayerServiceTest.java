@@ -1,10 +1,13 @@
 package com.example.tts_in_spring.player;
 
+import com.example.tts_in_spring.category.CategoryService;
 import com.example.tts_in_spring.category.CategoryTestBuilder;
 import com.example.tts_in_spring.category.CategoryResponseLite;
 import com.example.tts_in_spring.user.UserResponseLite;
 import com.example.tts_in_spring.category.Category;
 import com.example.tts_in_spring.user.User;
+import com.example.tts_in_spring.user.UserService;
+import com.example.tts_in_spring.user.UserTestBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -28,6 +31,12 @@ public class PlayerServiceTest {
     @Mock
     private PlayerMapper playerMapper;
 
+    @Mock
+    private CategoryService categoryService;
+
+    @Mock
+    private UserService userService;
+
     @InjectMocks
     private PlayerService playerService;
 
@@ -49,8 +58,8 @@ public class PlayerServiceTest {
         r.setMale(true);
         r.setSeeded(false);
         r.setRank(0);
-        r.setUser(user);
-        r.setCategory(category);
+        r.setUserId(user.getId());
+        r.setCategoryId(category.getId());
 
         return r;
     }
@@ -124,7 +133,8 @@ public class PlayerServiceTest {
     }
 
     @Test
-    void createPlayer_whenHost_savesAndReturnsMappedLite() {
+    void createPlayer_savesAndReturnsMappedLite() {
+        User user = UserTestBuilder.aUser().build();
         Category category = CategoryTestBuilder.aCategory().build();
         PlayerRequest request = buildPlayerRequest(category.getTournament().getHost(), category);
 
@@ -136,28 +146,13 @@ public class PlayerServiceTest {
                 0
         );
 
+        when(userService.getUserOrThrow(user.getId())).thenReturn(user);
+        when(categoryService.getCategoryOrThrow(category.getId())).thenReturn(category);
         when(playerMapper.toEntity(request)).thenReturn(saved);
         when(playerRepository.save(any(Player.class))).thenReturn(saved);
         when(playerMapper.toResponseLite(saved)).thenReturn(lite);
 
-        assertThat(playerService.createPlayer(request, category.getTournament().getHost().getId())).isEqualTo(lite);
-    }
-
-    @Test
-    void createPlayer_whenNotHost_throws403() {
-        Category category = CategoryTestBuilder.aCategory().build();
-
-        PlayerRequest request = buildPlayerRequest(category.getTournament().getHost(), category);
-
-        assertThatThrownBy(() -> playerService.createPlayer(request, 3L))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex ->
-                        assertThat(((ResponseStatusException) ex).getStatusCode())
-                                .isEqualTo(HttpStatus.FORBIDDEN)
-                );
-
-        verify(playerRepository, never()).save(any());
-        verifyNoInteractions(playerMapper);
+        assertThat(playerService.createPlayer(request, user.getId())).isEqualTo(lite);
     }
 
     @Test

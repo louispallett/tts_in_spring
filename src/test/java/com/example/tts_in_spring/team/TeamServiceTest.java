@@ -1,6 +1,7 @@
 package com.example.tts_in_spring.team;
 
 import com.example.tts_in_spring.category.CategoryResponseLite;
+import com.example.tts_in_spring.category.CategoryService;
 import com.example.tts_in_spring.category.CategoryTestBuilder;
 import com.example.tts_in_spring.player.Player;
 import com.example.tts_in_spring.player.PlayerTestBuilder;
@@ -29,6 +30,9 @@ public class TeamServiceTest {
     @Mock
     private TeamMapper teamMapper;
 
+    @Mock
+    private CategoryService categoryService;
+
     @InjectMocks
     private TeamService teamService;
 
@@ -43,7 +47,7 @@ public class TeamServiceTest {
 
     private TeamRequest buildTeamRequest() {
         TeamRequest r = new TeamRequest();
-        r.setCategory(CategoryTestBuilder.aCategory().build());
+        r.setCategoryId(CategoryTestBuilder.aCategory().build().getId());
 
         return r;
     }
@@ -127,6 +131,7 @@ public class TeamServiceTest {
         Team saved = TeamTestBuilder.aTeam().build();
         TeamResponseLite lite = new TeamResponseLite(10000L);
 
+        when(categoryService.getCategoryOrThrow(request.getCategoryId())).thenReturn(saved.getCategory());
         when(teamMapper.toEntity(request)).thenReturn(saved);
         when(teamRepository.save(any(Team.class))).thenReturn(saved);
         when(teamMapper.toResponseLite(saved)).thenReturn(lite);
@@ -137,6 +142,10 @@ public class TeamServiceTest {
     @Test
     void createTeam_whenNotHost_throws403() {
         TeamRequest request = buildTeamRequest();
+
+        Team team = TeamTestBuilder.aTeam().build();
+
+        when(categoryService.getCategoryOrThrow(request.getCategoryId())).thenReturn(team.getCategory());
 
         assertThatThrownBy(() -> teamService.createTeam(request, 3L))
                 .isInstanceOf(ResponseStatusException.class)

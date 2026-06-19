@@ -2,6 +2,7 @@ package com.example.tts_in_spring.category;
 
 import com.example.tts_in_spring.player.Player;
 import com.example.tts_in_spring.player.PlayerTestBuilder;
+import com.example.tts_in_spring.tournament.TournamentService;
 import com.example.tts_in_spring.tournament.TournamentTestBuilder;
 import com.example.tts_in_spring.user.UserTestBuilder;
 import com.example.tts_in_spring.tournament.TournamentResponseLite;
@@ -31,6 +32,9 @@ public class CategoryServiceTest {
     @Mock
     private CategoryMapper categoryMapper;
 
+    @Mock
+    private TournamentService tournamentService;
+
     @InjectMocks
     private CategoryService categoryService;
 
@@ -47,10 +51,7 @@ public class CategoryServiceTest {
     }
 
     private CategoryRequest buildCategoryRequest() {
-        CategoryRequest r = new CategoryRequest("Men's Singles", TournamentTestBuilder.aTournament().build());
-        r.setTournament(TournamentTestBuilder.aTournament().build());
-
-        return r;
+        return new CategoryRequest("Men's Singles", TournamentTestBuilder.aTournament().build().getId());
     }
 
     private Category buildCategoryWithTournamentAndPlayers(Tournament tournament, User user) {
@@ -148,6 +149,7 @@ public class CategoryServiceTest {
                 false
         );
 
+        when(tournamentService.getTournamentOrThrow(request.getTournamentId())).thenReturn(saved.getTournament());
         when(categoryMapper.toEntity(request)).thenReturn(saved);
         when(categoryRepository.save(any(Category.class))).thenReturn(saved);
         when(categoryMapper.toResponseLite(saved)).thenReturn(lite);

@@ -2,11 +2,8 @@ package com.example.tts_in_spring.tournament;
 
 import com.example.tts_in_spring.category.*;
 import com.example.tts_in_spring.player.PlayerTestBuilder;
-import com.example.tts_in_spring.user.UserRepository;
-import com.example.tts_in_spring.user.UserTestBuilder;
-import com.example.tts_in_spring.user.UserResponseLite;
+import com.example.tts_in_spring.user.*;
 import com.example.tts_in_spring.player.Player;
-import com.example.tts_in_spring.user.User;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -32,7 +29,7 @@ public class TournamentServiceTest {
     private TournamentMapper tournamentMapper;
 
     @Mock
-    private UserRepository userRepository;
+    private UserService userService;
 
     @Mock
     private CategoryService categoryService;
@@ -168,12 +165,13 @@ public class TournamentServiceTest {
                 false
         );
 
-        when(userRepository.findById(currentUser.getId())).thenReturn(Optional.of(currentUser));
+        when(userService.getUserOrThrow(currentUser.getId())).thenReturn(currentUser);
         when(tournamentMapper.toEntity(request)).thenReturn(saved);
         when(tournamentRepository.save(any(Tournament.class))).thenReturn(saved);
         when(tournamentMapper.toResponseLite(saved)).thenReturn(lite);
 
         assertThat(tournamentService.createTournament(request, currentUser.getId())).isEqualTo(lite);
+        verify(categoryService).createCategory(any(CategoryRequest.class), eq(currentUser.getId()));
     }
 
      @Test
