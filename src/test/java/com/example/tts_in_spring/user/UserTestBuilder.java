@@ -8,6 +8,10 @@ For id values, use:
 - 9L for non-existent user
  */
 
+import com.example.tts_in_spring.player.Player;
+
+import java.util.List;
+
 public class UserTestBuilder {
     private Long id = 1L;
     private String firstName = "John";
@@ -16,6 +20,7 @@ public class UserTestBuilder {
     private String mobCode = "+44";
     private String mobile = "1234567890";
     private String password = "Hello123!";
+    private List<Player> players = null;
 
     public static UserTestBuilder aUser() {
         return new UserTestBuilder();
@@ -43,6 +48,11 @@ public class UserTestBuilder {
 
     public UserTestBuilder withPassword(String password) {
         this.password = password;
+        return this;
+    }
+
+    public UserTestBuilder withPlayers(List<Player> players) {
+        this.players = players;
         return this;
     }
 

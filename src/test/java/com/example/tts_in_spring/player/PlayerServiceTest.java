@@ -83,7 +83,7 @@ public class PlayerServiceTest {
         when(playerRepository.findById(player.getId())).thenReturn(Optional.of(player));
         when(playerMapper.toResponse(player)).thenReturn(response);
 
-        assertThat(playerService.getPlayerById(player.getId(), player.getUser().getId()));
+        assertThat(playerService.getPlayerById(player.getId(), player.getUser().getId())).isEqualTo(response);
     }
 
     @Test
@@ -94,7 +94,7 @@ public class PlayerServiceTest {
         when(playerRepository.findById(player.getId())).thenReturn(Optional.of(player));
         when(playerMapper.toResponse(player)).thenReturn(response);
 
-        assertThat(playerService.getPlayerById(player.getId(), player.getCategory().getTournament().getHost().getId()));
+        assertThat(playerService.getPlayerById(player.getId(), player.getCategory().getTournament().getHost().getId())).isEqualTo(response);
     }
 
     @Test
