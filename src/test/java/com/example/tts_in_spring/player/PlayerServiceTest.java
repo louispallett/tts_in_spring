@@ -1,57 +1,16 @@
 package com.example.tts_in_spring.player;
 
-/* PlayerServiceTest
-- A Player can only be created once a category has been created.
-- A Player is created when a user signs up to a tournament.
-- It also relies on User, since every player is linked to a user at @ManyToOne
-
-Checks:
-> All requests <
-- Must be authenticated.
-
-> getById() <
-Authorized:
-- The user of the player
-- The host of the category of the tournament
-
-> createPlayer() <
-Authorized:
-- The user (this is simply done by setting the player.setUser() to currentUser).
-
-> updatePlayerRank() <
-> updateSeeded() <
-Authorized:
-- Host of tournament, changed directly
-
-> updateTeam() <
-Authorized:
-- Host of tournament, changed as part of team creation.
-
-> deletePlayer <
-Authorized:
-- Must be host (this is done when removing a player from a category
-- Must be user of player (in the specific case of deleting account
-*/
-
 import com.example.tts_in_spring.category.CategoryTestBuilder;
-import com.example.tts_in_spring.tournament.TournamentTestBuilder;
-import com.example.tts_in_spring.user.UserTestBuilder;
 import com.example.tts_in_spring.category.CategoryResponseLite;
-import com.example.tts_in_spring.category.CategoryService;
 import com.example.tts_in_spring.user.UserResponseLite;
 import com.example.tts_in_spring.category.Category;
-import com.example.tts_in_spring.tournament.Tournament;
 import com.example.tts_in_spring.user.User;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -69,26 +28,8 @@ public class PlayerServiceTest {
     @Mock
     private PlayerMapper playerMapper;
 
-    @Mock
-    private PlayerService playerService;
-
     @InjectMocks
-    private CategoryService categoryService;
-
-    @AfterEach
-    void clearSecurityContext() {
-        SecurityContextHolder.clearContext();
-    }
-
-    private void mockAuthenticatedUser(User user) {
-        Authentication authentication = mock(Authentication.class);
-        when(authentication.getPrincipal()).thenReturn(user);
-
-        SecurityContext securityContext = mock(SecurityContext.class);
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-
-        SecurityContextHolder.setContext(securityContext);
-    }
+    private PlayerService playerService;
 
     private PlayerResponse buildPlayerResponse() {
         return new PlayerResponse(
@@ -128,50 +69,39 @@ public class PlayerServiceTest {
     }
 
     @Test
-    void getPlayerById_withPlayer_returnsMappedResponse() {
-        User currentUser = UserTestBuilder.aUser().withId(2L).build();
-        mockAuthenticatedUser(currentUser);
+    void getAllPlayers_whenEmpty_returnsEmptyList() {
+        when(playerRepository.findAll()).thenReturn(List.of());
 
-        Player player = PlayerTestBuilder.aPlayer().withUser(currentUser).build();
+        assertThat(playerService.getAllPlayers()).isEmpty();
+    }
+
+    @Test
+    void getPlayerById_withPlayer_returnsMappedResponse() {
+        Player player = PlayerTestBuilder.aPlayer().build();
         PlayerResponse response = buildPlayerResponse();
 
-        when(playerRepository.findById(1000L)).thenReturn(Optional.of(player));
+        when(playerRepository.findById(player.getId())).thenReturn(Optional.of(player));
         when(playerMapper.toResponse(player)).thenReturn(response);
 
-        Object result = playerService.getPlayerById(1000L);
-
-        assertThat(result)
-                .isInstanceOf(PlayerResponse.class)
-                .isEqualTo(response);
+        assertThat(playerService.getPlayerById(player.getId(), player.getUser().getId()));
     }
 
     @Test
     void getPlayerById_withHost_returnsMappedResponse() {
-        User host = UserTestBuilder.aUser().build();
-        mockAuthenticatedUser(host);
-        Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
-        Category category = CategoryTestBuilder.aCategory().withTournament(tournament).build();
-
-        Player player = PlayerTestBuilder.aPlayer().withCategory(category).build();
+        Player player = PlayerTestBuilder.aPlayer().build();
         PlayerResponse response = buildPlayerResponse();
 
-        when(playerRepository.findById(1000L)).thenReturn(Optional.of(player));
+        when(playerRepository.findById(player.getId())).thenReturn(Optional.of(player));
         when(playerMapper.toResponse(player)).thenReturn(response);
 
-        Object result = playerService.getPlayerById(1000L);
-
-        assertThat(result)
-                .isInstanceOf(PlayerResponse.class)
-                .isEqualTo(response);
+        assertThat(playerService.getPlayerById(player.getId(), player.getCategory().getTournament().getHost().getId()));
     }
 
     @Test
     void getPlayerById_whenNotFound_throws404() {
-        mockAuthenticatedUser(UserTestBuilder.aUser().build());
-
         when(playerRepository.findById(9999L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> playerService.getPlayerById(9999L))
+        assertThatThrownBy(() -> playerService.getPlayerById(9999L, 1L))
                 .isInstanceOf(ResponseStatusException.class)
                 .satisfies(ex ->
                         assertThat(((ResponseStatusException) ex).getStatusCode())
@@ -181,15 +111,11 @@ public class PlayerServiceTest {
 
     @Test
     void getPlayerById_whenNotAuthorised_throws403() {
-        User outsider = UserTestBuilder.aUser().withId(3L).build();
-        mockAuthenticatedUser(outsider);
+        Player player = PlayerTestBuilder.aPlayer().build();
 
-        User user = UserTestBuilder.aUser().withId(2L).build();
-        Player player = PlayerTestBuilder.aPlayer().withUser(user).build();
+        when(playerRepository.findById(player.getId())).thenReturn(Optional.of(player));
 
-        when(playerRepository.findById(1000L)).thenReturn(Optional.of(player));
-
-        assertThatThrownBy(() -> playerService.getPlayerById(1000L))
+        assertThatThrownBy(() -> playerService.getPlayerById(player.getId(), 3L))
                 .isInstanceOf(ResponseStatusException.class)
                 .satisfies(ex ->
                         assertThat(((ResponseStatusException) ex).getStatusCode())
@@ -198,13 +124,11 @@ public class PlayerServiceTest {
     }
 
     @Test
-    void createPlayer_savesAndReturnsMappedLite() {
-        User user = UserTestBuilder.aUser().build();
-        mockAuthenticatedUser(user);
+    void createPlayer_whenHost_savesAndReturnsMappedLite() {
         Category category = CategoryTestBuilder.aCategory().build();
-        PlayerRequest request = buildPlayerRequest(user, category);
+        PlayerRequest request = buildPlayerRequest(category.getTournament().getHost(), category);
 
-        Player saved = new Player();
+        Player saved = PlayerTestBuilder.aPlayer().withCategory(category).build();
         PlayerResponseLite lite = new PlayerResponseLite(
                 1000L,
                 true,
@@ -212,27 +136,38 @@ public class PlayerServiceTest {
                 0
         );
 
+        when(playerMapper.toEntity(request)).thenReturn(saved);
         when(playerRepository.save(any(Player.class))).thenReturn(saved);
         when(playerMapper.toResponseLite(saved)).thenReturn(lite);
 
-        assertThat(playerService.createPlayer(request)).isEqualTo(lite);
-        verify(playerRepository).save(any(Player.class));
+        assertThat(playerService.createPlayer(request, category.getTournament().getHost().getId())).isEqualTo(lite);
     }
 
-    // Update rank from 0 to 1
+    @Test
+    void createPlayer_whenNotHost_throws403() {
+        Category category = CategoryTestBuilder.aCategory().build();
+
+        PlayerRequest request = buildPlayerRequest(category.getTournament().getHost(), category);
+
+        assertThatThrownBy(() -> playerService.createPlayer(request, 3L))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex ->
+                        assertThat(((ResponseStatusException) ex).getStatusCode())
+                                .isEqualTo(HttpStatus.FORBIDDEN)
+                );
+
+        verify(playerRepository, never()).save(any());
+        verifyNoInteractions(playerMapper);
+    }
+
     @Test
     void updatePlayerRank_whenHost_savesAndReturnsMappedLite() {
-        User host = UserTestBuilder.aUser().build();
-        mockAuthenticatedUser(host);
+        Player player = PlayerTestBuilder.aPlayer().build();
 
-        Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
-        Category category = CategoryTestBuilder.aCategory().withTournament(tournament).build();
-        Player player = PlayerTestBuilder.aPlayer().withCategory(category).build();
-
-        PlayerRequest request = new PlayerRequest();
+        PlayerUpdateRankRequest request = new PlayerUpdateRankRequest();
         request.setRank(1);
 
-        Player updatedPlayer = PlayerTestBuilder.aPlayer().withCategory(category).build();
+        Player updatedPlayer = PlayerTestBuilder.aPlayer().build();
         updatedPlayer.setRank(1);
         PlayerResponseLite lite = new PlayerResponseLite(
                 1000L,
@@ -241,153 +176,146 @@ public class PlayerServiceTest {
                 1
         );
 
-        when(playerRepository.findById(1000L)).thenReturn(Optional.of(player));
+        when(playerRepository.findById(player.getId())).thenReturn(Optional.of(player));
         when(playerRepository.save(any(Player.class))).thenReturn(updatedPlayer);
         when(playerMapper.toResponseLite(updatedPlayer)).thenReturn(lite);
 
-        Object result = playerService.updateRank(1000L, request);
-
+        PlayerResponseLite result = playerService.updateRank(player.getId(), request, player.getCategory().getTournament().getHost().getId());
         assertThat(result).isEqualTo(lite);
-        assertThat(result.rank()).isEqualTo(1);
-        verify(playerRepository).save(any(Player.class));
+
+        verify(playerMapper).updateRankEntity(request, player);
+        verify(playerRepository).save(player);
+        verify(playerMapper).toResponseLite(updatedPlayer);
     }
 
     @Test
     void updatePlayerRank_whenNotHost_throws403() {
-        User user = UserTestBuilder.aUser().withId(2L).build();
-        mockAuthenticatedUser(user);
+        Player player = PlayerTestBuilder.aPlayer().build();
 
-        User host = UserTestBuilder.aUser().build();
-        Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
-        Category category = CategoryTestBuilder.aCategory().withTournament(tournament).build();
-        Player player = PlayerTestBuilder.aPlayer().withCategory(category).build();
-        player.setRank(0);
-
-        PlayerRequest request = new PlayerRequest();
+        PlayerUpdateRankRequest request = new PlayerUpdateRankRequest();
         request.setRank(1);
 
-        Player updatedPlayer = PlayerTestBuilder.aPlayer().withCategory(category).build();
-        updatedPlayer.setRank(1);
-        PlayerResponseLite lite = new PlayerResponseLite(
-                1000L,
-                true,
-                false,
-                1
-        );
+        when(playerRepository.findById(player.getId())).thenReturn(Optional.of(player));
 
-        when(playerRepository.findById(1000L)).thenReturn(Optional.of(player));
-        when(playerRepository.save(any(Player.class))).thenReturn(updatedPlayer);
-        when(playerMapper.toResponseLite(updatedPlayer)).thenReturn(lite);
-
-        assertThatThrownBy(() -> playerService.updateRank(1000L, request))
+        assertThatThrownBy(() -> playerService.updateRank(player.getId(), request, 3L))
                 .isInstanceOf(ResponseStatusException.class)
                 .satisfies(ex ->
                         assertThat(((ResponseStatusException) ex).getStatusCode())
                                 .isEqualTo(HttpStatus.FORBIDDEN)
                 );
+        verify(playerRepository, never()).save(any());
+        verifyNoInteractions(playerMapper);
+    }
+
+    @Test
+    void updatePlayerRank_whenNotFound_throws404() {
+        PlayerUpdateRankRequest request = new PlayerUpdateRankRequest();
+        request.setRank(1);
+
+        when(playerRepository.findById(9999L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> playerService.updateRank(9999L, request, 1L))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.NOT_FOUND));
+        verify(playerRepository, never()).save(any());
     }
 
     @Test
     void updatePlayerSeeded_whenHost_savesAndReturnsMappedLite() {
-        User host = UserTestBuilder.aUser().build();
-        mockAuthenticatedUser(host);
+        Player player = PlayerTestBuilder.aPlayer().build();
 
-        Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
-        Category category = CategoryTestBuilder.aCategory().withTournament(tournament).build();
-        Player player = PlayerTestBuilder.aPlayer().withCategory(category).build();
-        player.setSeeded(true);
-
-        PlayerRequest request = new PlayerRequest();
+        PlayerUpdateSeededRequest request = new PlayerUpdateSeededRequest();
         request.setSeeded(true);
 
-        Player updatedPlayer = PlayerTestBuilder.aPlayer().withCategory(category).build();
+        Player updatedPlayer = PlayerTestBuilder.aPlayer().build();
         updatedPlayer.setSeeded(true);
         PlayerResponseLite lite = new PlayerResponseLite(
                 1000L,
                 true,
                 true,
-                1
+                0
         );
 
-        when(playerRepository.findById(1000L)).thenReturn(Optional.of(player));
+        when(playerRepository.findById(player.getId())).thenReturn(Optional.of(player));
         when(playerRepository.save(any(Player.class))).thenReturn(updatedPlayer);
         when(playerMapper.toResponseLite(updatedPlayer)).thenReturn(lite);
 
-        Object result = playerService.updatePlayerSeeded(1000L, request);
-
+        PlayerResponseLite result = playerService.updateSeeded(player.getId(), request, player.getCategory().getTournament().getHost().getId());
         assertThat(result).isEqualTo(lite);
-        assertThat(result.seeded()).isEqualTo(1);
-        verify(playerRepository).save(any(Player.class));
+
+        verify(playerMapper).updateSeededEntity(request, player);
+        verify(playerRepository).save(player);
+        verify(playerMapper).toResponseLite(updatedPlayer);
     }
 
     @Test
     void updatePlayerSeeded_whenNotHost_throws403() {
-        User user = UserTestBuilder.aUser().withId(2L).build();
-        mockAuthenticatedUser(user);
+        Player player = PlayerTestBuilder.aPlayer().build();
 
-        User host = UserTestBuilder.aUser().build();
-        Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
-        Category category = CategoryTestBuilder.aCategory().withTournament(tournament).build();
-        Player player = PlayerTestBuilder.aPlayer().withCategory(category).build();
-        player.setSeeded(true);
-
-        PlayerRequest request = new PlayerRequest();
+        PlayerUpdateSeededRequest request = new PlayerUpdateSeededRequest();
         request.setSeeded(true);
 
-        Player updatedPlayer = PlayerTestBuilder.aPlayer().withCategory(category).build();
-        updatedPlayer.setSeeded(true);
-        PlayerResponseLite lite = new PlayerResponseLite(
-                1000L,
-                true,
-                true,
-                1
-        );
+        when(playerRepository.findById(player.getId())).thenReturn(Optional.of(player));
 
-        when(playerRepository.findById(1000L)).thenReturn(Optional.of(player));
-        when(playerRepository.save(any(Player.class))).thenReturn(updatedPlayer);
-        when(playerMapper.toResponseLite(updatedPlayer)).thenReturn(lite);
-
-        assertThatThrownBy(() -> playerService.updatePlayerSeeded(1000L, request))
+        assertThatThrownBy(() -> playerService.updateSeeded(player.getId(), request, 3L))
                 .isInstanceOf(ResponseStatusException.class)
                 .satisfies(ex ->
                         assertThat(((ResponseStatusException) ex).getStatusCode())
                                 .isEqualTo(HttpStatus.FORBIDDEN)
                 );
+        verify(playerRepository, never()).save(any());
+        verifyNoInteractions(playerMapper);
+    }
+
+    @Test
+    void updatePlayerSeeded_whenNotFound_throws404() {
+        PlayerUpdateSeededRequest request = new PlayerUpdateSeededRequest();
+        request.setSeeded(true);
+
+        when(playerRepository.findById(9999L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> playerService.updateSeeded(9999L, request, 1L))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.NOT_FOUND));
+        verify(playerRepository, never()).save(any());
     }
 
     @Test
     void deletePlayer_whenHost_deletesPlayer() {
-        User host = UserTestBuilder.aUser().build();
-        mockAuthenticatedUser(host);
+        Player player = PlayerTestBuilder.aPlayer().build();
 
-        Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
-        Category category = CategoryTestBuilder.aCategory().withTournament(tournament).build();
-        Player player = PlayerTestBuilder.aPlayer().withCategory(category).build();
+        when(playerRepository.findById(player.getId())).thenReturn(Optional.of(player));
 
-        when(playerRepository.findById(1000L)).thenReturn(Optional.of(player));
-
-        playerService.deletePlayer(1000L);
+        playerService.delete(player.getId(), player.getCategory().getTournament().getHost().getId());
 
         verify(playerRepository).delete(player);
     }
 
     @Test
-    void deletePlayer_whenNotAuthorized_throws403() {
-        User user = UserTestBuilder.aUser().withId(2L).build();
-        mockAuthenticatedUser(user);
+    void deletePlayer_whenNotHost_throws403() {
+        Player player = PlayerTestBuilder.aPlayer().build();
 
-        User host = UserTestBuilder.aUser().build();
-        Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
-        Category category = CategoryTestBuilder.aCategory().withTournament(tournament).build();
-        Player player = PlayerTestBuilder.aPlayer().withCategory(category).build();
+        when(playerRepository.findById(player.getId())).thenReturn(Optional.of(player));
 
-        when(playerRepository.findById(1000L)).thenReturn(Optional.of(player));
-
-        assertThatThrownBy(() -> playerService.deletePlayer(1000L))
+        assertThatThrownBy(() -> playerService.delete(player.getId(), 3L))
                 .isInstanceOf(ResponseStatusException.class)
                 .satisfies(ex ->
                         assertThat(((ResponseStatusException) ex).getStatusCode())
                                 .isEqualTo(HttpStatus.FORBIDDEN)
                 );
+        verify(playerRepository, never()).save(any());
+    }
+
+    @Test
+    void deletePlayer_whenNotFound_throws404() {
+        when(playerRepository.findById(9999L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> playerService.delete(9999L, 1L))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.NOT_FOUND));
+        verify(playerRepository, never()).save(any());
     }
 }

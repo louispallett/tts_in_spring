@@ -35,7 +35,7 @@ public class PlayerMappingIntegrationTest {
         assertThat(response.seeded()).isFalse();
         assertThat(response.rank()).isEqualTo(0);
         assertThat(response.user()).isNotNull();
-        assertThat(response.user().id()).isEqualTo(1L);
+        assertThat(response.user().id()).isEqualTo(2L);
         assertThat(response.category()).isNotNull();
         assertThat(response.category().id()).isEqualTo(100L);
         assertThat(response.team()).isNull();

@@ -11,7 +11,7 @@ public class PlayerTestBuilder {
     private final boolean male = true;
     private final boolean seeded = false;
     private final int rank = 0;
-    private User user = UserTestBuilder.aUser().build();
+    private User user = UserTestBuilder.aUser().withId(2L).build();
     private Category category = CategoryTestBuilder.aCategory().build();
     private Team team = null;
 
