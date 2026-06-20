@@ -24,11 +24,8 @@ public class Match extends Base {
     @Column(name = "state", nullable = false)
     private String state;
 
-    @Column(name = "date", nullable = false)
-    private Instant date;
-
-    @Column(name = "update_number", nullable = false)
-    private int updateNumber;
+    @Column(name = "deadline", nullable = false)
+    private Instant deadline;
 
     @Column(name = "qualifying_match", nullable = false)
     private boolean qualifyingMatch;

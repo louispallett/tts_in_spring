@@ -28,7 +28,7 @@ public class MatchMapperTest {
         assertThat(response.id()).isEqualTo(100000L);
         assertThat(response.tournamentRoundText()).isEqualTo("1");
         assertThat(response.state()).isEqualTo("SCHEDULED");
-        assertThat(response.date()).isBeforeOrEqualTo(Instant.now());
+        assertThat(response.deadline()).isBeforeOrEqualTo(Instant.now());
         assertThat(response.updateNumber()).isEqualTo(0);
         assertThat(response.qualifyingMatch()).isFalse();
         assertThat(response.category()).isNotNull();
@@ -52,7 +52,7 @@ public class MatchMapperTest {
         assertThat(response.id()).isEqualTo(100000L);
         assertThat(response.tournamentRoundText()).isEqualTo("1");
         assertThat(response.state()).isEqualTo("SCHEDULED");
-        assertThat(response.date()).isBeforeOrEqualTo(Instant.now());
+        assertThat(response.deadline()).isBeforeOrEqualTo(Instant.now());
         assertThat(response.updateNumber()).isEqualTo(0);
         assertThat(response.qualifyingMatch()).isFalse();
     }

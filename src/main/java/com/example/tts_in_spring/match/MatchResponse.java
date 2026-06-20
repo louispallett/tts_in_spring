@@ -10,7 +10,7 @@ public record MatchResponse (
         Long id,
         String tournamentRoundText,
         String state,
-        Instant date,
+        Instant deadline,
         int updateNumber,
         boolean qualifyingMatch,
         CategoryResponseLite category,

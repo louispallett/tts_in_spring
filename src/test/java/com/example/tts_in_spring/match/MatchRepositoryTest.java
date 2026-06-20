@@ -59,8 +59,7 @@ class MatchRepositoryTest {
         Instant date = Instant.now();
         match.setTournamentRoundText("5");
         match.setState("SCHEDULED");
-        match.setDate(date);
-        match.setUpdateNumber(0);
+        match.setDeadline(date);
         match.setQualifyingMatch(false);
         match.setCategory(category);
 
@@ -69,8 +68,7 @@ class MatchRepositoryTest {
         assertThat(saved.getId()).isNotNull();
         assertThat(saved.getTournamentRoundText()).isEqualTo("5");
         assertThat(saved.getState()).isEqualTo("SCHEDULED");
-        assertThat(saved.getDate()).isEqualTo(date);
-        assertThat(saved.getUpdateNumber()).isEqualTo(0);
+        assertThat(saved.getDeadline()).isEqualTo(date);
         assertThat(saved.isQualifyingMatch()).isFalse();
         assertThat(saved.getCategory()).isSameAs(category);
     }

@@ -20,10 +20,7 @@ public class MatchRequest {
     private String state;
 
     @NotNull(message = "Deadline cannot be null")
-    private Instant date;
-
-    @NotNull(message = "Update number cannot be null")
-    private int updateNumber;
+    private Instant deadline;
 
     @NotNull(message = "Qualifying match boolean cannot be null")
     private boolean qualifyingMatch;

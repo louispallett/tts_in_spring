@@ -89,8 +89,7 @@ class ParticipantRepositoryTest {
         match.setQualifyingMatch(false);
         match.setTournamentRoundText("5");
         match.setState("SCHEDULED");
-        match.setDate(Instant.now());
-        match.setUpdateNumber(0);
+        match.setDeadline(Instant.now());
         match.setCategory(category);
         matchRepository.save(match);
     }
