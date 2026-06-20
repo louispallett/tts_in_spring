@@ -1,6 +1,5 @@
 package com.example.tts_in_spring.match;
 
-import com.example.tts_in_spring.category.Category;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -15,10 +14,6 @@ public class MatchRequest {
     @NotBlank(message = "Tournament Round Text cannot be blank")
     private String tournamentRoundText;
 
-    @NotNull(message = "State cannot be null")
-    @NotBlank(message = "State cannot be blank")
-    private String state;
-
     @NotNull(message = "Deadline cannot be null")
     private Instant deadline;
 
@@ -26,5 +21,7 @@ public class MatchRequest {
     private boolean qualifyingMatch;
 
     @NotNull(message = "Category cannot be null")
-    private Category category;
+    private Long categoryId;
+
+    private Long nextMatchId;
 }

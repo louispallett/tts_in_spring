@@ -67,7 +67,7 @@ public class CategoryService {
             return categoryMapper.toResponseLite(savedCategory);
         }
 
-        throw(new ResponseStatusException(HttpStatus.FORBIDDEN));
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
 
     @Transactional
