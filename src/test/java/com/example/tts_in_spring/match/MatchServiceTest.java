@@ -43,7 +43,6 @@ public class MatchServiceTest {
                 "",
                 "SCHEDULED",
                 Instant.now(),
-                0,
                 false,
                 new CategoryResponseLite(100L, "Mens Singles", false, false),
                 null,
@@ -58,7 +57,6 @@ public class MatchServiceTest {
                 "",
                 state,
                 deadline,
-                0,
                 false
         );
     }
@@ -155,7 +153,6 @@ public class MatchServiceTest {
             "",
             "SCHEDULED",
             deadline,
-            0,
             false
         );
 

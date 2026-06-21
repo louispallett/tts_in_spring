@@ -1,8 +1,5 @@
 package com.example.tts_in_spring.participant;
 
-import com.example.tts_in_spring.match.Match;
-import com.example.tts_in_spring.player.Player;
-import com.example.tts_in_spring.team.Team;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -21,10 +18,10 @@ public class ParticipantRequest {
     @NotBlank(message = "Status cannot be blank")
     private String status;
 
-    private Team team;
+    private Long teamId;
 
-    private Player player;
+    private Long playerId;
 
-    @NotNull(message = "Team cannot be null")
-    private Match match;
+    @NotNull(message = "TeamId cannot be null")
+    private Long matchId;
 }

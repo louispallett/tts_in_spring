@@ -22,13 +22,13 @@ public class ParticipantService {
                 .toList();
     }
 
-    public ParticipantResponse getParticipantById(Long id) {
+    public ParticipantResponse getParticipantById(Long id, Long userId) {
         Participant participant = participantRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Participant not found"));
         return participantMapper.toResponse(participant);
     }
 
-    public ParticipantResponseLite createParticipant(ParticipantRequest participantRequest) {
+    public ParticipantResponseLite createParticipant(ParticipantRequest participantRequest, Long userId) {
         Participant validatedParticipant = new Participant();
 
         validatedParticipant.setResultText("");

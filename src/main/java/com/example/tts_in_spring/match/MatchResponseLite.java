@@ -7,6 +7,5 @@ public record MatchResponseLite(
         String tournamentRoundText,
         String state,
         Instant deadline,
-        int updateNumber,
         boolean qualifyingMatch
 ) {}

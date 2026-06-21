@@ -11,7 +11,6 @@ public record MatchResponse (
         String tournamentRoundText,
         String state,
         Instant deadline,
-        int updateNumber,
         boolean qualifyingMatch,
         CategoryResponseLite category,
         MatchResponseLite nextMatch,
