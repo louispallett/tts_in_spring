@@ -149,4 +149,9 @@ public class TournamentService {
         Tournament savedTournament = tournamentRepository.save(existingTournament);
         return tournamentMapper.toResponseLite(savedTournament);
     }
+
+    public Tournament checkCode(String code) {
+        return tournamentRepository.findByCode(code)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Invalid code"));
+    }
 }
