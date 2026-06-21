@@ -374,4 +374,24 @@ public class TournamentServiceTest {
 
          verify(tournamentRepository, never()).save(any());
      }
+
+    @Test
+    void checkCode_whenCorrect_returnsTrue() {
+        Tournament tournament = TournamentTestBuilder.aTournament().build();
+
+        when(tournamentRepository.findByCode(tournament.getCode())).thenReturn(Optional.of(tournament));
+
+        assertThat(tournamentService.checkCode(tournament.getCode())).isEqualTo(tournament);
+    }
+
+    @Test
+    void checkCode_whenNotFound_throws404() {
+        String fakeCode = "abcdgefg";
+        when(tournamentRepository.findByCode(fakeCode)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> tournamentService.checkCode(fakeCode))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.NOT_FOUND));
+    }
 }
