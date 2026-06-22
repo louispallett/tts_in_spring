@@ -47,8 +47,8 @@ public class UserServiceTest {
 
     private UserRequest buildUserRequest() {
         return new UserRequest(
-            "John",
-            "Doe",
+            " John ",
+            " Doe ",
             "john.doe@example.com",
             "Hello123!",
             "+44",

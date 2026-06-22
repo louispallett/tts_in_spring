@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Locale;
 
 @Service
 @RequiredArgsConstructor
@@ -37,13 +38,22 @@ public class UserService {
 
     @Transactional
     public UserResponseLite createUser(UserRequest userRequest) {
-        String email = userRequest.email().toLowerCase();
+        String firstName = userRequest.firstName().trim();
+        String lastName = userRequest.lastName().trim();
+        String mobCode = userRequest.mobCode().trim();
+        String mobile = userRequest.mobile().trim();
+        String email = userRequest.email().trim().toLowerCase(Locale.ROOT);
+
         if (userRepository.findByEmail(email).isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already registered");
         }
 
         User newUser = userMapper.toEntity(userRequest);
+        newUser.setFirstName(firstName);
+        newUser.setLastName(lastName);
         newUser.setEmail(email);
+        newUser.setMobCode(mobCode);
+        newUser.setMobile(mobile);
         newUser.setPassword(passwordEncoder.encode(userRequest.password()));
 
         User savedUser = userRepository.save(newUser);
