@@ -2,6 +2,9 @@ package com.example.tts_in_spring.team;
 
 import com.example.tts_in_spring.category.Category;
 import com.example.tts_in_spring.category.CategoryService;
+import com.example.tts_in_spring.team.dto.TeamRequest;
+import com.example.tts_in_spring.team.dto.TeamResponse;
+import com.example.tts_in_spring.team.dto.TeamResponseLite;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;

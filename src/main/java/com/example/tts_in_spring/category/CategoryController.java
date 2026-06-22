@@ -1,5 +1,9 @@
 package com.example.tts_in_spring.category;
 
+import com.example.tts_in_spring.category.dto.CategoryLockedUpdateRequest;
+import com.example.tts_in_spring.category.dto.CategoryRequest;
+import com.example.tts_in_spring.category.dto.CategoryResponse;
+import com.example.tts_in_spring.category.dto.CategoryResponseLite;
 import com.example.tts_in_spring.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

@@ -2,8 +2,9 @@ package com.example.tts_in_spring.player;
 
 import com.example.tts_in_spring.category.CategoryService;
 import com.example.tts_in_spring.category.CategoryTestBuilder;
-import com.example.tts_in_spring.category.CategoryResponseLite;
-import com.example.tts_in_spring.user.UserResponseLite;
+import com.example.tts_in_spring.category.dto.CategoryResponseLite;
+import com.example.tts_in_spring.player.dto.*;
+import com.example.tts_in_spring.user.dto.UserResponseLite;
 import com.example.tts_in_spring.category.Category;
 import com.example.tts_in_spring.user.User;
 import com.example.tts_in_spring.user.UserService;

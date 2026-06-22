@@ -1,7 +1,8 @@
 package com.example.tts_in_spring.tournament;
 
-import com.example.tts_in_spring.category.CategoryRequest;
+import com.example.tts_in_spring.category.dto.CategoryRequest;
 import com.example.tts_in_spring.category.CategoryService;
+import com.example.tts_in_spring.tournament.dto.*;
 import com.example.tts_in_spring.user.User;
 import com.example.tts_in_spring.user.UserService;
 import lombok.RequiredArgsConstructor;

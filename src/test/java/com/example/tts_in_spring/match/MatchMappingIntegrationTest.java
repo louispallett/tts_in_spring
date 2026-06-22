@@ -1,8 +1,10 @@
 package com.example.tts_in_spring.match;
 
+import com.example.tts_in_spring.match.dto.MatchResponse;
+import com.example.tts_in_spring.match.dto.MatchResponseLite;
 import com.example.tts_in_spring.participant.ParticipantMapperImpl;
 import com.example.tts_in_spring.participant.ParticipantTestBuilder;
-import com.example.tts_in_spring.participant.ParticipantResponseLite;
+import com.example.tts_in_spring.participant.dto.ParticipantResponseLite;
 import com.example.tts_in_spring.participant.Participant;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,6 +1,7 @@
 package com.example.tts_in_spring.tournament;
 
 import com.example.tts_in_spring.category.CategoryMapper;
+import com.example.tts_in_spring.tournament.dto.*;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;

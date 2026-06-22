@@ -1,5 +1,6 @@
 package com.example.tts_in_spring.participant;
 
+import com.example.tts_in_spring.participant.dto.ParticipantResponse;
 import com.example.tts_in_spring.player.PlayerTestBuilder;
 import com.example.tts_in_spring.team.TeamTestBuilder;
 import com.example.tts_in_spring.player.Player;

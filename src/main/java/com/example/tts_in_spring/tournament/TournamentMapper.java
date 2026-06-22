@@ -1,6 +1,7 @@
 package com.example.tts_in_spring.tournament;
 
 import com.example.tts_in_spring.category.CategoryMapper;
+import com.example.tts_in_spring.tournament.dto.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;

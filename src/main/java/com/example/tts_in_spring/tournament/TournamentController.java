@@ -1,6 +1,7 @@
 package com.example.tts_in_spring.tournament;
 
 import com.example.tts_in_spring.security.UserPrincipal;
+import com.example.tts_in_spring.tournament.dto.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

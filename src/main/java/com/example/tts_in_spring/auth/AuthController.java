@@ -1,5 +1,6 @@
 package com.example.tts_in_spring.auth;
 
+import com.example.tts_in_spring.auth.dto.LoginRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

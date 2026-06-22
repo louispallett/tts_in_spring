@@ -1,5 +1,7 @@
 package com.example.tts_in_spring.auth;
 
+import com.example.tts_in_spring.auth.dto.AuthResponse;
+import com.example.tts_in_spring.auth.dto.LoginRequest;
 import com.example.tts_in_spring.security.JwtUtil;
 import com.example.tts_in_spring.user.User;
 import com.example.tts_in_spring.user.UserRepository;

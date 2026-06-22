@@ -1,6 +1,10 @@
 package com.example.tts_in_spring.user;
 
 import com.example.tts_in_spring.tournament.TournamentMapper;
+import com.example.tts_in_spring.user.dto.UserRequest;
+import com.example.tts_in_spring.user.dto.UserResponse;
+import com.example.tts_in_spring.user.dto.UserResponseLite;
+import com.example.tts_in_spring.user.dto.UserUpdateRequest;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;

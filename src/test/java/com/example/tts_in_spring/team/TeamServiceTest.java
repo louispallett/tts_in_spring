@@ -1,10 +1,13 @@
 package com.example.tts_in_spring.team;
 
-import com.example.tts_in_spring.category.CategoryResponseLite;
+import com.example.tts_in_spring.category.dto.CategoryResponseLite;
 import com.example.tts_in_spring.category.CategoryService;
 import com.example.tts_in_spring.category.CategoryTestBuilder;
 import com.example.tts_in_spring.player.Player;
 import com.example.tts_in_spring.player.PlayerTestBuilder;
+import com.example.tts_in_spring.team.dto.TeamRequest;
+import com.example.tts_in_spring.team.dto.TeamResponse;
+import com.example.tts_in_spring.team.dto.TeamResponseLite;
 import com.example.tts_in_spring.user.User;
 import com.example.tts_in_spring.user.UserTestBuilder;
 import org.junit.jupiter.api.Test;

@@ -1,11 +1,15 @@
 package com.example.tts_in_spring.category;
 
+import com.example.tts_in_spring.category.dto.CategoryLockedUpdateRequest;
+import com.example.tts_in_spring.category.dto.CategoryRequest;
+import com.example.tts_in_spring.category.dto.CategoryResponse;
+import com.example.tts_in_spring.category.dto.CategoryResponseLite;
 import com.example.tts_in_spring.player.Player;
 import com.example.tts_in_spring.player.PlayerTestBuilder;
 import com.example.tts_in_spring.tournament.TournamentService;
 import com.example.tts_in_spring.tournament.TournamentTestBuilder;
 import com.example.tts_in_spring.user.UserTestBuilder;
-import com.example.tts_in_spring.tournament.TournamentResponseLite;
+import com.example.tts_in_spring.tournament.dto.TournamentResponseLite;
 import com.example.tts_in_spring.tournament.Tournament;
 import com.example.tts_in_spring.user.User;
 import org.junit.jupiter.api.Test;

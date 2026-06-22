@@ -1,8 +1,9 @@
 package com.example.tts_in_spring.match;
 
-import com.example.tts_in_spring.category.CategoryResponseLite;
+import com.example.tts_in_spring.category.dto.CategoryResponseLite;
 import com.example.tts_in_spring.category.CategoryService;
 import com.example.tts_in_spring.category.CategoryTestBuilder;
+import com.example.tts_in_spring.match.dto.*;
 import com.example.tts_in_spring.participant.Participant;
 import com.example.tts_in_spring.participant.ParticipantTestBuilder;
 import com.example.tts_in_spring.player.Player;

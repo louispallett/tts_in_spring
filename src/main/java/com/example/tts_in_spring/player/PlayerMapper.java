@@ -1,6 +1,7 @@
 package com.example.tts_in_spring.player;
 
 import com.example.tts_in_spring.participant.ParticipantMapper;
+import com.example.tts_in_spring.player.dto.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;

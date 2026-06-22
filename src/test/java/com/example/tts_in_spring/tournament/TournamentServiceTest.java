@@ -1,9 +1,12 @@
 package com.example.tts_in_spring.tournament;
 
 import com.example.tts_in_spring.category.*;
+import com.example.tts_in_spring.category.dto.CategoryRequest;
 import com.example.tts_in_spring.player.PlayerTestBuilder;
+import com.example.tts_in_spring.tournament.dto.*;
 import com.example.tts_in_spring.user.*;
 import com.example.tts_in_spring.player.Player;
+import com.example.tts_in_spring.user.dto.UserResponseLite;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

@@ -1,6 +1,8 @@
 package com.example.tts_in_spring.team;
 
 import com.example.tts_in_spring.security.UserPrincipal;
+import com.example.tts_in_spring.team.dto.TeamRequest;
+import com.example.tts_in_spring.team.dto.TeamResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

@@ -1,11 +1,13 @@
 package com.example.tts_in_spring.participant;
 
-import com.example.tts_in_spring.match.MatchResponseLite;
+import com.example.tts_in_spring.match.dto.MatchResponseLite;
 import com.example.tts_in_spring.match.MatchService;
 import com.example.tts_in_spring.match.MatchTestBuilder;
+import com.example.tts_in_spring.participant.dto.*;
 import com.example.tts_in_spring.player.*;
+import com.example.tts_in_spring.player.dto.PlayerResponseLite;
 import com.example.tts_in_spring.team.Team;
-import com.example.tts_in_spring.team.TeamResponseLite;
+import com.example.tts_in_spring.team.dto.TeamResponseLite;
 import com.example.tts_in_spring.team.TeamService;
 import com.example.tts_in_spring.team.TeamTestBuilder;
 import org.junit.jupiter.api.Test;

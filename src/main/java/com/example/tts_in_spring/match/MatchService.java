@@ -2,6 +2,7 @@ package com.example.tts_in_spring.match;
 
 import com.example.tts_in_spring.category.Category;
 import com.example.tts_in_spring.category.CategoryService;
+import com.example.tts_in_spring.match.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;

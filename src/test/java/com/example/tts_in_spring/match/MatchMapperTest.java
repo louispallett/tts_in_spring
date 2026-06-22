@@ -1,5 +1,7 @@
 package com.example.tts_in_spring.match;
 
+import com.example.tts_in_spring.match.dto.MatchResponse;
+import com.example.tts_in_spring.match.dto.MatchResponseLite;
 import com.example.tts_in_spring.participant.ParticipantMapper;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;

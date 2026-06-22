@@ -1,5 +1,6 @@
 package com.example.tts_in_spring.participant;
 
+import com.example.tts_in_spring.participant.dto.*;
 import com.example.tts_in_spring.security.UserPrincipal;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

@@ -1,5 +1,6 @@
 package com.example.tts_in_spring.match;
 
+import com.example.tts_in_spring.match.dto.*;
 import com.example.tts_in_spring.participant.ParticipantMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
