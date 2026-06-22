@@ -15,16 +15,15 @@ import org.springframework.web.server.ResponseStatusException;
 public class AuthService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
-    private final AuthMapper authMapper;
     private final JwtUtil jwtUtil;
 
     @Transactional(readOnly = true)
-    public Object login(LoginRequest loginRequest) {
+    public AuthResponse login(LoginRequest loginRequest) {
         User user = userRepository.findByEmail(loginRequest.getEmail().toLowerCase())
                 .filter(u -> passwordEncoder.matches(loginRequest.getPassword(), u.getPassword()))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid Credentials"));
 
         String token = jwtUtil.generateToken(user.getId());
-        return authMapper.toResponse(token);
+        return new AuthResponse(token);
     }
 }

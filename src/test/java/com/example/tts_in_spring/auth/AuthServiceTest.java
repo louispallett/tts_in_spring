@@ -22,9 +22,6 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class AuthServiceTest {
     @Mock
-    private AuthMapper authMapper;
-
-    @Mock
     private JwtUtil jwtUtil;
 
     @Mock
@@ -49,8 +46,7 @@ public class AuthServiceTest {
 
         when(userRepository.findByEmail("john.doe@example.com")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("Hello123!", "hashed_password")).thenReturn(true);
-        when(jwtUtil.generateToken(user.getId())).thenReturn("jwt-token");
-        when(authMapper.toResponse("jwt-token")).thenReturn(authResponse);
+        when(jwtUtil.generateToken(user.getId())).thenReturn("asbcsdefsg");
 
         assertThat(authService.login(request)).isEqualTo(authResponse);
         verify(jwtUtil).generateToken(user.getId());
