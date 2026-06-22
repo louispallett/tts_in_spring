@@ -2,7 +2,7 @@ package com.example.tts_in_spring.tournament;
 
 import com.example.tts_in_spring.security.UserPrincipal;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/tournament")
 public class TournamentController {
-    @Autowired
-    private TournamentService tournamentService;
+    private final TournamentService tournamentService;
 
     @GetMapping
     // TODO: Uncomment for prod

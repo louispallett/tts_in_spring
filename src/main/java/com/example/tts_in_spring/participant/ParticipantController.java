@@ -2,7 +2,7 @@ package com.example.tts_in_spring.participant;
 
 import com.example.tts_in_spring.security.UserPrincipal;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/participant")
 public class ParticipantController {
-    @Autowired
-    private ParticipantService participantService;
+    private final ParticipantService participantService;
 
     @GetMapping
     // TODO: Uncomment for prod
