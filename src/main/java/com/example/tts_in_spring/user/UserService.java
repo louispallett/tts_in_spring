@@ -1,6 +1,5 @@
 package com.example.tts_in_spring.user;
 
-import com.example.tts_in_spring.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.http.HttpStatus;
@@ -13,12 +12,9 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
-    private final AuthMapper authMapper;
-    private final JwtUtil jwtUtil;
 
     public User getUserOrThrow(Long id) {
         return userRepository.findById(id)
@@ -91,13 +87,4 @@ public class UserService {
         return userMapper.toResponseLite(savedUser);
     }
 
-    @Transactional(readOnly = true)
-    public Object login(LoginRequest loginRequest) {
-        User user = userRepository.findByEmail(loginRequest.getEmail().toLowerCase())
-                .filter(u -> passwordEncoder.matches(loginRequest.getPassword(), u.getPassword()))
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid Credentials"));
-
-        String token = jwtUtil.generateToken(user.getId());
-        return authMapper.toResponse(token);
-    }
 }

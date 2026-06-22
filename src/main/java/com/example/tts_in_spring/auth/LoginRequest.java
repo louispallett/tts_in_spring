@@ -1,4 +1,4 @@
-package com.example.tts_in_spring.user;
+package com.example.tts_in_spring.auth;
 
 import lombok.Getter;
 import lombok.Setter;
