@@ -1,8 +1,10 @@
 package com.example.tts_in_spring.participant;
 
+import com.example.tts_in_spring.security.UserPrincipal;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,12 +23,37 @@ public class ParticipantController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ParticipantResponse> getParticipant(Long id) {
-        return ResponseEntity.ok(participantService.getParticipantById(id));
+    public ResponseEntity<ParticipantResponse> getParticipant(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserPrincipal user
+    ) {
+        return ResponseEntity.ok(participantService.getParticipantById(id, user.userId()));
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<?> createParticipant(@RequestBody ParticipantRequest participantRequest) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(participantService.createParticipant(participantRequest));
+    @PatchMapping("/{id}/update-result-text")
+    public ResponseEntity<ParticipantResponseLite> updateResultText(
+            @PathVariable Long id,
+            @Valid @RequestBody ParticipantUpdateResultTextRequest request,
+            @AuthenticationPrincipal UserPrincipal user
+    ) {
+        return ResponseEntity.ok(participantService.updateResultText(id, request, user.userId()));
+    }
+
+    @PatchMapping("/{id}/update-is-winner")
+    public ResponseEntity<ParticipantResponseLite> updateIsWinner(
+            @PathVariable Long id,
+            @Valid @RequestBody ParticipantUpdateWinnerRequest request,
+            @AuthenticationPrincipal UserPrincipal user
+    ) {
+        return ResponseEntity.ok(participantService.updateIsWinner(id, request, user.userId()));
+    }
+
+    @PatchMapping("/{id}/update-status")
+    public ResponseEntity<ParticipantResponseLite> updateStatus(
+            @PathVariable Long id,
+            @Valid @RequestBody ParticipantUpdateStatusRequest request,
+            @AuthenticationPrincipal UserPrincipal user
+    ) {
+        return ResponseEntity.ok(participantService.updateStatus(id, request, user.userId()));
     }
 }

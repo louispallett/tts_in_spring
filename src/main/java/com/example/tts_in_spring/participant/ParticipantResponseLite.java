@@ -4,5 +4,6 @@ public record ParticipantResponseLite(
         Long id,
         String resultText,
         boolean isWinner,
-        String status
+        String status,
+        String name
 ) {}
