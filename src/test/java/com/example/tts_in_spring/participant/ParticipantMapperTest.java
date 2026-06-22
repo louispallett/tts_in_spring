@@ -5,18 +5,12 @@ import com.example.tts_in_spring.team.TeamTestBuilder;
 import com.example.tts_in_spring.player.Player;
 import com.example.tts_in_spring.team.Team;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.mapstruct.factory.Mappers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ExtendWith(SpringExtension.class)
-@Import({ParticipantMapperImpl.class})
 public class ParticipantMapperTest {
-    @Autowired
-    private ParticipantMapper participantMapper;
+    private final ParticipantMapper participantMapper = Mappers.getMapper(ParticipantMapper.class);
 
     @Test
     void toResponse_mapsAllFields() {

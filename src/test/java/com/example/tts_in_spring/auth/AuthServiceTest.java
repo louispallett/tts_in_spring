@@ -35,9 +35,10 @@ public class AuthServiceTest {
 
     @Test
     void login_withValidCredentials_returnsAuthResponse() {
-        LoginRequest request = new LoginRequest();
-        request.setEmail("john.doe@example.com");
-        request.setPassword("Hello123!");
+        LoginRequest request = new LoginRequest(
+                "john.doe@example.com",
+                "Hello123!"
+        );
         User user = new User();
         user.setId(1L);
         user.setEmail("john.doe@example.com");
@@ -54,9 +55,10 @@ public class AuthServiceTest {
 
     @Test
     void login_withInvalidPassword_throws401() {
-        LoginRequest request = new LoginRequest();
-        request.setEmail("john.doe@example.com");
-        request.setPassword("WrongPassword123!");
+        LoginRequest request = new LoginRequest(
+                "john.doe@example.com",
+                "WrongPassword123!"
+        );
         User user = new User();
         user.setPassword("hashed_password");
 
@@ -71,9 +73,10 @@ public class AuthServiceTest {
 
     @Test
     void login_withUnknownEmail_throws401() {
-        LoginRequest request = new LoginRequest();
-        request.setEmail("random@random.com");
-        request.setPassword("AnyString123!");
+        LoginRequest request = new LoginRequest(
+                "random@random.com",
+                "AnyString123!"
+        );
         when(userRepository.findByEmail("random@random.com")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> authService.login(request))

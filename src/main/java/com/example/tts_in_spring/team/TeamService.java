@@ -52,7 +52,7 @@ public class TeamService {
 
     @Transactional
     public TeamResponseLite createTeam(TeamRequest teamRequest, Long userId) {
-        Category category = categoryService.getCategoryOrThrow(teamRequest.getCategoryId());
+        Category category = categoryService.getCategoryOrThrow(teamRequest.categoryId());
 
         if (category.getTournament().getHost().getId().equals(userId)) {
             Team team = teamMapper.toEntity(teamRequest);

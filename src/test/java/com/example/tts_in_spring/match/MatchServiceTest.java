@@ -62,13 +62,13 @@ public class MatchServiceTest {
     }
 
     private MatchRequest buildMatchRequest(Instant deadline) {
-        MatchRequest r = new MatchRequest();
-        r.setTournamentRoundText("");
-        r.setDeadline(deadline);
-        r.setQualifyingMatch(false);
-        r.setCategoryId(CategoryTestBuilder.aCategory().build().getId());
-
-        return r;
+        return new MatchRequest(
+                "",
+                deadline,
+                false,
+                CategoryTestBuilder.aCategory().build().getId(),
+                null
+        );
     }
 
     @Test
@@ -156,7 +156,7 @@ public class MatchServiceTest {
             false
         );
 
-        when(categoryService.getCategoryOrThrow(request.getCategoryId())).thenReturn(saved.getCategory());
+        when(categoryService.getCategoryOrThrow(request.categoryId())).thenReturn(saved.getCategory());
         when(matchMapper.toEntity(request)).thenReturn(saved);
         when(matchRepository.save(any(Match.class))).thenReturn(saved);
         when(matchMapper.toResponseLite(saved)).thenReturn(lite);
@@ -169,7 +169,7 @@ public class MatchServiceTest {
         MatchRequest request = buildMatchRequest(Instant.now());
         Match match = MatchTestBuilder.aMatch().build();
 
-        when(categoryService.getCategoryOrThrow(request.getCategoryId())).thenReturn(match.getCategory());
+        when(categoryService.getCategoryOrThrow(request.categoryId())).thenReturn(match.getCategory());
 
         assertThatThrownBy(() -> matchService.createMatch(request, 3L))
                 .isInstanceOf(ResponseStatusException.class)
@@ -186,8 +186,7 @@ public class MatchServiceTest {
     void submitScore_whenHost_savesAndReturnsMappedLite() {
         Match match = MatchTestBuilder.aMatch().build();
 
-        MatchSubmitScoreRequest request = new MatchSubmitScoreRequest();
-        request.setState("SCORE_DONE");
+        MatchSubmitScoreRequest request = new MatchSubmitScoreRequest("SCORE_DONE");
 
         Match updatedMatch = MatchTestBuilder.aMatch().build();
         updatedMatch.setState("SCORE_DONE");
@@ -211,8 +210,7 @@ public class MatchServiceTest {
         Participant participant = ParticipantTestBuilder.aParticipant().withPlayer(player).build();
         match.getParticipants().add(participant);
 
-        MatchSubmitScoreRequest request = new MatchSubmitScoreRequest();
-        request.setState("SCORE_DONE");
+        MatchSubmitScoreRequest request = new MatchSubmitScoreRequest("SCORE_DONE");
 
         Match updatedMatch = MatchTestBuilder.aMatch().build();
         updatedMatch.setState("SCORE_DONE");
@@ -233,8 +231,7 @@ public class MatchServiceTest {
     void submitScore_whenNotAuthorized_returns403() {
         Match match = MatchTestBuilder.aMatch().build();
 
-        MatchSubmitScoreRequest request = new MatchSubmitScoreRequest();
-        request.setState("SCORE_DONE");
+        MatchSubmitScoreRequest request = new MatchSubmitScoreRequest("SCORE_DONE");
 
         when(matchRepository.findById(match.getId())).thenReturn(Optional.of(match));
 
@@ -250,8 +247,7 @@ public class MatchServiceTest {
 
     @Test
     void submitScore_whenMatchMissing_returns404() {
-        MatchSubmitScoreRequest request = new MatchSubmitScoreRequest();
-        request.setState("SCORE_DONE");
+        MatchSubmitScoreRequest request = new MatchSubmitScoreRequest("SCORE_DONE");
 
         when(matchRepository.findById(999999L)).thenReturn(Optional.empty());
 
@@ -266,8 +262,7 @@ public class MatchServiceTest {
     void updateDeadline_whenHost_savesAndReturnsMappedLite() {
         Match match = MatchTestBuilder.aMatch().build();
 
-        MatchUpdateDeadlineRequest request = new MatchUpdateDeadlineRequest();
-        request.deadline = Instant.MIN;
+        MatchUpdateDeadlineRequest request = new MatchUpdateDeadlineRequest(Instant.MIN);
 
         Match updatedMatch = MatchTestBuilder.aMatch().build();
         updatedMatch.setDeadline(Instant.MIN);
@@ -288,8 +283,7 @@ public class MatchServiceTest {
     void updateDeadline_whenNotHost_returns403() {
         Match match = MatchTestBuilder.aMatch().build();
 
-        MatchUpdateDeadlineRequest request = new MatchUpdateDeadlineRequest();
-        request.deadline = Instant.MIN;
+        MatchUpdateDeadlineRequest request = new MatchUpdateDeadlineRequest(Instant.MIN);
 
         when(matchRepository.findById(match.getId())).thenReturn(Optional.of(match));
 
@@ -305,8 +299,7 @@ public class MatchServiceTest {
 
     @Test
     void updateDeadline_whenMatchMissing_returns404() {
-        MatchUpdateDeadlineRequest request = new MatchUpdateDeadlineRequest();
-        request.deadline = Instant.MIN;
+        MatchUpdateDeadlineRequest request = new MatchUpdateDeadlineRequest(Instant.MIN);
 
         when(matchRepository.findById(999999L)).thenReturn(Optional.empty());
 

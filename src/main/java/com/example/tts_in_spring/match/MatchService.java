@@ -56,8 +56,8 @@ public class MatchService {
 
     @Transactional
     public MatchResponseLite createMatch(MatchRequest request, Long userId) {
-        Category category = categoryService.getCategoryOrThrow(request.getCategoryId());
-        Match nextMatch = request.getNextMatchId() == null ? null : getMatchOrThrow(request.getNextMatchId());
+        Category category = categoryService.getCategoryOrThrow(request.categoryId());
+        Match nextMatch = request.nextMatchId() == null ? null : getMatchOrThrow(request.nextMatchId());
 
         if (category.getTournament().getHost().getId().equals(userId)) {
             Match match = matchMapper.toEntity(request);

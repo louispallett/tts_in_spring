@@ -149,7 +149,7 @@ public class CategoryServiceTest {
                 false
         );
 
-        when(tournamentService.getTournamentOrThrow(request.getTournamentId())).thenReturn(saved.getTournament());
+        when(tournamentService.getTournamentOrThrow(request.tournamentId())).thenReturn(saved.getTournament());
         when(categoryMapper.toEntity(request)).thenReturn(saved);
         when(categoryRepository.save(any(Category.class))).thenReturn(saved);
         when(categoryMapper.toResponseLite(saved)).thenReturn(lite);
@@ -161,8 +161,7 @@ public class CategoryServiceTest {
     void updateCategoryLocked_whenHost_returnsMappedLite() {
         Category category = CategoryTestBuilder.aCategory().build();
 
-        CategoryLockedUpdateRequest request = new CategoryLockedUpdateRequest();
-        request.setLocked(true);
+        CategoryLockedUpdateRequest request = new CategoryLockedUpdateRequest(true);
 
         Category updatedCategory = CategoryTestBuilder.aCategory().build();
         updatedCategory.setLocked(true);
@@ -189,8 +188,7 @@ public class CategoryServiceTest {
     void updateCategoryLocked_whenNotHost_throws403() {
         Category category = CategoryTestBuilder.aCategory().build();
 
-        CategoryLockedUpdateRequest request = new CategoryLockedUpdateRequest();
-        request.setLocked(true);
+        CategoryLockedUpdateRequest request = new CategoryLockedUpdateRequest(true);
 
         when(categoryRepository.findById(category.getId())).thenReturn(Optional.of(category));
 
@@ -206,8 +204,7 @@ public class CategoryServiceTest {
 
     @Test
     void updateCategoryLocked_whenNotFound_throws404() {
-        CategoryLockedUpdateRequest request = new CategoryLockedUpdateRequest();
-        request.setLocked(true);
+        CategoryLockedUpdateRequest request = new CategoryLockedUpdateRequest(true);
 
         when(categoryRepository.findById(999L)).thenReturn(Optional.empty());
 

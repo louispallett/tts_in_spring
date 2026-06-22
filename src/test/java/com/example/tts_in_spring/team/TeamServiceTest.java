@@ -46,10 +46,7 @@ public class TeamServiceTest {
     }
 
     private TeamRequest buildTeamRequest() {
-        TeamRequest r = new TeamRequest();
-        r.setCategoryId(CategoryTestBuilder.aCategory().build().getId());
-
-        return r;
+        return new TeamRequest(CategoryTestBuilder.aCategory().build().getId());
     }
 
     @Test
@@ -131,7 +128,7 @@ public class TeamServiceTest {
         Team saved = TeamTestBuilder.aTeam().build();
         TeamResponseLite lite = new TeamResponseLite(10000L);
 
-        when(categoryService.getCategoryOrThrow(request.getCategoryId())).thenReturn(saved.getCategory());
+        when(categoryService.getCategoryOrThrow(request.categoryId())).thenReturn(saved.getCategory());
         when(teamMapper.toEntity(request)).thenReturn(saved);
         when(teamRepository.save(any(Team.class))).thenReturn(saved);
         when(teamMapper.toResponseLite(saved)).thenReturn(lite);
@@ -145,7 +142,7 @@ public class TeamServiceTest {
 
         Team team = TeamTestBuilder.aTeam().build();
 
-        when(categoryService.getCategoryOrThrow(request.getCategoryId())).thenReturn(team.getCategory());
+        when(categoryService.getCategoryOrThrow(request.categoryId())).thenReturn(team.getCategory());
 
         assertThatThrownBy(() -> teamService.createTeam(request, 3L))
                 .isInstanceOf(ResponseStatusException.class)

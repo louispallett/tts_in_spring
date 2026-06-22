@@ -19,8 +19,8 @@ public class AuthService {
 
     @Transactional(readOnly = true)
     public AuthResponse login(LoginRequest loginRequest) {
-        User user = userRepository.findByEmail(loginRequest.getEmail().toLowerCase())
-                .filter(u -> passwordEncoder.matches(loginRequest.getPassword(), u.getPassword()))
+        User user = userRepository.findByEmail(loginRequest.email().toLowerCase())
+                .filter(u -> passwordEncoder.matches(loginRequest.password(), u.getPassword()))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid Credentials"));
 
         String token = jwtUtil.generateToken(user.getId());

@@ -61,17 +61,11 @@ public class TournamentServiceTest {
     }
 
     private TournamentRequest buildTournamentRequest() {
-        TournamentRequest r = new TournamentRequest();
-        r.setName("Test Tournament");
-        r.setStage("SIGN_UP");
-        r.setShowMobile(true);
-        r.setMen_singles(true);
-        r.setMen_doubles(false);
-        r.setWomen_singles(false);
-        r.setWomen_doubles(false);
-        r.setMix_doubles(false);
-
-        return r;
+        return new TournamentRequest(
+                "Test Tournament",
+            true,
+            true, false, false, false, false
+        );
     }
 
     @Test
@@ -180,8 +174,7 @@ public class TournamentServiceTest {
 
          Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
 
-         TournamentNameUpdateRequest request = new TournamentNameUpdateRequest();
-         request.setName("New Tournament Name");
+         TournamentNameUpdateRequest request = new TournamentNameUpdateRequest("New Tournament Name");
 
          Tournament updatedTournament = TournamentTestBuilder.aTournament().withHost(host).build();
          updatedTournament.setName("New Tournament Name");
@@ -211,8 +204,7 @@ public class TournamentServiceTest {
          User host = UserTestBuilder.aUser().build();
          Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
 
-         TournamentNameUpdateRequest request = new TournamentNameUpdateRequest();
-         request.setName("New Tournament Name");
+         TournamentNameUpdateRequest request = new TournamentNameUpdateRequest("New Tournament Name");
 
          when(tournamentRepository.findById(tournament.getId())).thenReturn(Optional.of(tournament));
 
@@ -228,8 +220,7 @@ public class TournamentServiceTest {
 
      @Test
      void updateTournamentName_whenNotFound_throws404() {
-         TournamentNameUpdateRequest request = new TournamentNameUpdateRequest();
-         request.setName("New Tournament Name");
+         TournamentNameUpdateRequest request = new TournamentNameUpdateRequest("New Tournament Name");
 
          when(tournamentRepository.findById(99L)).thenReturn(Optional.empty());
 
@@ -247,8 +238,7 @@ public class TournamentServiceTest {
 
          Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
 
-         TournamentStageUpdateRequest request = new TournamentStageUpdateRequest();
-         request.setStage("DRAW");
+         TournamentStageUpdateRequest request = new TournamentStageUpdateRequest("DRAW");
 
          Tournament updatedTournament = TournamentTestBuilder.aTournament().withHost(host).build();
          updatedTournament.setStage("DRAW");
@@ -278,12 +268,11 @@ public class TournamentServiceTest {
          User host = UserTestBuilder.aUser().build();
          Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
 
-         TournamentStageUpdateRequest updateRequest = new TournamentStageUpdateRequest();
-         updateRequest.setStage("DRAW");
+         TournamentStageUpdateRequest request = new TournamentStageUpdateRequest("DRAW");
 
          when(tournamentRepository.findById(tournament.getId())).thenReturn(Optional.of(tournament));
 
-         assertThatThrownBy(() -> tournamentService.updateStage(tournament.getId(), updateRequest, user.getId()))
+         assertThatThrownBy(() -> tournamentService.updateStage(tournament.getId(), request, user.getId()))
                  .isInstanceOf(ResponseStatusException.class)
                  .satisfies(ex ->
                          assertThat(((ResponseStatusException) ex).getStatusCode())
@@ -295,12 +284,11 @@ public class TournamentServiceTest {
 
      @Test
      void updateTournamentStage_whenNotFound_throws404() {
-         TournamentStageUpdateRequest updateRequest = new TournamentStageUpdateRequest();
-         updateRequest.setStage("DRAW");
+         TournamentStageUpdateRequest request = new TournamentStageUpdateRequest("DRAW");
 
          when(tournamentRepository.findById(99L)).thenReturn(Optional.empty());
 
-         assertThatThrownBy(() -> tournamentService.updateStage(99L, updateRequest, 1L))
+         assertThatThrownBy(() -> tournamentService.updateStage(99L, request, 1L))
                  .isInstanceOf(ResponseStatusException.class)
                  .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
                          .isEqualTo(HttpStatus.NOT_FOUND));
@@ -314,8 +302,7 @@ public class TournamentServiceTest {
 
          Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
 
-         TournamentShowMobileUpdateRequest request = new TournamentShowMobileUpdateRequest();
-         request.setShowMobile(true);
+         TournamentShowMobileUpdateRequest request = new TournamentShowMobileUpdateRequest(true);
 
          Tournament updatedTournament = TournamentTestBuilder.aTournament().withHost(host).build();
          updatedTournament.setShowMobile(true);
@@ -345,12 +332,11 @@ public class TournamentServiceTest {
          User host = UserTestBuilder.aUser().build();
          Tournament tournament = TournamentTestBuilder.aTournament().withHost(host).build();
 
-         TournamentShowMobileUpdateRequest updateRequest = new TournamentShowMobileUpdateRequest();
-         updateRequest.setShowMobile(true);
+         TournamentShowMobileUpdateRequest request = new TournamentShowMobileUpdateRequest(true);
 
          when(tournamentRepository.findById(tournament.getId())).thenReturn(Optional.of(tournament));
 
-         assertThatThrownBy(() -> tournamentService.updateShowMobile(tournament.getId(), updateRequest, user.getId()))
+         assertThatThrownBy(() -> tournamentService.updateShowMobile(tournament.getId(), request, user.getId()))
                  .isInstanceOf(ResponseStatusException.class)
                  .satisfies(ex ->
                          assertThat(((ResponseStatusException) ex).getStatusCode())
@@ -362,12 +348,11 @@ public class TournamentServiceTest {
 
      @Test
      void updateTournamentShowMobile_whenNotFound_throws404() {
-         TournamentShowMobileUpdateRequest updateRequest = new TournamentShowMobileUpdateRequest();
-         updateRequest.setShowMobile(true);
+         TournamentShowMobileUpdateRequest request = new TournamentShowMobileUpdateRequest(true);
 
          when(tournamentRepository.findById(99L)).thenReturn(Optional.empty());
 
-         assertThatThrownBy(() -> tournamentService.updateShowMobile(99L, updateRequest, 1L))
+         assertThatThrownBy(() -> tournamentService.updateShowMobile(99L, request, 1L))
                  .isInstanceOf(ResponseStatusException.class)
                  .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
                          .isEqualTo(HttpStatus.NOT_FOUND));

@@ -2,22 +2,16 @@ package com.example.tts_in_spring.tournament;
 
 import com.example.tts_in_spring.category.CategoryMapper;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Import;
+import org.mapstruct.factory.Mappers;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ExtendWith(SpringExtension.class)
-@Import({TournamentMapperImpl.class})
 public class TournamentMapperTest {
     @MockitoBean
     private CategoryMapper categoryMapper;
 
-    @Autowired
-    private TournamentMapper tournamentMapper;
+    private final TournamentMapper tournamentMapper = Mappers.getMapper(TournamentMapper.class);
 
     @Test
     void toResponse_mapsAllFields() {
@@ -42,9 +36,11 @@ public class TournamentMapperTest {
 
     @Test
     void toEntity_mapsAllowedFieldsOnly() {
-        TournamentRequest request = new TournamentRequest();
-        request.setName("Test Tournament");
-        request.setShowMobile(false);
+        TournamentRequest request = new TournamentRequest(
+                "Test Tournament",
+                false,
+                true, false, false, false, false
+        );
 
         Tournament tournament = tournamentMapper.toEntity(request);
 
@@ -63,8 +59,7 @@ public class TournamentMapperTest {
     void updateNameEntity_mapsFields() {
         Tournament tournament = TournamentTestBuilder.aTournament().build();
 
-        TournamentNameUpdateRequest request = new TournamentNameUpdateRequest();
-        request.setName("New Tournament Name");
+        TournamentNameUpdateRequest request = new TournamentNameUpdateRequest("New Tournament Name");
 
         tournamentMapper.updateNameEntity(request, tournament);
 
@@ -76,8 +71,7 @@ public class TournamentMapperTest {
     void updateStageEntity_mapsFields() {
         Tournament tournament = TournamentTestBuilder.aTournament().build();
 
-        TournamentStageUpdateRequest request = new TournamentStageUpdateRequest();
-        request.setStage("DRAW");
+        TournamentStageUpdateRequest request = new TournamentStageUpdateRequest("DRAW");
 
         tournamentMapper.updateStageEntity(request, tournament);
 
@@ -88,8 +82,7 @@ public class TournamentMapperTest {
     void updateShowMobileEntity_mapsFields() {
         Tournament tournament = TournamentTestBuilder.aTournament().build();
 
-        TournamentShowMobileUpdateRequest request = new TournamentShowMobileUpdateRequest();
-        request.setShowMobile(true);
+        TournamentShowMobileUpdateRequest request = new TournamentShowMobileUpdateRequest(true);
 
         tournamentMapper.updateShowMobileEntity(request, tournament);
 

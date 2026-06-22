@@ -2,22 +2,16 @@ package com.example.tts_in_spring.category;
 
 import com.example.tts_in_spring.player.PlayerMapper;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Import;
+import org.mapstruct.factory.Mappers;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ExtendWith(SpringExtension.class)
-@Import({CategoryMapperImpl.class})
 public class CategoryMapperTest {
     @MockitoBean
     private PlayerMapper playerMapper;
 
-    @Autowired
-    private CategoryMapper categoryMapper;
+    private final CategoryMapper categoryMapper = Mappers.getMapper(CategoryMapper.class);
 
     @Test
     void toResponse_mapsAllFields() {

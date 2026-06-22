@@ -96,23 +96,23 @@ public class TournamentService {
 
         Tournament savedTournament = tournamentRepository.save(newTournament);
 
-        if (request.men_singles) categoryService.createCategory(
+        if (request.men_singles()) categoryService.createCategory(
                 new CategoryRequest("Men's Singles", savedTournament.getId()), userId
         );
 
-        if (request.men_doubles) categoryService.createCategory(
+        if (request.men_doubles()) categoryService.createCategory(
                 new CategoryRequest("Men's Doubles", savedTournament.getId()), userId
         );
 
-        if (request.women_singles) categoryService.createCategory(
+        if (request.women_singles()) categoryService.createCategory(
                 new CategoryRequest("Women's Singles", savedTournament.getId()), userId
         );
 
-        if (request.women_doubles) categoryService.createCategory(
+        if (request.women_doubles()) categoryService.createCategory(
                 new CategoryRequest("Women's Doubles", savedTournament.getId()), userId
         );
 
-        if (request.mix_doubles) categoryService.createCategory(
+        if (request.mix_doubles()) categoryService.createCategory(
                 new CategoryRequest("Mixed Doubles", savedTournament.getId()), userId
         );
 

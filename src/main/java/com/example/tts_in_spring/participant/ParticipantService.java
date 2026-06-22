@@ -70,13 +70,13 @@ public class ParticipantService {
     // This is only used when creating matches, so is only called by matchService, which already authorizes the user
     @Transactional
     public ParticipantResponseLite createParticipant(ParticipantRequest request) {
-        Team team = request.getTeamId() == null ? null : teamService.getTeamOrThrow(request.getTeamId());
-        Player player = request.getPlayerId() == null ? null : playerService.getPlayerOrThrow(request.getPlayerId());
+        Team team = request.teamId() == null ? null : teamService.getTeamOrThrow(request.teamId());
+        Player player = request.playerId() == null ? null : playerService.getPlayerOrThrow(request.playerId());
         if (team == null && player == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Both team and player are null");
         }
 
-        Match match = matchService.getMatchOrThrow(request.getMatchId());
+        Match match = matchService.getMatchOrThrow(request.matchId());
 
         Participant participant = participantMapper.toEntity(request);
         participant.setPlayer(player);

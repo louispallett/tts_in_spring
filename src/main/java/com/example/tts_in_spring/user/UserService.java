@@ -37,14 +37,14 @@ public class UserService {
 
     @Transactional
     public UserResponseLite createUser(UserRequest userRequest) {
-        String email = userRequest.getEmail().toLowerCase();
+        String email = userRequest.email().toLowerCase();
         if (userRepository.findByEmail(email).isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already registered");
         }
 
         User newUser = userMapper.toEntity(userRequest);
         newUser.setEmail(email);
-        newUser.setPassword(passwordEncoder.encode(userRequest.getPassword()));
+        newUser.setPassword(passwordEncoder.encode(userRequest.password()));
 
         User savedUser = userRepository.save(newUser);
         return userMapper.toResponseLite(savedUser);
@@ -54,7 +54,7 @@ public class UserService {
     public UserResponseLite updateDetails(Long id, UserUpdateRequest request) {
         User existingUser = getUserOrThrow(id);
 
-        String email = request.getEmail().toLowerCase();
+        String email = request.email().toLowerCase();
         if (
                 !email.equals(existingUser.getEmail()) &&
                 userRepository.findByEmail(email).isPresent()
@@ -71,17 +71,17 @@ public class UserService {
 
     @Transactional
     public UserResponseLite updatePassword(Long id, UserUpdatePasswordRequest request) {
-        if (!request.getNewPassword().equals(request.getConfirmNewPassword())) {
+        if (!request.newPassword().equals(request.confirmNewPassword())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "New password and confirmed password do not match");
         }
 
         User existingUser = getUserOrThrow(id);
 
-        if (!passwordEncoder.matches(request.getCurrentPassword(), existingUser.getPassword())) {
+        if (!passwordEncoder.matches(request.currentPassword(), existingUser.getPassword())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Current password incorrect");
         }
 
-        existingUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        existingUser.setPassword(passwordEncoder.encode(request.newPassword()));
 
         User savedUser = userRepository.save(existingUser);
         return userMapper.toResponseLite(savedUser);

@@ -53,15 +53,15 @@ public class CategoryService {
 
     @Transactional
     public CategoryResponseLite createCategory(CategoryRequest categoryRequest, Long userId) {
-        Tournament tournament = tournamentService.getTournamentOrThrow(categoryRequest.getTournamentId());
+        Tournament tournament = tournamentService.getTournamentOrThrow(categoryRequest.tournamentId());
 
         if (tournament.getHost().getId().equals(userId)) {
             Category category = categoryMapper.toEntity(categoryRequest);
             category.setTournament(tournament);
             category.setLocked(false);
 
-            category.setDoubles(!Objects.equals(categoryRequest.getName(), "Men's Singles")
-                    && !Objects.equals(categoryRequest.getName(), "Women's Singles"));
+            category.setDoubles(!Objects.equals(categoryRequest.name(), "Men's Singles")
+                    && !Objects.equals(categoryRequest.name(), "Women's Singles"));
 
             Category savedCategory = categoryRepository.save(category);
             return categoryMapper.toResponseLite(savedCategory);

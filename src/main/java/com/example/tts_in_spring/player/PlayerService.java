@@ -56,7 +56,7 @@ public class PlayerService {
     @Transactional
     public PlayerResponseLite createPlayer(PlayerRequest playerRequest, Long userId) {
         User user = userService.getUserOrThrow(userId);
-        Category category = categoryService.getCategoryOrThrow(playerRequest.getCategoryId());
+        Category category = categoryService.getCategoryOrThrow(playerRequest.categoryId());
 
         Player player = playerMapper.toEntity(playerRequest);
         player.setUser(user);

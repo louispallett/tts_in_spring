@@ -2,22 +2,16 @@ package com.example.tts_in_spring.user;
 
 import com.example.tts_in_spring.tournament.TournamentMapper;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Import;
+import org.mapstruct.factory.Mappers;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ExtendWith(SpringExtension.class)
-@Import({UserMapperImpl.class})
 class UserMapperTest {
     @MockitoBean
     private TournamentMapper tournamentMapper;
 
-    @Autowired
-    private UserMapper userMapper;
+    private final UserMapper userMapper = Mappers.getMapper(UserMapper.class);
 
     @Test
     void toResponse_mapsAllFields() {
@@ -42,13 +36,14 @@ class UserMapperTest {
 
     @Test
     void toEntity_mapsAllowedFieldsOnly() {
-        UserRequest request = new UserRequest();
-        request.setFirstName("John");
-        request.setLastName("Doe");
-        request.setEmail("john.doe@example.com");
-        request.setPassword("Hello123!");
-        request.setMobCode("+44");
-        request.setMobile("1234567890");
+        UserRequest request = new UserRequest(
+            "John",
+            "Doe",
+            "john.doe@example.com",
+            "Hello123!",
+            "+44",
+            "1234567890"
+        );
 
         User user = userMapper.toEntity(request);
 
@@ -68,12 +63,13 @@ class UserMapperTest {
     void updateEntity_updatesAllowedFieldsOnly() {
         User user = UserTestBuilder.aUser().build();
 
-        UserUpdateRequest request = new UserUpdateRequest();
-        request.setFirstName("Simon");
-        request.setLastName("Smith");
-        request.setEmail("simon.smith@example.com");
-        request.setMobCode("+1");
-        request.setMobile("987654321");
+        UserUpdateRequest request = new UserUpdateRequest(
+            "Simon",
+            "Smith",
+            "simon.smith@example.com",
+            "+1",
+            "987654321"
+        );
 
         userMapper.updateEntity(request, user);
 

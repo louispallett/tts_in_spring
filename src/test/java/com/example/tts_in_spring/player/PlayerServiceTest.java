@@ -54,14 +54,11 @@ public class PlayerServiceTest {
     }
 
     private PlayerRequest buildPlayerRequest(User user, Category category) {
-        PlayerRequest r = new PlayerRequest();
-        r.setMale(true);
-        r.setSeeded(false);
-        r.setRank(0);
-        r.setUserId(user.getId());
-        r.setCategoryId(category.getId());
-
-        return r;
+        return new PlayerRequest(
+            true,
+            user.getId(),
+            category.getId()
+        );
     }
 
     @Test
@@ -159,8 +156,7 @@ public class PlayerServiceTest {
     void updatePlayerRank_whenHost_savesAndReturnsMappedLite() {
         Player player = PlayerTestBuilder.aPlayer().build();
 
-        PlayerUpdateRankRequest request = new PlayerUpdateRankRequest();
-        request.setRank(1);
+        PlayerUpdateRankRequest request = new PlayerUpdateRankRequest(1);
 
         Player updatedPlayer = PlayerTestBuilder.aPlayer().build();
         updatedPlayer.setRank(1);
@@ -187,8 +183,7 @@ public class PlayerServiceTest {
     void updatePlayerRank_whenNotHost_throws403() {
         Player player = PlayerTestBuilder.aPlayer().build();
 
-        PlayerUpdateRankRequest request = new PlayerUpdateRankRequest();
-        request.setRank(1);
+        PlayerUpdateRankRequest request = new PlayerUpdateRankRequest(1);
 
         when(playerRepository.findById(player.getId())).thenReturn(Optional.of(player));
 
@@ -204,8 +199,7 @@ public class PlayerServiceTest {
 
     @Test
     void updatePlayerRank_whenNotFound_throws404() {
-        PlayerUpdateRankRequest request = new PlayerUpdateRankRequest();
-        request.setRank(1);
+        PlayerUpdateRankRequest request = new PlayerUpdateRankRequest(1);
 
         when(playerRepository.findById(9999L)).thenReturn(Optional.empty());
 
@@ -220,8 +214,7 @@ public class PlayerServiceTest {
     void updatePlayerSeeded_whenHost_savesAndReturnsMappedLite() {
         Player player = PlayerTestBuilder.aPlayer().build();
 
-        PlayerUpdateSeededRequest request = new PlayerUpdateSeededRequest();
-        request.setSeeded(true);
+        PlayerUpdateSeededRequest request = new PlayerUpdateSeededRequest(true);
 
         Player updatedPlayer = PlayerTestBuilder.aPlayer().build();
         updatedPlayer.setSeeded(true);
@@ -248,8 +241,7 @@ public class PlayerServiceTest {
     void updatePlayerSeeded_whenNotHost_throws403() {
         Player player = PlayerTestBuilder.aPlayer().build();
 
-        PlayerUpdateSeededRequest request = new PlayerUpdateSeededRequest();
-        request.setSeeded(true);
+        PlayerUpdateSeededRequest request = new PlayerUpdateSeededRequest(true);
 
         when(playerRepository.findById(player.getId())).thenReturn(Optional.of(player));
 
@@ -265,8 +257,7 @@ public class PlayerServiceTest {
 
     @Test
     void updatePlayerSeeded_whenNotFound_throws404() {
-        PlayerUpdateSeededRequest request = new PlayerUpdateSeededRequest();
-        request.setSeeded(true);
+        PlayerUpdateSeededRequest request = new PlayerUpdateSeededRequest(true);
 
         when(playerRepository.findById(9999L)).thenReturn(Optional.empty());
 

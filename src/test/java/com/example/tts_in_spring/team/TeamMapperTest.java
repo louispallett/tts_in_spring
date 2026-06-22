@@ -3,25 +3,19 @@ package com.example.tts_in_spring.team;
 import com.example.tts_in_spring.participant.ParticipantMapper;
 import com.example.tts_in_spring.player.PlayerMapper;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Import;
+import org.mapstruct.factory.Mappers;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ExtendWith(SpringExtension.class)
-@Import({TeamMapperImpl.class})
-public class TeamMappingTest {
+public class TeamMapperTest {
     @MockitoBean
     private PlayerMapper playerMapper;
 
     @MockitoBean
     private ParticipantMapper participantMapper;
 
-    @Autowired
-    private TeamMapper teamMapper;
+    private final TeamMapper teamMapper = Mappers.getMapper(TeamMapper.class);
 
     @Test
     void toResponse_mapsAllFields() {

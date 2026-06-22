@@ -2,24 +2,18 @@ package com.example.tts_in_spring.match;
 
 import com.example.tts_in_spring.participant.ParticipantMapper;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Import;
+import org.mapstruct.factory.Mappers;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ExtendWith(SpringExtension.class)
-@Import({MatchMapperImpl.class})
 public class MatchMapperTest {
     @MockitoBean
     private ParticipantMapper participantMapper;
 
-    @Autowired
-    private MatchMapper matchMapper;
+    private final MatchMapper matchMapper = Mappers.getMapper(MatchMapper.class);
 
     @Test
     void toResponse_mapsAllFields() {

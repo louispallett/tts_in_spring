@@ -46,14 +46,14 @@ public class UserServiceTest {
     }
 
     private UserRequest buildUserRequest() {
-        UserRequest r = new UserRequest();
-        r.setFirstName("John");
-        r.setLastName("Doe");
-        r.setEmail("john.doe@example.com");
-        r.setPassword("Hello123!");
-        r.setMobCode("+44");
-        r.setMobile("123456789");
-        return r;
+        return new UserRequest(
+            "John",
+            "Doe",
+            "john.doe@example.com",
+            "Hello123!",
+            "+44",
+            "123456789"
+        );
     }
 
     @Test
@@ -137,10 +137,13 @@ public class UserServiceTest {
     void updateUserDetails_whenUser_savesAndReturnsMappedLite() {
         User user = UserTestBuilder.aUser().build();
 
-        UserUpdateRequest request = new UserUpdateRequest();
-        request.setFirstName("Simon");
-        request.setLastName("Smith");
-        request.setEmail("Simon.Smith@example.com");
+        UserUpdateRequest request = new UserUpdateRequest(
+            "Simon",
+            "Smith",
+            "Simon.Smith@example.com",
+                user.getMobCode(),
+                user.getMobile()
+        );
 
         User updatedUser = UserTestBuilder.aUser()
                 .withFirstName("Simon")
@@ -170,9 +173,17 @@ public class UserServiceTest {
 
     @Test
     void updateUserDetails_whenNotFound_throws404() {
+        UserUpdateRequest request = new UserUpdateRequest(
+                "Simon",
+                "Smith",
+                "Simon.Smith@example.com",
+                "+44",
+                "1234567890"
+        );
+
         when(userRepository.findById(9L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> userService.updateDetails(9L, new UserUpdateRequest()))
+        assertThatThrownBy(() -> userService.updateDetails(9L, request))
                 .isInstanceOf(ResponseStatusException.class)
                 .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
                         .isEqualTo(HttpStatus.NOT_FOUND));
@@ -182,10 +193,11 @@ public class UserServiceTest {
     void updatePassword_whenCurrentPasswordCorrect_savesAndReturnsMappedLite() {
         User user = UserTestBuilder.aUser().withPassword("hashed_old_password").build();
 
-        UserUpdatePasswordRequest request = new UserUpdatePasswordRequest();
-        request.setCurrentPassword("Hello123!");
-        request.setNewPassword("NewPassword1!");
-        request.setConfirmNewPassword("NewPassword1!");
+        UserUpdatePasswordRequest request = new UserUpdatePasswordRequest(
+            "Hello123!",
+            "NewPassword1!",
+            "NewPassword1!"
+        );
 
         UserResponseLite lite = new UserResponseLite(1L, "John", "Doe");
 
@@ -206,10 +218,11 @@ public class UserServiceTest {
     void updatePassword_whenCurrentPasswordIncorrect_throws401() {
         User user = UserTestBuilder.aUser().withPassword("hashed_old_password").build();
 
-        UserUpdatePasswordRequest request = new UserUpdatePasswordRequest();
-        request.setCurrentPassword("WrongPassword!");
-        request.setNewPassword("NewPassword1!");
-        request.setConfirmNewPassword("NewPassword1!");
+        UserUpdatePasswordRequest request = new UserUpdatePasswordRequest(
+            "WrongPassword!",
+            "NewPassword1!",
+            "NewPassword1!"
+        );
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("WrongPassword!", "hashed_old_password")).thenReturn(false);
@@ -224,10 +237,11 @@ public class UserServiceTest {
 
     @Test
     void updatePassword_whenConfirmationDoesNotMatch_throws400() {
-        UserUpdatePasswordRequest request = new UserUpdatePasswordRequest();
-        request.setCurrentPassword("Hello123!");
-        request.setNewPassword("NewPassword1!");
-        request.setConfirmNewPassword("Mismatch1!");
+        UserUpdatePasswordRequest request = new UserUpdatePasswordRequest(
+            "Hello123!",
+            "NewPassword1!",
+            "Mismatch1!"
+        );
 
         assertThatThrownBy(() -> userService.updatePassword(1L, request))
                 .isInstanceOf(ResponseStatusException.class)

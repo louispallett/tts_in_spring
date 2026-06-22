@@ -72,12 +72,11 @@ public class ParticipantServiceTest {
     }
 
     private ParticipantRequest buildParticipantRequest(Team team, Player player) {
-        ParticipantRequest r = new ParticipantRequest();
-        r.setTeamId(safeId(team, Team::getId));
-        r.setPlayerId(safeId(player, Player::getId));
-        r.setMatchId(MatchTestBuilder.aMatch().build().getId());
-
-        return r;
+        return new ParticipantRequest(
+            safeId(team, Team::getId),
+            safeId(player, Player::getId),
+            MatchTestBuilder.aMatch().build().getId()
+        );
     }
 
     @Test
@@ -178,8 +177,8 @@ public class ParticipantServiceTest {
                 player.getUser().getFirstName() + " " + player.getUser().getLastName()
         );
 
-        when(matchService.getMatchOrThrow(request.getMatchId())).thenReturn(saved.getMatch());
-        when(playerService.getPlayerOrThrow(request.getPlayerId())).thenReturn(saved.getPlayer());
+        when(matchService.getMatchOrThrow(request.matchId())).thenReturn(saved.getMatch());
+        when(playerService.getPlayerOrThrow(request.playerId())).thenReturn(saved.getPlayer());
         when(participantMapper.toEntity(request)).thenReturn(saved);
         when(participantRepository.save(any(Participant.class))).thenReturn(saved);
         when(participantMapper.toResponseLite(saved)).thenReturn(lite);
@@ -199,8 +198,8 @@ public class ParticipantServiceTest {
                 "John Doe and Simon Smith"
         );
 
-        when(matchService.getMatchOrThrow(request.getMatchId())).thenReturn(saved.getMatch());
-        when(teamService.getTeamOrThrow(request.getTeamId())).thenReturn(saved.getTeam());
+        when(matchService.getMatchOrThrow(request.matchId())).thenReturn(saved.getMatch());
+        when(teamService.getTeamOrThrow(request.teamId())).thenReturn(saved.getTeam());
         when(participantMapper.toEntity(request)).thenReturn(saved);
         when(participantRepository.save(any(Participant.class))).thenReturn(saved);
         when(participantMapper.toResponseLite(saved)).thenReturn(lite);
@@ -216,10 +215,11 @@ public class ParticipantServiceTest {
         Player player = PlayerTestBuilder.aPlayer().build();
         Participant participant = ParticipantTestBuilder.aParticipant().withPlayer(player).build();
         Participant updatedParticipant = ParticipantTestBuilder.aParticipant().withPlayer(player).build();
-        ParticipantSubmitScoreRequest request = new ParticipantSubmitScoreRequest();
-        request.setId(updatedParticipant.getId());
-        request.setWinner(true);
-        request.setResultText("6-6");
+        ParticipantSubmitScoreRequest request = new ParticipantSubmitScoreRequest(
+            updatedParticipant.getId(),
+            "6-6",
+                true
+        );
 
         ParticipantResponseLite lite = buildParticipantResponseLite(
                 "6-6",
@@ -227,7 +227,7 @@ public class ParticipantServiceTest {
                 updatedParticipant.getPlayer().getUser().getFirstName() + " " + updatedParticipant.getPlayer().getUser().getLastName()
         );
 
-        when(participantRepository.findById(request.getId())).thenReturn(Optional.of(participant));
+        when(participantRepository.findById(request.id())).thenReturn(Optional.of(participant));
         when(participantRepository.save(any(Participant.class))).thenReturn(updatedParticipant);
         when(participantMapper.toResponseLite(updatedParticipant)).thenReturn(lite);
 
@@ -241,10 +241,11 @@ public class ParticipantServiceTest {
 
     @Test
     void submitScore_whenNotFound_throws404() {
-        ParticipantSubmitScoreRequest request = new ParticipantSubmitScoreRequest();
-        request.setId(9999999L);
-        request.setWinner(true);
-        request.setResultText("6-6");
+        ParticipantSubmitScoreRequest request = new ParticipantSubmitScoreRequest(
+            9999999L,
+            "6-6",
+                true
+        );
 
         when(participantRepository.findById(9999999L)).thenReturn(Optional.empty());
 
@@ -268,8 +269,7 @@ public class ParticipantServiceTest {
         participant.setStatus("PLAYED");
         participant.setResultText("2-6");
 
-        ParticipantUpdateResultTextRequest request = new ParticipantUpdateResultTextRequest();
-        request.setResultText("6-2");
+        ParticipantUpdateResultTextRequest request = new ParticipantUpdateResultTextRequest("6-2");
 
         Participant updatedParticipant = ParticipantTestBuilder.aParticipant().withPlayer(player).build();
         updatedParticipant.setWinner(true);
@@ -308,8 +308,7 @@ public class ParticipantServiceTest {
         participant.setStatus("PLAYED");
         participant.setResultText("2-6");
 
-        ParticipantUpdateResultTextRequest request = new ParticipantUpdateResultTextRequest();
-        request.setResultText("6-2");
+        ParticipantUpdateResultTextRequest request = new ParticipantUpdateResultTextRequest("6-2");
 
         when(participantRepository.findById(participant.getId())).thenReturn(Optional.of(participant));
 
@@ -323,8 +322,7 @@ public class ParticipantServiceTest {
 
     @Test
     void updateResultText_whenNotFound_returns404() {
-        ParticipantUpdateResultTextRequest request = new ParticipantUpdateResultTextRequest();
-        request.setResultText("6-2");
+        ParticipantUpdateResultTextRequest request = new ParticipantUpdateResultTextRequest("6-2");
         when(participantRepository.findById(9999999L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> participantService.updateResultText(9999999L, request, 1L))
@@ -343,8 +341,7 @@ public class ParticipantServiceTest {
         participant.setStatus("PLAYED");
         participant.setResultText("6-2");
 
-        ParticipantUpdateWinnerRequest request = new ParticipantUpdateWinnerRequest();
-        request.setWinner(true);
+        ParticipantUpdateWinnerRequest request = new ParticipantUpdateWinnerRequest(true);
 
         Participant updatedParticipant = ParticipantTestBuilder.aParticipant().withPlayer(player).build();
         updatedParticipant.setWinner(true);
@@ -383,8 +380,7 @@ public class ParticipantServiceTest {
         participant.setStatus("PLAYED");
         participant.setResultText("6-2");
 
-        ParticipantUpdateWinnerRequest request = new ParticipantUpdateWinnerRequest();
-        request.setWinner(true);
+        ParticipantUpdateWinnerRequest request = new ParticipantUpdateWinnerRequest(true);
 
         when(participantRepository.findById(participant.getId())).thenReturn(Optional.of(participant));
 
@@ -398,8 +394,7 @@ public class ParticipantServiceTest {
 
     @Test
     void updateIsWinner_whenNotFound_returns404() {
-        ParticipantUpdateWinnerRequest request = new ParticipantUpdateWinnerRequest();
-        request.setWinner(true);
+        ParticipantUpdateWinnerRequest request = new ParticipantUpdateWinnerRequest(true);
 
         when(participantRepository.findById(9999999L)).thenReturn(Optional.empty());
 
@@ -419,8 +414,7 @@ public class ParticipantServiceTest {
         participant.setStatus("PLAYE");
         participant.setResultText("6-2");
 
-        ParticipantUpdateStatusRequest request = new ParticipantUpdateStatusRequest();
-        request.setStatus("PLAYED");
+        ParticipantUpdateStatusRequest request = new ParticipantUpdateStatusRequest("PLAYED");
 
         Participant updatedParticipant = ParticipantTestBuilder.aParticipant().withPlayer(player).build();
         updatedParticipant.setWinner(true);
@@ -459,8 +453,7 @@ public class ParticipantServiceTest {
         participant.setStatus("PLAYE");
         participant.setResultText("6-2");
 
-        ParticipantUpdateStatusRequest request = new ParticipantUpdateStatusRequest();
-        request.setStatus("PLAYED");
+        ParticipantUpdateStatusRequest request = new ParticipantUpdateStatusRequest("PLAYED");
 
         when(participantRepository.findById(participant.getId())).thenReturn(Optional.of(participant));
 
@@ -474,8 +467,7 @@ public class ParticipantServiceTest {
 
     @Test
     void updateStatus_whenNotFound_returns404() {
-        ParticipantUpdateStatusRequest request = new ParticipantUpdateStatusRequest();
-        request.setStatus("PLAYED");
+        ParticipantUpdateStatusRequest request = new ParticipantUpdateStatusRequest("PLAYED");
 
         when(participantRepository.findById(9999999L)).thenReturn(Optional.empty());
 
