@@ -144,23 +144,38 @@ public class MatchServiceTest {
     }
 
     @Test
-    void createMatch_whenHost_savesAndReturnsMappedLite() {
+    void createMatch_whenHost_savesAndReturnsMapped() {
         Instant deadline = Instant.now();
         MatchRequest request = buildMatchRequest(deadline);
 
         Match saved = MatchTestBuilder.aMatch().build();
-        MatchResponseLite lite = new MatchResponseLite(
+        MatchResponse response = new MatchResponse(
             100000L,
             "",
             "SCHEDULED",
             deadline,
-            false
+            false,
+                new CategoryResponseLite(
+                        100L,
+                        "Mens Singles",
+                        false,
+                        false
+                ),
+                new MatchResponseLite(
+                        100001L,
+                        "",
+                        "SCHEDULED",
+                        deadline,
+                        false
+                ),
+                List.of(),
+                List.of()
         );
 
         when(categoryService.getCategoryOrThrow(request.categoryId())).thenReturn(saved.getCategory());
         when(matchMapper.toEntity(request)).thenReturn(saved);
         when(matchRepository.save(any(Match.class))).thenReturn(saved);
-        when(matchMapper.toResponseLite(saved)).thenReturn(lite);
+        when(matchMapper.toResponse(saved)).thenReturn(response);
 
         assertThat(matchService.createMatch(request, saved.getCategory().getTournament().getHost().getId()));
     }

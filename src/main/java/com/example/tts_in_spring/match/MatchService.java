@@ -56,7 +56,7 @@ public class MatchService {
     }
 
     @Transactional
-    public MatchResponseLite createMatch(MatchRequest request, Long userId) {
+    public MatchResponse createMatch(MatchRequest request, Long userId) {
         Category category = categoryService.getCategoryOrThrow(request.categoryId());
         Match nextMatch = request.nextMatchId() == null ? null : getMatchOrThrow(request.nextMatchId());
 
@@ -67,7 +67,7 @@ public class MatchService {
             match.setNextMatch(nextMatch);
 
             Match savedMatch = matchRepository.save(match);
-            return matchMapper.toResponseLite(savedMatch);
+            return matchMapper.toResponse(savedMatch);
         }
 
         throw new ResponseStatusException(HttpStatus.FORBIDDEN);
