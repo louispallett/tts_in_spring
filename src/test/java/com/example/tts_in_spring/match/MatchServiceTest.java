@@ -1,5 +1,6 @@
 package com.example.tts_in_spring.match;
 
+import com.example.tts_in_spring.category.Category;
 import com.example.tts_in_spring.category.dto.CategoryResponseLite;
 import com.example.tts_in_spring.category.CategoryService;
 import com.example.tts_in_spring.category.CategoryTestBuilder;
@@ -12,11 +13,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,6 +38,7 @@ public class MatchServiceTest {
     @Mock
     private CategoryService categoryService;
 
+    @Spy
     @InjectMocks
     private MatchService matchService;
 
@@ -196,6 +200,178 @@ public class MatchServiceTest {
 
         verify(matchRepository, never()).save(any());
         verifyNoInteractions(matchMapper);
+    }
+
+    @Test
+    void calculateNumberOfRounds_returnsExpected() {
+        assertThat(matchService.calculateNumberOfRounds(8)).isEqualTo(3);
+        assertThat(matchService.calculateNumberOfRounds(10)).isEqualTo(4);
+        assertThat(matchService.calculateNumberOfRounds(16)).isEqualTo(4);
+        assertThat(matchService.calculateNumberOfRounds(20)).isEqualTo(5);
+        assertThat(matchService.calculateNumberOfRounds(256)).isEqualTo(8);
+    }
+
+    @Test
+    void getNextPowerOfTwo_returnsExpected() {
+        assertThat(matchService.getNextPowerOfTwo(4)).isEqualTo(4);
+        assertThat(matchService.getNextPowerOfTwo(5)).isEqualTo(8);
+        assertThat(matchService.getNextPowerOfTwo(29)).isEqualTo(32);
+    }
+
+    @Test
+    void calculateByes_returnsExpected() {
+        assertThat(matchService.calculateByes(16)).isEqualTo(0);
+        assertThat(matchService.calculateByes(19)).isEqualTo(13);
+        assertThat(matchService.calculateByes(31)).isEqualTo(1);
+    }
+
+    @Test
+    void roundLoopLimit_returnsExpected() {
+        assertThat(matchService.roundLoopLimit(16, 16, 4)).isEqualTo(4);
+        assertThat(matchService.roundLoopLimit(1, 31, 5)).isEqualTo(4);
+    }
+
+    @Test
+    void splitIntoFours_returnsExpected() {
+        List<Match> matches = new ArrayList<>();
+        for (int i = 0; i < 16; i++) {
+            matches.add(MatchTestBuilder.aMatch().build());
+        }
+
+        assertThat(matchService.splitIntoFours(matches)).hasSize(4);
+        assertThat(matchService.splitIntoFours(matches).getFirst()).hasSize(4);
+    }
+
+    @Test
+    void reorderGroups_returnsExpected() {
+        List<Match> matches = new ArrayList<>();
+        for (int i = 0; i < 16; i++) {
+            matches.add(MatchTestBuilder.aMatch().build());
+        }
+        List<List<Match>> splitIntoFours = matchService.splitIntoFours(matches);
+        List<List<Match>> result = matchService.reorderGroups(splitIntoFours);
+
+        assertThat(result).hasSize(4);
+        assertThat(result.getFirst()).hasSize(4);
+        assertThat(result.getFirst().getFirst()).isEqualTo(matches.getFirst());
+        assertThat(result.getFirst().getLast()).isEqualTo(matches.get(3));
+        assertThat(result.get(1).getFirst()).isEqualTo(matches.get(12));
+        assertThat(result.get(1).getLast()).isEqualTo(matches.get(15));
+        assertThat(result.get(2).getFirst()).isEqualTo(matches.get(8));
+        assertThat(result.get(2).getLast()).isEqualTo(matches.get(11));
+        assertThat(result.getLast().getFirst()).isEqualTo(matches.get(4));
+        assertThat(result.getLast().getLast()).isEqualTo(matches.get(7));
+    }
+
+    @Test
+    void reorderArray_returnsExpected() {
+        List<Match> matches = new ArrayList<>();
+        for (int i = 0; i < 16; i++) {
+            matches.add(MatchTestBuilder.aMatch().build());
+        }
+        List<List<Match>> splitIntoFours = matchService.splitIntoFours(matches);
+        List<List<Match>> reorderGroups = matchService.reorderGroups(splitIntoFours);
+
+        List<Match> result = matchService.reorderArray(reorderGroups);
+
+        assertThat(result).hasSize(16);
+        assertThat(result.getFirst()).isEqualTo(matches.getFirst());
+        assertThat(result.get(1)).isEqualTo(matches.get(12));
+        assertThat(result.get(2)).isEqualTo(matches.get(8));
+        assertThat(result.get(3)).isEqualTo(matches.get(4));
+        assertThat(result.get(4)).isEqualTo(matches.get(3));
+        assertThat(result.get(5)).isEqualTo(matches.get(15));
+        assertThat(result.get(6)).isEqualTo(matches.get(11));
+        assertThat(result.get(7)).isEqualTo(matches.get(7));
+        assertThat(result.get(8)).isEqualTo(matches.get(2));
+        assertThat(result.get(9)).isEqualTo(matches.get(14));
+        assertThat(result.get(10)).isEqualTo(matches.get(10));
+        assertThat(result.get(11)).isEqualTo(matches.get(6));
+        assertThat(result.get(12)).isEqualTo(matches.get(1));
+        assertThat(result.get(13)).isEqualTo(matches.get(13));
+        assertThat(result.get(14)).isEqualTo(matches.get(9));
+        assertThat(result.get(15)).isEqualTo(matches.get(5));
+    }
+
+    private Long idSequence = 1L;
+
+    @Test
+    void generateAndSaveMatches_whenNoQual_buildsCorrectStructure() {
+        Category category = CategoryTestBuilder.aCategory().build();
+
+        when(categoryService.getCategoryOrThrow(any())).thenReturn(category);
+
+        doAnswer(invocation -> {
+            Long id = invocation.getArgument(0);
+            Match match = new Match();
+            match.setId(id);
+            return match;
+        }).when(matchService).getMatchOrThrow(anyLong());
+
+        when(matchMapper.toEntity(any(MatchRequest.class)))
+                .thenAnswer(invocation -> MatchTestBuilder.aMatch().build());
+
+        when(matchRepository.save(any(Match.class)))
+                .thenAnswer(invocation -> {
+                    Match m = invocation.getArgument(0);
+                    m.setId(idSequence++);
+                    return m;
+                });
+
+        List<List<Match>> result = matchService.generateAndSaveMatches(category, 8);
+
+        assertThat(result).hasSize(matchService.calculateNumberOfRounds(8));
+
+        assertThat(result.get(0)).hasSize(1);
+
+        assertThat(result.get(1)).hasSize(2);
+        assertThat(result.get(2)).hasSize(4);
+    }
+
+    @Test
+    void generateAndSaveMatches_whenQual_buildsCorrectStructure() {
+        Category category = CategoryTestBuilder.aCategory().build();
+
+        when(categoryService.getCategoryOrThrow(any())).thenReturn(category);
+
+        doAnswer(invocation -> {
+            Long id = invocation.getArgument(0);
+            Match match = new Match();
+            match.setId(id);
+            return match;
+        }).when(matchService).getMatchOrThrow(anyLong());
+
+        when(matchMapper.toEntity(any(MatchRequest.class)))
+                .thenAnswer(invocation -> MatchTestBuilder.aMatch().build());
+
+        when(matchRepository.save(any(Match.class)))
+                .thenAnswer(invocation -> {
+                    Match m = invocation.getArgument(0);
+                    m.setId(idSequence++);
+                    return m;
+                });
+
+        int numOfParticipants = 24;
+
+        List<List<Match>> result = matchService.generateAndSaveMatches(category, numOfParticipants);
+
+        assertThat(result).hasSize(matchService.calculateNumberOfRounds(numOfParticipants) - 1);
+
+        assertThat(result.get(0)).hasSize(1);
+
+        assertThat(result.get(1)).hasSize(2);
+        assertThat(result.get(2)).hasSize(4);
+        assertThat(result.get(3)).hasSize(8);
+    }
+
+    @Test
+    void generateMatches_whenNoQual_returnsExpected() {
+
+    }
+
+    @Test
+    void generateMatches_whenQual_returnsExpected() {
+
     }
 
     @Test
