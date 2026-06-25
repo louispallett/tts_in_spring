@@ -3,6 +3,8 @@ package com.example.tts_in_spring.match;
 import com.example.tts_in_spring.category.Category;
 import com.example.tts_in_spring.category.CategoryService;
 import com.example.tts_in_spring.match.dto.*;
+import com.example.tts_in_spring.participant.Participant;
+import com.example.tts_in_spring.participant.ParticipantService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -10,8 +12,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +24,7 @@ public class MatchService {
     private final MatchRepository matchRepository;
     private final MatchMapper matchMapper;
     private final CategoryService categoryService;
+    private final ParticipantService participantService;
 
     public Match getMatchOrThrow(Long id) {
         return matchRepository.findById(id)
@@ -96,61 +102,6 @@ public class MatchService {
         throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
 
-    @Transactional
-    public Match createGeneratedMatch(MatchRequest request) {
-        Category category = categoryService.getCategoryOrThrow(request.categoryId());
-        Match nextMatch = request.nextMatchId() == null ? null : getMatchOrThrow(request.nextMatchId());
-
-        Match match = matchMapper.toEntity(request);
-        match.setState("SCHEDULED");
-        match.setCategory(category);
-        match.setNextMatch(nextMatch);
-
-        return matchRepository.save(match);
-    }
-
-    @Transactional
-    public List<List<Match>> generateAndSaveMatches(Category category, int numOfParticipants) {
-        int totalRounds = calculateNumberOfRounds(numOfParticipants);
-        System.out.println(totalRounds);
-        List<List<Match>> matchesByRound = new ArrayList<>();
-        int numOfQualParticipants = numOfParticipants - calculateByes(numOfParticipants);
-
-        Match finalMatch = createGeneratedMatch(
-                new MatchRequest(
-                        String.valueOf(totalRounds),
-                        Instant.now(),
-                        false,
-                        category.getId(),
-                        null
-                )
-        );
-        matchesByRound.add(List.of(finalMatch));
-
-        int round = 1;
-
-        while(round < roundLoopLimit(numOfQualParticipants, numOfParticipants, totalRounds)) {
-            List<Match> currentRoundMatches = new ArrayList<>();
-            for (int i = 0; i < matchesByRound.getLast().size() * 2; i++) {
-                Match nextMatch = matchesByRound.get(round - 1).get(i / 2);
-                Match newMatch = createGeneratedMatch(
-                        new MatchRequest(
-                                String.valueOf(totalRounds - round),
-                                Instant.now(),
-                                false,
-                                category.getId(),
-                                nextMatch.getId()
-                        )
-                );
-                currentRoundMatches.add(newMatch);
-            }
-            matchesByRound.add(currentRoundMatches);
-            round++;
-        }
-
-        return matchesByRound;
-    }
-
     public List<List<Match>> splitIntoFours(List<Match> matches) {
         List<Match> arr = new ArrayList<>(matches);
         List<List<Match>> result = new ArrayList<>();
@@ -190,43 +141,170 @@ public class MatchService {
         return result;
     }
 
-    // Notes on this one...
-    // It may actually make more sense to create our participants first, and then pass them in here. That will then allow
-    // us to simply pass in the participants. The number of players/teams will equal the number of participants here, so
-    // if we pass in the full entity, we'll still get access to information such as rank (although, the participants must
-    // be passed in order of rank to the function)
-    // public List<MatchResponse> generateMatchesForCategory(List<Participant> participants) {
-        // Step 1: Generate matches
-            // Note: The function in the TS file is called 'generateFirstRoundMatches', but this is misleading, it actually
-            // returns a MatchTypeLite[][] of all matches grouped by rounds
+    private List<Participant> getByeInParticipants(List<Participant> participants) {
+        int byeInParticipantsNum = participants.size() - calculateByes(participants.size());
+        if (byeInParticipantsNum == participants.size()) {
+            return participants;
+        } else {
+            int end = participants.size() - byeInParticipantsNum;
+            List<Participant> result = new ArrayList<>(participants.subList(0, end));
+            participants.subList(0, end).clear();
+            return result;
+        }
+    }
 
-        // Step 2: Get the first round
+    public List<List<Match>> generateMatches(Category category, int numOfParticipants) {
+        int totalRounds = calculateNumberOfRounds(numOfParticipants);
+        List<List<Match>> matchesByRound = new ArrayList<>();
+        int numOfQualParticipants = numOfParticipants - calculateByes(numOfParticipants);
 
-        // Step 3: Split the first round into groups of four (splitIntoFours)
+        Match finalMatch = new Match();
+        finalMatch.setTournamentRoundText(String.valueOf(totalRounds));
+        finalMatch.setDeadline(Instant.now());
+        finalMatch.setQualifyingMatch(false);
+        finalMatch.setCategory(category);
+        matchesByRound.add(List.of(finalMatch));
 
-        // Step 4: Reorder groups, passing in result of step 3
+        int round = 1;
 
-        // Step 5: Reorder array, passing in result of step 4
+        while(round < roundLoopLimit(numOfQualParticipants, numOfParticipants, totalRounds)) {
+            List<Match> currentRoundMatches = new ArrayList<>();
+            for (int i = 0; i < matchesByRound.getLast().size() * 2; i++) {
+                Match nextMatch = matchesByRound.get(round - 1).get(i / 2);
 
-        // Step 6: Participant creation loop - this is where we create the participants for each match.
-            // int n = matchesOrdered.size()
-            // for (int i = 0; i < 2 * n; i++) {
-                // int index = (i < n) ? i : (2 * n - i - 1);
-                // Participant is first participant in participant list. // Note: we may be able to use i as an index here, as originally
-                // we used participant.shift(), which removes and returns first element in array. However, in Java we can't do this, but what
-                // we can do is create a Queue and user .poll(), which basically does the same thing as shift:
-                // Queue<Participant> queue = new ArrayDeque<>(qualifyingParticipants);
-                // if (queue.isEmpty()) {
-                //     Participant participant = queue.poll(); // Same as shift()
-                //     // handle adding matchesOrdered[index] to participant.setMatch()
-                // } else {
-                // break;
-                // }
+                Match newMatch = new Match();
+                newMatch.setTournamentRoundText(String.valueOf(totalRounds - round));
+                newMatch.setDeadline(Instant.now());
+                newMatch.setQualifyingMatch(false);
+                newMatch.setCategory(category);
+                newMatch.setNextMatch(nextMatch);
 
-        // Step 7: Handle creating qualifying matches
+                currentRoundMatches.add(newMatch);
+            }
+            matchesByRound.add(currentRoundMatches);
+            round++;
+        }
 
-        // Step 8: final two loops to add qualifying round participants to qualifying matches
-    // }
+        if (matchesByRound.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Match creation failed. Returned Empty List");
+        }
+
+        return matchesByRound;
+    }
+
+    private List<Match> orderMatches(List<Match> firstRound) {
+        List<List<Match>> intoFours = splitIntoFours(firstRound);
+        List<List<Match>> groupsOrdered = reorderGroups(intoFours);
+        return reorderArray(groupsOrdered);
+
+    }
+
+    private List<Participant> addQualifyingPlayersToMatches(
+            List<Participant> qualifyingParticipants,
+            List<Match> firstRoundOrdered
+    ) {
+        List<Participant> finalParticipants = new ArrayList<>();
+        int n = firstRoundOrdered.size();
+        for (int i = 0; i < 2 * n; i++) {
+            int index = (i < n) ? i : (2 * n - i - 1);
+            Queue<Participant> queue = new ArrayDeque<>(qualifyingParticipants);
+            if (!queue.isEmpty()) {
+                Participant participant = queue.poll();
+                participant.setMatch(firstRoundOrdered.get(index));
+                finalParticipants.add(participant);
+            } else {
+                break;
+            }
+        }
+        return finalParticipants;
+    }
+
+    private List<Match> generateQualifyingMatches(
+            List<Participant> participants,
+            Category category,
+            List<Match> matchesOrdered
+    ) {
+        int numOfQualifyingMatches = participants.size() / 2; // Because we removed qualifying players, participants just contains the players which must play
+        List<Match> qualifyingMatches = new ArrayList<>();
+
+        int n = matchesOrdered.size();
+
+        for (int i = 0; i < 2 * n; i++) {
+            int index = (i < n) ? i : (2 * n - i - 1);
+            if (numOfQualifyingMatches > 0) {
+
+                Match match = new Match();
+                match.setTournamentRoundText("1");
+                match.setDeadline(Instant.now());
+                match.setQualifyingMatch(true);
+                match.setCategory(category);
+                match.setNextMatch(matchesOrdered.get(index));
+
+                qualifyingMatches.add(match);
+                numOfQualifyingMatches--;
+            } else {
+                break;
+            }
+        }
+
+        return  qualifyingMatches;
+    }
+
+    private List<Participant> addQualifyingParticipantsToMatches(
+            List<Participant> qualifyingParticipants,
+            List<Participant> participants,
+            List<Match> qualifyingMatches
+    ) {
+        List<Participant> finalParticipants = new ArrayList<>(qualifyingParticipants);
+
+        for (Match match : qualifyingMatches) {
+            Participant participant = participants.removeLast();
+            participant.setMatch(match);
+            finalParticipants.add(participant);
+        }
+
+        for (Match match : qualifyingMatches.reversed()) {
+            Participant participant = participants.removeFirst();
+            participant.setMatch(match);
+            finalParticipants.add(participant);
+        }
+
+        return finalParticipants;
+    }
+
+    @Transactional
+    List<MatchResponse> generateMatchesParent(Long categoryId, Long userId) {
+        Category category = categoryService.getCategoryOrThrow(categoryId);
+        categoryService.assertHost(category, userId);
+
+        // Generate participants (not saved)
+        List<Participant> participants = participantService.generateParticipants(category);
+
+        List<List<Match>> matches = generateMatches(category, participants.size());
+        List<Match> firstRound = matches.removeLast();
+        List<Match> firstRoundOrdered = orderMatches(firstRound);
+
+        // FIXME: Ensure that participants list is actually affected here. We need qualified players to actually be removed here.
+        List<Participant> byeInParticipants = getByeInParticipants(participants);
+
+        List<Participant> qualifyingParticipantsFinal = addQualifyingPlayersToMatches(byeInParticipants, firstRoundOrdered);
+
+        List<Match> qualifyingMatches = generateQualifyingMatches(participants, category, firstRoundOrdered);
+
+        List<Participant> participantsFinal = addQualifyingParticipantsToMatches(
+                qualifyingParticipantsFinal,
+                participants,
+                qualifyingMatches
+        );
+
+        List<Match> matchesFlattened = matches.stream().flatMap(List::stream).toList();
+        List<Match> finalMatches = Stream.of(firstRoundOrdered, matchesFlattened).flatMap(List::stream).toList();
+
+        List<Match> savedMatches = matchRepository.saveAll(finalMatches);
+        participantService.saveAllParticipants(participantsFinal);
+
+        return savedMatches.stream().map(matchMapper::toResponse).toList();
+    }
 
     @Transactional
     public MatchResponseLite submitScore(Long id, MatchSubmitScoreRequest request, Long userId) {

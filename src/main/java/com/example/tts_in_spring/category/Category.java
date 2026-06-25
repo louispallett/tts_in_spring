@@ -3,6 +3,7 @@ package com.example.tts_in_spring.category;
 import com.example.tts_in_spring.base.Base;
 import com.example.tts_in_spring.match.Match;
 import com.example.tts_in_spring.player.Player;
+import com.example.tts_in_spring.team.Team;
 import com.example.tts_in_spring.tournament.Tournament;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -35,11 +36,8 @@ public class Category extends Base {
     private List<Player> players = new ArrayList<>();
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Match> matches = new ArrayList<>();
+    private List<Team> teams = new ArrayList<>();
 
-    @PrePersist
-    protected void onCreate() {
-        super.onCreate();
-        this.locked = false;
-    }
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Match> matches = new ArrayList<>();
 }

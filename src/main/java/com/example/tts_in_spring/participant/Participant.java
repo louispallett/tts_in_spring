@@ -5,6 +5,7 @@ import com.example.tts_in_spring.base.Base;
 import com.example.tts_in_spring.player.Player;
 import com.example.tts_in_spring.team.Team;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,6 +15,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class Participant extends Base {
     @Column(name = "result_text", nullable = false)
     private String resultText;

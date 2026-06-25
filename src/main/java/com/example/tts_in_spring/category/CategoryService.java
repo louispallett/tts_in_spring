@@ -27,7 +27,7 @@ public class CategoryService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found"));
     }
 
-    private void assertHost(Category category, Long userId) {
+    public void assertHost(Category category, Long userId) {
         if (!category.getTournament().getHost().getId().equals(userId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }

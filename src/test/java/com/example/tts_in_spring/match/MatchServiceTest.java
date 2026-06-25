@@ -293,32 +293,11 @@ public class MatchServiceTest {
         assertThat(result.get(15)).isEqualTo(matches.get(5));
     }
 
-    private Long idSequence = 1L;
-
     @Test
     void generateAndSaveMatches_whenNoQual_buildsCorrectStructure() {
         Category category = CategoryTestBuilder.aCategory().build();
 
-        when(categoryService.getCategoryOrThrow(any())).thenReturn(category);
-
-        doAnswer(invocation -> {
-            Long id = invocation.getArgument(0);
-            Match match = new Match();
-            match.setId(id);
-            return match;
-        }).when(matchService).getMatchOrThrow(anyLong());
-
-        when(matchMapper.toEntity(any(MatchRequest.class)))
-                .thenAnswer(invocation -> MatchTestBuilder.aMatch().build());
-
-        when(matchRepository.save(any(Match.class)))
-                .thenAnswer(invocation -> {
-                    Match m = invocation.getArgument(0);
-                    m.setId(idSequence++);
-                    return m;
-                });
-
-        List<List<Match>> result = matchService.generateAndSaveMatches(category, 8);
+        List<List<Match>> result = matchService.generateMatches(category, 8);
 
         assertThat(result).hasSize(matchService.calculateNumberOfRounds(8));
 
@@ -332,28 +311,9 @@ public class MatchServiceTest {
     void generateAndSaveMatches_whenQual_buildsCorrectStructure() {
         Category category = CategoryTestBuilder.aCategory().build();
 
-        when(categoryService.getCategoryOrThrow(any())).thenReturn(category);
-
-        doAnswer(invocation -> {
-            Long id = invocation.getArgument(0);
-            Match match = new Match();
-            match.setId(id);
-            return match;
-        }).when(matchService).getMatchOrThrow(anyLong());
-
-        when(matchMapper.toEntity(any(MatchRequest.class)))
-                .thenAnswer(invocation -> MatchTestBuilder.aMatch().build());
-
-        when(matchRepository.save(any(Match.class)))
-                .thenAnswer(invocation -> {
-                    Match m = invocation.getArgument(0);
-                    m.setId(idSequence++);
-                    return m;
-                });
-
         int numOfParticipants = 24;
 
-        List<List<Match>> result = matchService.generateAndSaveMatches(category, numOfParticipants);
+        List<List<Match>> result = matchService.generateMatches(category, numOfParticipants);
 
         assertThat(result).hasSize(matchService.calculateNumberOfRounds(numOfParticipants) - 1);
 
@@ -362,16 +322,6 @@ public class MatchServiceTest {
         assertThat(result.get(1)).hasSize(2);
         assertThat(result.get(2)).hasSize(4);
         assertThat(result.get(3)).hasSize(8);
-    }
-
-    @Test
-    void generateMatches_whenNoQual_returnsExpected() {
-
-    }
-
-    @Test
-    void generateMatches_whenQual_returnsExpected() {
-
     }
 
     @Test

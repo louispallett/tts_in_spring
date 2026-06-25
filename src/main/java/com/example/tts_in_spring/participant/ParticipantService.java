@@ -1,5 +1,6 @@
 package com.example.tts_in_spring.participant;
 
+import com.example.tts_in_spring.category.Category;
 import com.example.tts_in_spring.match.Match;
 import com.example.tts_in_spring.match.MatchService;
 import com.example.tts_in_spring.participant.dto.*;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -89,6 +91,45 @@ public class ParticipantService {
 
         Participant savedParticipant = participantRepository.save(participant);
         return participantMapper.toResponseLite(savedParticipant);
+    }
+
+    private Participant createDefaultParticipant() {
+        Participant participant = new Participant();
+        participant.setResultText("");
+        participant.setWinner(false);
+        participant.setStatus("TBC");
+        return participant;
+    }
+
+    public List<Participant> generateParticipants(Category category) {
+        if (category.getPlayers().isEmpty() && category.getTeams().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No players or teams");
+        }
+
+        if (!category.getPlayers().isEmpty() && !category.getTeams().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Category has both teams and players");
+        }
+
+        List<Participant> participants = new ArrayList<>();
+        for (Player player : category.getPlayers()) {
+            Participant newParticipant = createDefaultParticipant();
+            newParticipant.setPlayer(player);
+
+            participants.add(newParticipant);
+        }
+
+        for (Team team : category.getTeams()) {
+            Participant newParticipant = createDefaultParticipant();
+            newParticipant.setTeam(team);
+
+            participants.add(newParticipant);
+        }
+
+        return participants;
+    }
+
+    public void saveAllParticipants(List<Participant> participants) {
+        participantRepository.saveAll(participants);
     }
 
     @Transactional
