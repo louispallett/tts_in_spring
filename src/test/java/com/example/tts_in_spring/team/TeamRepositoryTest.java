@@ -35,7 +35,7 @@ public class TeamRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        User host = new User("John", "Doe", "john.doe@example.com", "secret", "44", "123456789", List.of());
+        User host = new User("John", "Doe", "john.doe@example.com", "secret", "44", "123456789", null, null, List.of());
         userRepository.save(host);
 
         Tournament tournament = new Tournament();

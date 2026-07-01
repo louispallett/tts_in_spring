@@ -8,8 +8,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -95,4 +97,23 @@ public class UserService {
         return userMapper.toResponseLite(savedUser);
     }
 
+    // Delete User route wipes user personal data from database whilst maintaining their row. This is critical to maintain
+    // things like tournament and match results.
+    @Transactional
+    public void delete(Long id) {
+        User user = userFinder.getUserOrThrow(id);
+
+        user.setDeleted(true);
+        user.setDeletedAt(Instant.now());
+
+        user.setFirstName("Deleted");
+        user.setLastName("User");
+        user.setEmail(UUID.randomUUID() + "@deleted.local");
+        user.setMobile("");
+        user.setMobCode("");
+        user.setPassword("");
+        user.setActive(false);
+
+        userRepository.save(user);
+    }
 }

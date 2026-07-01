@@ -74,4 +74,12 @@ public class CategoryService {
         Category savedCategory = categoryRepository.save(category);
         return categoryMapper.toResponseLite(savedCategory);
     }
+
+    @Transactional
+    public void delete(Long id, Long userId) {
+        Category category = categoryFinder.getCategoryOrThrow(id);
+        categoryFinder.assertHost(category, userId);
+
+        categoryRepository.delete(category);
+    }
 }

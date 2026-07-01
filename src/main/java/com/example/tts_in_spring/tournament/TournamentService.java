@@ -141,7 +141,17 @@ public class TournamentService {
         return tournamentMapper.toResponseLite(savedTournament);
     }
 
-    public Tournament checkCode(String code) {
-        return tournamentFinder.getTournamentByCodeOrThrow(code);
+    public TournamentResponseLite checkCode(TournamentCheckCodeRequest request) {
+        Tournament tournament = tournamentFinder.getTournamentByCodeOrThrow(request.code());
+
+        return tournamentMapper.toResponseLite(tournament);
+    }
+
+    @Transactional
+    public void delete(Long id, Long userId) {
+        Tournament tournament = tournamentFinder.getTournamentOrThrow(id);
+        tournamentFinder.assertHost(tournament, userId);
+
+        tournamentRepository.delete(tournament);
     }
 }

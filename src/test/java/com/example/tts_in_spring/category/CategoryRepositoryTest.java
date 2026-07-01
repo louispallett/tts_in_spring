@@ -2,7 +2,6 @@ package com.example.tts_in_spring.category;
 
 import com.example.tts_in_spring.tournament.Tournament;
 import com.example.tts_in_spring.tournament.TournamentRepository;
-import com.example.tts_in_spring.tournament.TournamentTestBuilder;
 import com.example.tts_in_spring.user.User;
 import com.example.tts_in_spring.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,7 +30,7 @@ public class CategoryRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        User host = new User("John", "Doe", "john.doe@example.com", "secret", "44", "123456789", List.of());
+        User host = new User("John", "Doe", "john.doe@example.com", "secret", "44", "123456789", null, null, List.of());
         userRepository.save(host);
 
         tournament = new Tournament();

@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +42,12 @@ public class User extends Base {
     @Column(nullable = false)
     private String mobile;
 
-    @OneToMany(mappedBy = "host", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @Column
+    private Boolean deleted;
+
+    @Column
+    private Instant deletedAt;
+
+    @OneToMany(mappedBy = "host", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Tournament> tournaments = new ArrayList<>();
 }

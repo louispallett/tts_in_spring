@@ -62,4 +62,12 @@ public class TeamService {
 
         throw new ForbiddenException();
     }
+
+    @Transactional
+    public void delete(Long id, Long userId) {
+        Team team = teamFinder.getTeamOrThrow(id);
+        teamFinder.assertHost(team, userId);
+
+        teamRepository.delete(team);
+    }
 }

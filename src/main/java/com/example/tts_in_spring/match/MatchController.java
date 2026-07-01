@@ -57,4 +57,13 @@ public class MatchController {
     ) {
         return ResponseEntity.ok(matchService.updateDeadline(id, request, user.userId()));
     }
+
+    @DeleteMapping("/{id}/delete")
+    public ResponseEntity<Void> delete(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+        matchService.delete(id, principal.userId());
+        return ResponseEntity.noContent().build();
+    }
 }

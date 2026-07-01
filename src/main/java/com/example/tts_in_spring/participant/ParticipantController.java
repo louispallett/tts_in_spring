@@ -57,4 +57,13 @@ public class ParticipantController {
     ) {
         return ResponseEntity.ok(participantService.updateStatus(id, request, user.userId()));
     }
+
+    @DeleteMapping("/{id}/delete")
+    public ResponseEntity<Void> delete(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+        participantService.delete(id, principal.userId());
+        return ResponseEntity.noContent().build();
+    }
 }

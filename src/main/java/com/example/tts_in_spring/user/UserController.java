@@ -48,8 +48,14 @@ public class UserController {
             @Valid @RequestBody UserUpdatePasswordRequest request,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
-
         return ResponseEntity.ok(userService.updatePassword(principal.userId(), request));
     }
 
+    @DeleteMapping("/me/delete")
+    public ResponseEntity<Void> deleteUser(
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+        userService.delete(principal.userId());
+        return ResponseEntity.noContent().build();
+    }
 }

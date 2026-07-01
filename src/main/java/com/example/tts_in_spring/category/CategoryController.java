@@ -50,4 +50,13 @@ public class CategoryController {
     ) {
         return ResponseEntity.ok(categoryService.updateLocked(id, request, principal.userId()));
     }
+
+    @DeleteMapping("/{id}/delete")
+    public ResponseEntity<Void> delete(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+        categoryService.delete(id, principal.userId());
+        return ResponseEntity.noContent().build();
+    }
 }

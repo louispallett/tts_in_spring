@@ -158,4 +158,12 @@ public class ParticipantService {
         Participant savedParticipant = participantRepository.save(participant);
         return participantMapper.toResponseLite(savedParticipant);
     }
+
+    @Transactional
+    public void delete(Long id, Long userId) {
+        Participant participant = participantFinder.getParticipantOrThrow(id);
+        participantFinder.assertHost(participant, userId);
+
+        participantRepository.delete(participant);
+    }
 }

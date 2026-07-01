@@ -25,6 +25,8 @@ class UserRepositoryTest {
                 "secret",
                 "44",
                 "123456789",
+                null,
+                null,
                 List.of()
         );
 
@@ -35,6 +37,8 @@ class UserRepositoryTest {
                 "secret",
                 "44",
                 "987654321",
+                null,
+                null,
                 List.of()
         );
 
