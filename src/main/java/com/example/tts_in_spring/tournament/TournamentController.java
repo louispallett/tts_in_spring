@@ -66,4 +66,20 @@ public class TournamentController {
     ) {
         return ResponseEntity.ok(tournamentService.updateShowMobile(id, request, principal.userId()));
     }
+
+    @PostMapping("/check-code")
+    public ResponseEntity<TournamentResponseLite> checkCode(
+            @Valid @RequestBody TournamentCheckCodeRequest request
+    ) {
+        return ResponseEntity.ok(tournamentService.checkCode(request));
+    }
+
+    @DeleteMapping("/{id}/delete")
+    public ResponseEntity<Void> delete(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+        tournamentService.delete(id, principal.userId());
+        return ResponseEntity.noContent().build();
+    }
 }
