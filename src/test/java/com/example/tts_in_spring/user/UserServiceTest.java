@@ -31,6 +31,9 @@ public class UserServiceTest {
     @Mock
     private BCryptPasswordEncoder passwordEncoder;
 
+    @Mock
+    private UserFinder userFinder;
+
     @InjectMocks
     private UserService userService;
 
@@ -82,20 +85,10 @@ public class UserServiceTest {
         User user = UserTestBuilder.aUser().build();
         UserResponse response = buildUserResponse();
 
-        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        when(userFinder.getUserOrThrow(user.getId())).thenReturn(user);
         when(userMapper.toResponse(user)).thenReturn(response);
 
         assertThat(userService.getUserById(1L)).isEqualTo(response);
-    }
-
-    @Test
-    void getUserById_whenNotFound_throws404() {
-        when(userRepository.findById(9L)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> userService.getUserById(9L))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
-                        .isEqualTo(HttpStatus.NOT_FOUND));
     }
 
     @Test
@@ -158,7 +151,7 @@ public class UserServiceTest {
                 "Smith"
         );
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userFinder.getUserOrThrow(user.getId())).thenReturn(user);
         when(userRepository.save(any(User.class))).thenReturn(updatedUser);
         when(userMapper.toResponseLite(updatedUser)).thenReturn(lite);
 
@@ -173,24 +166,6 @@ public class UserServiceTest {
     }
 
     @Test
-    void updateUserDetails_whenNotFound_throws404() {
-        UserUpdateRequest request = new UserUpdateRequest(
-                "Simon",
-                "Smith",
-                "Simon.Smith@example.com",
-                "+44",
-                "1234567890"
-        );
-
-        when(userRepository.findById(9L)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> userService.updateDetails(9L, request))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
-                        .isEqualTo(HttpStatus.NOT_FOUND));
-    }
-
-    @Test
     void updatePassword_whenCurrentPasswordCorrect_savesAndReturnsMappedLite() {
         User user = UserTestBuilder.aUser().withPassword("hashed_old_password").build();
 
@@ -202,7 +177,7 @@ public class UserServiceTest {
 
         UserResponseLite lite = new UserResponseLite(1L, "John", "Doe");
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userFinder.getUserOrThrow(user.getId())).thenReturn(user);
         when(passwordEncoder.matches("Hello123!", "hashed_old_password")).thenReturn(true);
         when(passwordEncoder.encode("NewPassword1!")).thenReturn("new_hashed_password");
         when(userRepository.save(any(User.class))).thenReturn(user);
@@ -225,7 +200,7 @@ public class UserServiceTest {
             "NewPassword1!"
         );
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userFinder.getUserOrThrow(user.getId())).thenReturn(user);
         when(passwordEncoder.matches("WrongPassword!", "hashed_old_password")).thenReturn(false);
 
         assertThatThrownBy(() -> userService.updatePassword(user.getId(), request))

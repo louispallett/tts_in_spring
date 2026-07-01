@@ -17,11 +17,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
+    private final UserFinder userFinder;
 
-    public User getUserOrThrow(Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
-    }
 
     @Transactional(readOnly = true)
     public List<UserResponse> getAllUsers() {
@@ -33,7 +30,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public UserResponse getUserById(Long id) {
-        User user = getUserOrThrow(id);
+        User user = userFinder.getUserOrThrow(id);
         return userMapper.toResponse(user);
     }
 
@@ -63,7 +60,7 @@ public class UserService {
 
     @Transactional
     public UserResponseLite updateDetails(Long id, UserUpdateRequest request) {
-        User existingUser = getUserOrThrow(id);
+        User existingUser = userFinder.getUserOrThrow(id);
 
         String email = request.email().toLowerCase();
         if (
@@ -86,7 +83,7 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "New password and confirmed password do not match");
         }
 
-        User existingUser = getUserOrThrow(id);
+        User existingUser = userFinder.getUserOrThrow(id);
 
         if (!passwordEncoder.matches(request.currentPassword(), existingUser.getPassword())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Current password incorrect");

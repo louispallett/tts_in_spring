@@ -1,10 +1,10 @@
 package com.example.tts_in_spring.player;
 
 import com.example.tts_in_spring.category.Category;
-import com.example.tts_in_spring.category.CategoryService;
+import com.example.tts_in_spring.category.CategoryFinder;
 import com.example.tts_in_spring.player.dto.*;
 import com.example.tts_in_spring.user.User;
-import com.example.tts_in_spring.user.UserService;
+import com.example.tts_in_spring.user.UserFinder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -18,19 +18,10 @@ import java.util.List;
 public class PlayerService {
     private final PlayerRepository playerRepository;
     private final PlayerMapper playerMapper;
-    private final CategoryService categoryService;
-    private final UserService userService;
+    private final CategoryFinder categoryFinder;
+    private final UserFinder userFinder;
+    private final PlayerFinder playerFinder;
 
-    public Player getPlayerOrThrow(Long id) {
-        return playerRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Player not found"));
-    }
-
-    private void assertHost(Player player, Long userId) {
-        if (!player.getCategory().getTournament().getHost().getId().equals(userId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-        }
-    }
 
     @Transactional(readOnly = true)
     public List<PlayerResponse> getAllPlayers() {
@@ -42,7 +33,7 @@ public class PlayerService {
 
     @Transactional(readOnly = true)
     public PlayerResponse getPlayerById(Long id, Long userId) {
-        Player player = getPlayerOrThrow(id);
+        Player player = playerFinder.getPlayerOrThrow(id);
 
         if (
                 player.getUser().getId().equals(userId) ||
@@ -56,8 +47,8 @@ public class PlayerService {
 
     @Transactional
     public PlayerResponseLite createPlayer(PlayerRequest playerRequest, Long userId) {
-        User user = userService.getUserOrThrow(userId);
-        Category category = categoryService.getCategoryOrThrow(playerRequest.categoryId());
+        User user = userFinder.getUserOrThrow(userId);
+        Category category = categoryFinder.getCategoryOrThrow(playerRequest.categoryId());
 
         Player player = playerMapper.toEntity(playerRequest);
         player.setUser(user);
@@ -71,8 +62,8 @@ public class PlayerService {
 
     @Transactional
     public PlayerResponseLite updateRank(Long id, PlayerUpdateRankRequest request, Long userId) {
-        Player player = getPlayerOrThrow(id);
-        assertHost(player, userId);
+        Player player = playerFinder.getPlayerOrThrow(id);
+        playerFinder.assertHost(player, userId);
 
         playerMapper.updateRankEntity(request, player);
 
@@ -82,8 +73,8 @@ public class PlayerService {
 
     @Transactional
     public PlayerResponseLite updateSeeded(Long id, PlayerUpdateSeededRequest request, Long userId) {
-        Player player = getPlayerOrThrow(id);
-        assertHost(player, userId);
+        Player player = playerFinder.getPlayerOrThrow(id);
+        playerFinder.assertHost(player, userId);
 
         playerMapper.updateSeededEntity(request, player);
 
@@ -93,8 +84,8 @@ public class PlayerService {
 
     @Transactional
     public void delete(Long id, Long userId) {
-        Player player = getPlayerOrThrow(id);
-        assertHost(player, userId);
+        Player player = playerFinder.getPlayerOrThrow(id);
+        playerFinder.assertHost(player, userId);
 
         playerRepository.delete(player);
     }

@@ -5,7 +5,7 @@ import com.example.tts_in_spring.category.dto.CategoryRequest;
 import com.example.tts_in_spring.category.dto.CategoryResponse;
 import com.example.tts_in_spring.category.dto.CategoryResponseLite;
 import com.example.tts_in_spring.tournament.Tournament;
-import com.example.tts_in_spring.tournament.TournamentService;
+import com.example.tts_in_spring.tournament.TournamentFinder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -20,18 +20,9 @@ import java.util.Objects;
 public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
-    private final TournamentService tournamentService;
+    private final TournamentFinder tournamentFinder;
+    private final CategoryFinder categoryFinder;
 
-    public Category getCategoryOrThrow(Long id) {
-        return categoryRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found"));
-    }
-
-    public void assertHost(Category category, Long userId) {
-        if (!category.getTournament().getHost().getId().equals(userId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-        }
-    }
 
     @Transactional(readOnly = true)
     public List<CategoryResponse> getAllCategories() {
@@ -43,7 +34,7 @@ public class CategoryService {
 
     @Transactional(readOnly = true)
     public CategoryResponse getCategoryById(Long id, Long userId) {
-        Category category = getCategoryOrThrow(id);
+        Category category = categoryFinder.getCategoryOrThrow(id);
 
         if (userId.equals(category.getTournament().getHost().getId())) return categoryMapper.toResponse(category);
 
@@ -57,7 +48,7 @@ public class CategoryService {
 
     @Transactional
     public CategoryResponseLite createCategory(CategoryRequest categoryRequest, Long userId) {
-        Tournament tournament = tournamentService.getTournamentOrThrow(categoryRequest.tournamentId());
+        Tournament tournament = tournamentFinder.getTournamentOrThrow(categoryRequest.tournamentId());
 
         if (tournament.getHost().getId().equals(userId)) {
             Category category = categoryMapper.toEntity(categoryRequest);
@@ -76,8 +67,8 @@ public class CategoryService {
 
     @Transactional
     public CategoryResponseLite updateLocked(Long id, CategoryLockedUpdateRequest request, Long userId) {
-        Category category = getCategoryOrThrow(id);
-        assertHost(category, userId);
+        Category category = categoryFinder.getCategoryOrThrow(id);
+        categoryFinder.assertHost(category, userId);
 
         categoryMapper.updateLockedEntity(request, category);
 

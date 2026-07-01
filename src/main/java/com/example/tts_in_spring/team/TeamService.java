@@ -1,7 +1,7 @@
 package com.example.tts_in_spring.team;
 
 import com.example.tts_in_spring.category.Category;
-import com.example.tts_in_spring.category.CategoryService;
+import com.example.tts_in_spring.category.CategoryFinder;
 import com.example.tts_in_spring.team.dto.TeamRequest;
 import com.example.tts_in_spring.team.dto.TeamResponse;
 import com.example.tts_in_spring.team.dto.TeamResponseLite;
@@ -18,12 +18,8 @@ import java.util.List;
 public class TeamService {
     private final TeamRepository teamRepository;
     private final TeamMapper teamMapper;
-    private final CategoryService categoryService;
-
-    public Team getTeamOrThrow(Long id) {
-        return teamRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Team not found"));
-    }
+    private final CategoryFinder categoryFinder;
+    private final TeamFinder teamFinder;
 
     @Transactional(readOnly = true)
     public List<TeamResponse> getAllTeams() {
@@ -35,7 +31,7 @@ public class TeamService {
 
     @Transactional(readOnly = true)
     public TeamResponse getTeamById(Long id, Long userId) {
-        Team team = getTeamOrThrow(id);
+        Team team = teamFinder.getTeamOrThrow(id);
 
         boolean isHost = team.getCategory()
                 .getTournament()
@@ -55,7 +51,7 @@ public class TeamService {
 
     @Transactional
     public TeamResponseLite createTeam(TeamRequest teamRequest, Long userId) {
-        Category category = categoryService.getCategoryOrThrow(teamRequest.categoryId());
+        Category category = categoryFinder.getCategoryOrThrow(teamRequest.categoryId());
 
         if (category.getTournament().getHost().getId().equals(userId)) {
             Team team = teamMapper.toEntity(teamRequest);

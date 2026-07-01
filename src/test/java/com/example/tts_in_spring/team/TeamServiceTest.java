@@ -1,7 +1,7 @@
 package com.example.tts_in_spring.team;
 
+import com.example.tts_in_spring.category.CategoryFinder;
 import com.example.tts_in_spring.category.dto.CategoryResponseLite;
-import com.example.tts_in_spring.category.CategoryService;
 import com.example.tts_in_spring.category.CategoryTestBuilder;
 import com.example.tts_in_spring.player.Player;
 import com.example.tts_in_spring.player.PlayerTestBuilder;
@@ -19,7 +19,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.*;
@@ -34,7 +33,10 @@ public class TeamServiceTest {
     private TeamMapper teamMapper;
 
     @Mock
-    private CategoryService categoryService;
+    private TeamFinder teamFinder;
+
+    @Mock
+    private CategoryFinder categoryFinder;
 
     @InjectMocks
     private TeamService teamService;
@@ -77,7 +79,7 @@ public class TeamServiceTest {
         Team team = TeamTestBuilder.aTeam().build();
         TeamResponse response = buildTeamResponse();
 
-        when(teamRepository.findById(team.getId())).thenReturn(Optional.of(team));
+        when(teamFinder.getTeamOrThrow(team.getId())).thenReturn(team);
         when(teamMapper.toResponse(team)).thenReturn(response);
 
         assertThat(teamService.getTeamById(team.getId(), team.getCategory().getTournament().getHost().getId())).isEqualTo(response);
@@ -92,7 +94,7 @@ public class TeamServiceTest {
 
         TeamResponse response = buildTeamResponse();
 
-        when(teamRepository.findById(team.getId())).thenReturn(Optional.of(team));
+        when(teamFinder.getTeamOrThrow(team.getId())).thenReturn(team);
         when(teamMapper.toResponse(team)).thenReturn(response);
 
         assertThat(teamService.getTeamById(team.getId(), 2L)).isEqualTo(response);
@@ -102,7 +104,7 @@ public class TeamServiceTest {
     void getTeamById_whenNotAuthorized_returns403() {
         Team team = TeamTestBuilder.aTeam().build();
 
-        when(teamRepository.findById(team.getId())).thenReturn(Optional.of(team));
+        when(teamFinder.getTeamOrThrow(team.getId())).thenReturn(team);
 
         assertThatThrownBy(() -> teamService.getTeamById(team.getId(), 3L))
                 .isInstanceOf(ResponseStatusException.class)
@@ -113,25 +115,13 @@ public class TeamServiceTest {
     }
 
     @Test
-    void getTeamById_whenNotFound_returns404() {
-        when(teamRepository.findById(99999L)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> teamService.getTeamById(99999L, 1L))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex ->
-                        assertThat(((ResponseStatusException) ex).getStatusCode())
-                                .isEqualTo(HttpStatus.NOT_FOUND)
-                );
-    }
-
-    @Test
     void createTeam_whenHost_savesAndReturnsMappedLite() {
         TeamRequest request = buildTeamRequest();
 
         Team saved = TeamTestBuilder.aTeam().build();
         TeamResponseLite lite = new TeamResponseLite(10000L);
 
-        when(categoryService.getCategoryOrThrow(request.categoryId())).thenReturn(saved.getCategory());
+        when(categoryFinder.getCategoryOrThrow(request.categoryId())).thenReturn(saved.getCategory());
         when(teamMapper.toEntity(request)).thenReturn(saved);
         when(teamRepository.save(any(Team.class))).thenReturn(saved);
         when(teamMapper.toResponseLite(saved)).thenReturn(lite);
@@ -145,7 +135,7 @@ public class TeamServiceTest {
 
         Team team = TeamTestBuilder.aTeam().build();
 
-        when(categoryService.getCategoryOrThrow(request.categoryId())).thenReturn(team.getCategory());
+        when(categoryFinder.getCategoryOrThrow(request.categoryId())).thenReturn(team.getCategory());
 
         assertThatThrownBy(() -> teamService.createTeam(request, 3L))
                 .isInstanceOf(ResponseStatusException.class)

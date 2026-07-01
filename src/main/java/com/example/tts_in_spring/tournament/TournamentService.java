@@ -4,7 +4,7 @@ import com.example.tts_in_spring.category.dto.CategoryRequest;
 import com.example.tts_in_spring.category.CategoryService;
 import com.example.tts_in_spring.tournament.dto.*;
 import com.example.tts_in_spring.user.User;
-import com.example.tts_in_spring.user.UserService;
+import com.example.tts_in_spring.user.UserFinder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.http.HttpStatus;
@@ -18,20 +18,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TournamentService {
     private final TournamentRepository tournamentRepository;
-    private final UserService userService;
+    private final UserFinder userFinder;
     private final TournamentMapper tournamentMapper;
     private final CategoryService categoryService;
+    private final TournamentFinder tournamentFinder;
 
-    public Tournament getTournamentOrThrow(Long id) {
-        return tournamentRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Tournament not found"));
-    }
-
-    private void assertHost(Tournament tournament, Long userId) {
-        if (!tournament.getHost().getId().equals(userId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-        }
-    }
 
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
     private static final String ALPHABET = "abcdefghijklmnopqrstuvwxyz0123456789";
@@ -73,7 +64,7 @@ public class TournamentService {
 
     @Transactional(readOnly = true)
     public TournamentResponse getTournamentById(Long id, Long userId) {
-        Tournament tournament = getTournamentOrThrow(id);
+        Tournament tournament = tournamentFinder.getTournamentOrThrow(id);
 
         if (userId.equals(tournament.getHost().getId())) return tournamentMapper.toResponse(tournament);
 
@@ -88,7 +79,7 @@ public class TournamentService {
 
     @Transactional
     public TournamentResponseLite createTournament(TournamentRequest request, Long userId) {
-        User user = userService.getUserOrThrow(userId);
+        User user = userFinder.getUserOrThrow(userId);
 
         Tournament newTournament = tournamentMapper.toEntity(request);
         newTournament.setStage("SIGN_UP");
@@ -122,8 +113,8 @@ public class TournamentService {
 
     @Transactional
     public TournamentResponseLite updateName(Long id, TournamentNameUpdateRequest request, Long userId) {
-        Tournament existingTournament = getTournamentOrThrow(id);
-        assertHost(existingTournament, userId);
+        Tournament existingTournament = tournamentFinder.getTournamentOrThrow(id);
+        tournamentFinder.assertHost(existingTournament, userId);
 
         tournamentMapper.updateNameEntity(request, existingTournament);
 
@@ -132,8 +123,8 @@ public class TournamentService {
     }
 
      public TournamentResponseLite updateStage(Long id, TournamentStageUpdateRequest request, Long userId) {
-         Tournament existingTournament = getTournamentOrThrow(id);
-         assertHost(existingTournament, userId);
+         Tournament existingTournament = tournamentFinder.getTournamentOrThrow(id);
+         tournamentFinder.assertHost(existingTournament, userId);
 
          tournamentMapper.updateStageEntity(request, existingTournament);
 
@@ -142,8 +133,8 @@ public class TournamentService {
      }
 
     public TournamentResponseLite updateShowMobile(Long id, TournamentShowMobileUpdateRequest request, Long userId) {
-        Tournament existingTournament = getTournamentOrThrow(id);
-        assertHost(existingTournament, userId);
+        Tournament existingTournament = tournamentFinder.getTournamentOrThrow(id);
+        tournamentFinder.assertHost(existingTournament, userId);
 
         tournamentMapper.updateShowMobileEntity(request, existingTournament);
 

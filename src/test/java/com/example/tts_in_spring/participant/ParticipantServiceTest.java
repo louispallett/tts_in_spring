@@ -1,29 +1,25 @@
 package com.example.tts_in_spring.participant;
 
+import com.example.tts_in_spring.match.MatchFinder;
 import com.example.tts_in_spring.match.dto.MatchResponseLite;
-import com.example.tts_in_spring.match.MatchService;
 import com.example.tts_in_spring.match.MatchTestBuilder;
 import com.example.tts_in_spring.participant.dto.*;
 import com.example.tts_in_spring.player.*;
 import com.example.tts_in_spring.player.dto.PlayerResponseLite;
 import com.example.tts_in_spring.team.Team;
+import com.example.tts_in_spring.team.TeamFinder;
 import com.example.tts_in_spring.team.dto.TeamResponseLite;
-import com.example.tts_in_spring.team.TeamService;
 import com.example.tts_in_spring.team.TeamTestBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -36,13 +32,16 @@ public class ParticipantServiceTest {
     private ParticipantMapper participantMapper;
 
     @Mock
-    private MatchService matchService;
+    private ParticipantFinder participantFinder;
 
     @Mock
-    private PlayerService playerService;
+    private MatchFinder matchFinder;
 
     @Mock
-    private TeamService teamService;
+    private PlayerFinder playerFinder;
+
+    @Mock
+    private TeamFinder teamFinder;
 
     @InjectMocks
     private ParticipantService participantService;
@@ -113,7 +112,8 @@ public class ParticipantServiceTest {
                 null
         );
 
-        when(participantRepository.findById(participant.getId())).thenReturn(Optional.of(participant));
+        when(participantFinder.getParticipantOrThrow(participant.getId())).thenReturn(participant);
+        when(participantFinder.isHost(participant, participant.getMatch().getCategory().getTournament().getHost().getId())).thenReturn(true);
         when(participantMapper.toResponse(participant)).thenReturn(response);
 
         assertThat(participantService.getParticipantById(
@@ -131,40 +131,14 @@ public class ParticipantServiceTest {
                 null
         );
 
-        when(participantRepository.findById(participant.getId())).thenReturn(Optional.of(participant));
+        when(participantFinder.getParticipantOrThrow(participant.getId())).thenReturn(participant);
+        when(participantFinder.isParticipant(participant, participant.getPlayer().getUser().getId())).thenReturn(true);
         when(participantMapper.toResponse(participant)).thenReturn(response);
 
         assertThat(participantService.getParticipantById(
                 participant.getId(),
                 participant.getPlayer().getUser().getId()
         )).isEqualTo(response);
-    }
-
-    @Test
-    void getParticipantById_whenNotAuthorized_returns403() {
-        Player player = PlayerTestBuilder.aPlayer().build();
-        Participant participant = ParticipantTestBuilder.aParticipant().withPlayer(player).build();
-
-        when(participantRepository.findById(participant.getId())).thenReturn(Optional.of(participant));
-
-        assertThatThrownBy(() -> participantService.getParticipantById(participant.getId(), 3L))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex ->
-                        assertThat(((ResponseStatusException) ex).getStatusCode())
-                                .isEqualTo(HttpStatus.FORBIDDEN)
-                );
-    }
-
-    @Test
-    void getParticipantById_whenEmpty_returns404() {
-        when(participantRepository.findById(9999999L)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> participantService.getParticipantById(9999999L, 3L))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex ->
-                        assertThat(((ResponseStatusException) ex).getStatusCode())
-                                .isEqualTo(HttpStatus.NOT_FOUND)
-                );
     }
 
     @Test
@@ -179,8 +153,8 @@ public class ParticipantServiceTest {
                 player.getUser().getFirstName() + " " + player.getUser().getLastName()
         );
 
-        when(matchService.getMatchOrThrow(request.matchId())).thenReturn(saved.getMatch());
-        when(playerService.getPlayerOrThrow(request.playerId())).thenReturn(saved.getPlayer());
+        when(matchFinder.getMatchOrThrow(request.matchId())).thenReturn(saved.getMatch());
+        when(playerFinder.getPlayerOrThrow(request.playerId())).thenReturn(saved.getPlayer());
         when(participantMapper.toEntity(request)).thenReturn(saved);
         when(participantRepository.save(any(Participant.class))).thenReturn(saved);
         when(participantMapper.toResponseLite(saved)).thenReturn(lite);
@@ -200,8 +174,8 @@ public class ParticipantServiceTest {
                 "John Doe and Simon Smith"
         );
 
-        when(matchService.getMatchOrThrow(request.matchId())).thenReturn(saved.getMatch());
-        when(teamService.getTeamOrThrow(request.teamId())).thenReturn(saved.getTeam());
+        when(matchFinder.getMatchOrThrow(request.matchId())).thenReturn(saved.getMatch());
+        when(teamFinder.getTeamOrThrow(request.teamId())).thenReturn(saved.getTeam());
         when(participantMapper.toEntity(request)).thenReturn(saved);
         when(participantRepository.save(any(Participant.class))).thenReturn(saved);
         when(participantMapper.toResponseLite(saved)).thenReturn(lite);
@@ -229,7 +203,7 @@ public class ParticipantServiceTest {
                 updatedParticipant.getPlayer().getUser().getFirstName() + " " + updatedParticipant.getPlayer().getUser().getLastName()
         );
 
-        when(participantRepository.findById(request.id())).thenReturn(Optional.of(participant));
+        when(participantFinder.getParticipantOrThrow(participant.getId())).thenReturn(participant);
         when(participantRepository.save(any(Participant.class))).thenReturn(updatedParticipant);
         when(participantMapper.toResponseLite(updatedParticipant)).thenReturn(lite);
 
@@ -239,26 +213,6 @@ public class ParticipantServiceTest {
         verify(participantMapper).submitScore(request, participant);
         verify(participantRepository).save(participant);
         verify(participantMapper).toResponseLite(updatedParticipant);
-    }
-
-    @Test
-    void submitScore_whenNotFound_throws404() {
-        ParticipantSubmitScoreRequest request = new ParticipantSubmitScoreRequest(
-            9999999L,
-            "6-6",
-                true
-        );
-
-        when(participantRepository.findById(9999999L)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> participantService.submitScore(9999999L, request))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex ->
-                        assertThat(((ResponseStatusException) ex).getStatusCode())
-                                .isEqualTo(HttpStatus.NOT_FOUND)
-                );
-        verify(participantRepository, never()).save(any());
-        verifyNoInteractions(participantMapper);
     }
 
     // NOTE: Alternatively, the methods below are called by ParticipantController, and only the host is authorized to call
@@ -285,7 +239,7 @@ public class ParticipantServiceTest {
                 participant.getPlayer().getUser().getFirstName() + " " + participant.getPlayer().getUser().getLastName()
         );
 
-        when(participantRepository.findById(participant.getId())).thenReturn(Optional.of(participant));
+        when(participantFinder.getParticipantOrThrow(participant.getId())).thenReturn(participant);
         when(participantRepository.save(any(Participant.class))).thenReturn(updatedParticipant);
         when(participantMapper.toResponseLite(updatedParticipant)).thenReturn(lite);
 
@@ -300,39 +254,6 @@ public class ParticipantServiceTest {
         verify(participantMapper).updateResultText(request, participant);
         verify(participantRepository).save(participant);
         verify(participantMapper).toResponseLite(updatedParticipant);
-    }
-
-    @Test
-    void updateResultText_whenNotHost_returns403() {
-        Player player = PlayerTestBuilder.aPlayer().build();
-        Participant participant = ParticipantTestBuilder.aParticipant().withPlayer(player).build();
-        participant.setWinner(true);
-        participant.setStatus("PLAYED");
-        participant.setResultText("2-6");
-
-        ParticipantUpdateResultTextRequest request = new ParticipantUpdateResultTextRequest("6-2");
-
-        when(participantRepository.findById(participant.getId())).thenReturn(Optional.of(participant));
-
-        assertThatThrownBy(() -> participantService.updateResultText(participant.getId(), request, 3L))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex ->
-                        assertThat(((ResponseStatusException) ex).getStatusCode())
-                                .isEqualTo(HttpStatus.FORBIDDEN)
-                );
-    }
-
-    @Test
-    void updateResultText_whenNotFound_returns404() {
-        ParticipantUpdateResultTextRequest request = new ParticipantUpdateResultTextRequest("6-2");
-        when(participantRepository.findById(9999999L)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> participantService.updateResultText(9999999L, request, 1L))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex ->
-                        assertThat(((ResponseStatusException) ex).getStatusCode())
-                                .isEqualTo(HttpStatus.NOT_FOUND)
-                );
     }
 
     @Test
@@ -357,7 +278,7 @@ public class ParticipantServiceTest {
                 participant.getPlayer().getUser().getFirstName() + " " + participant.getPlayer().getUser().getLastName()
         );
 
-        when(participantRepository.findById(participant.getId())).thenReturn(Optional.of(participant));
+        when(participantFinder.getParticipantOrThrow(participant.getId())).thenReturn(participant);
         when(participantRepository.save(any(Participant.class))).thenReturn(updatedParticipant);
         when(participantMapper.toResponseLite(updatedParticipant)).thenReturn(lite);
 
@@ -372,40 +293,6 @@ public class ParticipantServiceTest {
         verify(participantMapper).updateIsWinner(request, participant);
         verify(participantRepository).save(participant);
         verify(participantMapper).toResponseLite(updatedParticipant);
-    }
-
-    @Test
-    void updateIsWinner_whenNotHost_returns403() {
-        Player player = PlayerTestBuilder.aPlayer().build();
-        Participant participant = ParticipantTestBuilder.aParticipant().withPlayer(player).build();
-        participant.setWinner(false);
-        participant.setStatus("PLAYED");
-        participant.setResultText("6-2");
-
-        ParticipantUpdateWinnerRequest request = new ParticipantUpdateWinnerRequest(true);
-
-        when(participantRepository.findById(participant.getId())).thenReturn(Optional.of(participant));
-
-        assertThatThrownBy(() -> participantService.updateIsWinner(participant.getId(), request, 3L))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex ->
-                        assertThat(((ResponseStatusException) ex).getStatusCode())
-                                .isEqualTo(HttpStatus.FORBIDDEN)
-                );
-    }
-
-    @Test
-    void updateIsWinner_whenNotFound_returns404() {
-        ParticipantUpdateWinnerRequest request = new ParticipantUpdateWinnerRequest(true);
-
-        when(participantRepository.findById(9999999L)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> participantService.updateIsWinner(9999999L, request, 3L))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex ->
-                        assertThat(((ResponseStatusException) ex).getStatusCode())
-                                .isEqualTo(HttpStatus.NOT_FOUND)
-                );
     }
 
     @Test
@@ -430,7 +317,7 @@ public class ParticipantServiceTest {
                 participant.getPlayer().getUser().getFirstName() + " " + participant.getPlayer().getUser().getLastName()
         );
 
-        when(participantRepository.findById(participant.getId())).thenReturn(Optional.of(participant));
+        when(participantFinder.getParticipantOrThrow(participant.getId())).thenReturn(participant);
         when(participantRepository.save(any(Participant.class))).thenReturn(updatedParticipant);
         when(participantMapper.toResponseLite(updatedParticipant)).thenReturn(lite);
 
@@ -445,39 +332,5 @@ public class ParticipantServiceTest {
         verify(participantMapper).updateStatus(request, participant);
         verify(participantRepository).save(participant);
         verify(participantMapper).toResponseLite(updatedParticipant);
-    }
-
-    @Test
-    void updateStatus_whenNotFound_returns403() {
-        Player player = PlayerTestBuilder.aPlayer().build();
-        Participant participant = ParticipantTestBuilder.aParticipant().withPlayer(player).build();
-        participant.setWinner(false);
-        participant.setStatus("PLAYE");
-        participant.setResultText("6-2");
-
-        ParticipantUpdateStatusRequest request = new ParticipantUpdateStatusRequest("PLAYED");
-
-        when(participantRepository.findById(participant.getId())).thenReturn(Optional.of(participant));
-
-        assertThatThrownBy(() -> participantService.updateStatus(participant.getId(), request, 3L))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex ->
-                        assertThat(((ResponseStatusException) ex).getStatusCode())
-                                .isEqualTo(HttpStatus.FORBIDDEN)
-                );
-    }
-
-    @Test
-    void updateStatus_whenNotFound_returns404() {
-        ParticipantUpdateStatusRequest request = new ParticipantUpdateStatusRequest("PLAYED");
-
-        when(participantRepository.findById(9999999L)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> participantService.updateStatus(9999999L, request, 3L))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex ->
-                        assertThat(((ResponseStatusException) ex).getStatusCode())
-                                .isEqualTo(HttpStatus.NOT_FOUND)
-                );
     }
 }

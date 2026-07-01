@@ -2,12 +2,12 @@ package com.example.tts_in_spring.participant;
 
 import com.example.tts_in_spring.category.Category;
 import com.example.tts_in_spring.match.Match;
-import com.example.tts_in_spring.match.MatchService;
+import com.example.tts_in_spring.match.MatchFinder;
 import com.example.tts_in_spring.participant.dto.*;
 import com.example.tts_in_spring.player.Player;
-import com.example.tts_in_spring.player.PlayerService;
+import com.example.tts_in_spring.player.PlayerFinder;
 import com.example.tts_in_spring.team.Team;
-import com.example.tts_in_spring.team.TeamService;
+import com.example.tts_in_spring.team.TeamFinder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -22,34 +22,10 @@ import java.util.List;
 public class ParticipantService {
     private final ParticipantRepository participantRepository;
     private final ParticipantMapper participantMapper;
-    private final TeamService teamService;
-    private final PlayerService playerService;
-    private final MatchService matchService;
-
-    public Participant getParticipantOrThrow(Long id) {
-        return participantRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Participant not found"));
-    }
-
-    private void assertHost(Participant participant, Long userId) {
-        if (!participant.getMatch().getCategory().getTournament().getHost().getId().equals(userId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-        }
-    }
-
-    boolean isParticipant(Participant participant, Long userId) {
-        boolean isTeam = participant.getTeam() != null;
-        if (isTeam) {
-            return participant.getTeam().getPlayers().stream()
-                            .anyMatch(p -> p.getUser().getId().equals(userId));
-        }
-
-        return participant.getPlayer().getUser().getId().equals(userId);
-    }
-
-    boolean isHost(Participant participant, Long userId) {
-        return participant.getMatch().getCategory().getTournament().getHost().getId().equals(userId);
-    }
+    private final ParticipantFinder participantFinder;
+    private final TeamFinder teamFinder;
+    private final PlayerFinder playerFinder;
+    private final MatchFinder matchFinder;
 
     @Transactional(readOnly = true)
     public List<ParticipantResponse> getAllParticipants() {
@@ -61,9 +37,9 @@ public class ParticipantService {
 
     @Transactional(readOnly = true)
     public ParticipantResponse getParticipantById(Long id, Long userId) {
-        Participant participant = getParticipantOrThrow(id);
+        Participant participant = participantFinder.getParticipantOrThrow(id);
 
-        if (isParticipant(participant, userId) || isHost(participant, userId)) {
+        if (participantFinder.isParticipant(participant, userId) || participantFinder.isHost(participant, userId)) {
             return participantMapper.toResponse(participant);
         }
 
@@ -73,13 +49,13 @@ public class ParticipantService {
     // This is only used when creating matches, so is only called by matchService, which already authorizes the user
     @Transactional
     public ParticipantResponseLite createParticipant(ParticipantRequest request) {
-        Team team = request.teamId() == null ? null : teamService.getTeamOrThrow(request.teamId());
-        Player player = request.playerId() == null ? null : playerService.getPlayerOrThrow(request.playerId());
+        Team team = request.teamId() == null ? null : teamFinder.getTeamOrThrow(request.teamId());
+        Player player = request.playerId() == null ? null : playerFinder.getPlayerOrThrow(request.playerId());
         if (team == null && player == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Both team and player are null");
         }
 
-        Match match = matchService.getMatchOrThrow(request.matchId());
+        Match match = matchFinder.getMatchOrThrow(request.matchId());
 
         Participant participant = participantMapper.toEntity(request);
         participant.setPlayer(player);
@@ -134,7 +110,7 @@ public class ParticipantService {
 
     @Transactional
     public ParticipantResponseLite submitScore(Long id, ParticipantSubmitScoreRequest request) {
-        Participant participant = getParticipantOrThrow(id);
+        Participant participant = participantFinder.getParticipantOrThrow(id);
 
         participantMapper.submitScore(request, participant);
 
@@ -148,8 +124,8 @@ public class ParticipantService {
             ParticipantUpdateResultTextRequest request,
             Long userId
     ) {
-        Participant participant = getParticipantOrThrow(id);
-        assertHost(participant, userId);
+        Participant participant = participantFinder.getParticipantOrThrow(id);
+        participantFinder.assertHost(participant, userId);
 
         participantMapper.updateResultText(request, participant);
 
@@ -163,8 +139,8 @@ public class ParticipantService {
             ParticipantUpdateWinnerRequest request,
             Long userId
     ) {
-        Participant participant = getParticipantOrThrow(id);
-        assertHost(participant, userId);
+        Participant participant = participantFinder.getParticipantOrThrow(id);
+        participantFinder.assertHost(participant, userId);
 
         participantMapper.updateIsWinner(request, participant);
 
@@ -174,8 +150,8 @@ public class ParticipantService {
 
     @Transactional
     public ParticipantResponseLite updateStatus(Long id, ParticipantUpdateStatusRequest request, Long userId) {
-        Participant participant = getParticipantOrThrow(id);
-        assertHost(participant, userId);
+        Participant participant = participantFinder.getParticipantOrThrow(id);
+        participantFinder.assertHost(participant, userId);
 
         participantMapper.updateStatus(request, participant);
 
