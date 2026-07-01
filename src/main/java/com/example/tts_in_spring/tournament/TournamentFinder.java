@@ -1,9 +1,9 @@
 package com.example.tts_in_spring.tournament;
 
+import com.example.tts_in_spring.exception.ResourceNotFoundException;
+import com.example.tts_in_spring.exception.ForbiddenException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -12,14 +12,23 @@ public class TournamentFinder {
 
     public Tournament getTournamentOrThrow(Long id) {
         return tournamentRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Tournament not found"
-                ));
+                .orElseThrow(() -> new ResourceNotFoundException("Tournament " + id + " not found"));
+    }
+
+    public Tournament getTournamentByCodeOrThrow(String code) {
+        return tournamentRepository.findByCode(code)
+                .orElseThrow(() -> new ResourceNotFoundException("Invalid Tournament Code"));
     }
 
     public void assertHost(Tournament tournament, Long userId) {
         if (!tournament.getHost().getId().equals(userId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            throw new ForbiddenException(
+                    "Not host of tournament "
+                            + tournament.getName()
+                            + " ("
+                            + tournament.getId()
+                            + ")"
+            );
         }
     }
 }

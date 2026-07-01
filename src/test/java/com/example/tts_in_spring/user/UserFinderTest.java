@@ -1,12 +1,11 @@
 package com.example.tts_in_spring.user;
 
+import com.example.tts_in_spring.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,9 +36,6 @@ public class UserFinderTest {
         when(userRepository.findById(9L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userFinder.getUserOrThrow(9L))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex ->
-                        assertThat(((ResponseStatusException) ex).getStatusCode())
-                                .isEqualTo(HttpStatus.NOT_FOUND));
+                .isInstanceOf(ResourceNotFoundException.class);
     }
 }

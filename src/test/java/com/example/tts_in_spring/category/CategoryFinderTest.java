@@ -1,12 +1,12 @@
 package com.example.tts_in_spring.category;
 
+import com.example.tts_in_spring.exception.ResourceNotFoundException;
+import com.example.tts_in_spring.exception.ForbiddenException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 
@@ -37,10 +37,7 @@ public class CategoryFinderTest {
         when(categoryRepository.findById(999L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> categoryFinder.getCategoryOrThrow(999L))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex ->
-                        assertThat(((ResponseStatusException) ex).getStatusCode())
-                                .isEqualTo(HttpStatus.NOT_FOUND));
+                .isInstanceOf(ResourceNotFoundException.class);
     }
 
     @Test
@@ -54,9 +51,6 @@ public class CategoryFinderTest {
     @Test
     void assertHost_whenNotHost_throws403() {
         assertThatThrownBy(() -> categoryFinder.assertHost(CategoryTestBuilder.aCategory().build(), 3L))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex ->
-                        assertThat(((ResponseStatusException) ex).getStatusCode())
-                                .isEqualTo(HttpStatus.FORBIDDEN));
+                .isInstanceOf(ForbiddenException.class);
     }
 }

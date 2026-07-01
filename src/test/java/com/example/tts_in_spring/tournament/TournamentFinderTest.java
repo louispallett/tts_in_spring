@@ -1,12 +1,12 @@
 package com.example.tts_in_spring.tournament;
 
+import com.example.tts_in_spring.exception.ResourceNotFoundException;
+import com.example.tts_in_spring.exception.ForbiddenException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 
@@ -37,10 +37,7 @@ public class TournamentFinderTest {
         when(tournamentRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> tournamentFinder.getTournamentOrThrow(99L))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex ->
-                        assertThat(((ResponseStatusException) ex).getStatusCode())
-                                .isEqualTo(HttpStatus.NOT_FOUND));
+                .isInstanceOf(ResourceNotFoundException.class);
     }
 
     @Test
@@ -54,9 +51,24 @@ public class TournamentFinderTest {
     @Test
     void assertHost_whenNotHost_throws403() {
         assertThatThrownBy(() -> tournamentFinder.assertHost(TournamentTestBuilder.aTournament().build(), 3L))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex ->
-                        assertThat(((ResponseStatusException) ex).getStatusCode())
-                                .isEqualTo(HttpStatus.FORBIDDEN));
+                .isInstanceOf(ForbiddenException.class);
+    }
+
+    @Test
+    void checkCode_whenCorrect_returnsCode() {
+        Tournament tournament = TournamentTestBuilder.aTournament().build();
+
+        when(tournamentRepository.findByCode(tournament.getCode())).thenReturn(Optional.of(tournament));
+
+        assertThat(tournamentFinder.getTournamentByCodeOrThrow(tournament.getCode())).isEqualTo(tournament);
+    }
+
+    @Test
+    void checkCode_whenIncorrect_throws404() {
+        String fakeCode = "aaaaaaa";
+        when(tournamentRepository.findByCode(fakeCode)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> tournamentFinder.getTournamentByCodeOrThrow(fakeCode))
+                .isInstanceOf(ResourceNotFoundException.class);
     }
 }

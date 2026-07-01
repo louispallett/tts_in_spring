@@ -2,14 +2,13 @@ package com.example.tts_in_spring.player;
 
 import com.example.tts_in_spring.category.Category;
 import com.example.tts_in_spring.category.CategoryFinder;
+import com.example.tts_in_spring.exception.ForbiddenException;
 import com.example.tts_in_spring.player.dto.*;
 import com.example.tts_in_spring.user.User;
 import com.example.tts_in_spring.user.UserFinder;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -42,7 +41,7 @@ public class PlayerService {
             return playerMapper.toResponse(player);
         }
 
-        throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        throw new ForbiddenException();
     }
 
     @Transactional

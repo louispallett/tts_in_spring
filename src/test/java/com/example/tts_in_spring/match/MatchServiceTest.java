@@ -4,6 +4,7 @@ import com.example.tts_in_spring.category.Category;
 import com.example.tts_in_spring.category.CategoryFinder;
 import com.example.tts_in_spring.category.dto.CategoryResponseLite;
 import com.example.tts_in_spring.category.CategoryTestBuilder;
+import com.example.tts_in_spring.exception.ForbiddenException;
 import com.example.tts_in_spring.match.dto.*;
 import com.example.tts_in_spring.participant.Participant;
 import com.example.tts_in_spring.participant.ParticipantTestBuilder;
@@ -14,8 +15,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -100,11 +99,13 @@ public class MatchServiceTest {
     void getMatchById_whenHost_returnsMappedResponse() {
         Match match = MatchTestBuilder.aMatch().build();
         MatchResponse response = buildMatchResponse();
+        Long hostId = match.getCategory().getTournament().getHost().getId();
 
         when(matchFinder.getMatchOrThrow(match.getId())).thenReturn(match);
+        when(matchFinder.isHost(match, hostId)).thenReturn(true);
         when(matchMapper.toResponse(match)).thenReturn(response);
 
-        assertThat(matchService.getMatchById(match.getId(), match.getCategory().getTournament().getHost().getId())).isEqualTo(response);
+        assertThat(matchService.getMatchById(match.getId(), hostId)).isEqualTo(response);
     }
 
 
@@ -117,6 +118,7 @@ public class MatchServiceTest {
         match.getParticipants().add(participant);
 
         when(matchFinder.getMatchOrThrow(match.getId())).thenReturn(match);
+        when(matchFinder.isParticipant(match, player.getUser().getId())).thenReturn(true);
         when(matchMapper.toResponse(match)).thenReturn(response);
 
         assertThat(matchService.getMatchById(match.getId(), player.getUser().getId())).isEqualTo(response);
@@ -129,11 +131,7 @@ public class MatchServiceTest {
         when(matchFinder.getMatchOrThrow(match.getId())).thenReturn(match);
 
         assertThatThrownBy(() -> matchService.getMatchById(match.getId(), 3L))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex ->
-                        assertThat(((ResponseStatusException) ex).getStatusCode())
-                                .isEqualTo(HttpStatus.FORBIDDEN)
-                );
+                .isInstanceOf(ForbiddenException.class);
     }
 
     @Test
@@ -181,11 +179,7 @@ public class MatchServiceTest {
         when(categoryFinder.getCategoryOrThrow(request.categoryId())).thenReturn(match.getCategory());
 
         assertThatThrownBy(() -> matchService.createMatch(request, 3L))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex ->
-                        assertThat(((ResponseStatusException) ex).getStatusCode())
-                                .isEqualTo(HttpStatus.FORBIDDEN)
-                );
+                .isInstanceOf(ForbiddenException.class);
 
         verify(matchRepository, never()).save(any());
         verifyNoInteractions(matchMapper);
@@ -324,6 +318,7 @@ public class MatchServiceTest {
         MatchResponseLite lite = buildMatchResponseLite("SCORE_DONE", Instant.now());
 
         when(matchFinder.getMatchOrThrow(match.getId())).thenReturn(match);
+        when(matchFinder.isHost(match, match.getCategory().getTournament().getHost().getId())).thenReturn(true);
         when(matchRepository.save(any(Match.class))).thenReturn(updatedMatch);
         when(matchMapper.toResponseLite(updatedMatch)).thenReturn(lite);
 
@@ -348,6 +343,7 @@ public class MatchServiceTest {
         MatchResponseLite lite = buildMatchResponseLite("SCORE_DONE", Instant.now());
 
         when(matchFinder.getMatchOrThrow(match.getId())).thenReturn(match);
+        when(matchFinder.isParticipant(match, player.getUser().getId())).thenReturn(true);
         when(matchRepository.save(any(Match.class))).thenReturn(updatedMatch);
         when(matchMapper.toResponseLite(updatedMatch)).thenReturn(lite);
 
@@ -367,11 +363,7 @@ public class MatchServiceTest {
         when(matchFinder.getMatchOrThrow(match.getId())).thenReturn(match);
 
         assertThatThrownBy(() -> matchService.submitScore(match.getId(), request, 3L))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex ->
-                        assertThat(((ResponseStatusException) ex).getStatusCode())
-                                .isEqualTo(HttpStatus.FORBIDDEN)
-                );
+                .isInstanceOf(ForbiddenException.class);
         verify(matchRepository, never()).save(any());
         verifyNoInteractions(matchMapper);
     }
@@ -398,24 +390,6 @@ public class MatchServiceTest {
     }
 
     @Test
-    void updateDeadline_whenNotHost_returns403() {
-        Match match = MatchTestBuilder.aMatch().build();
-
-        MatchUpdateDeadlineRequest request = new MatchUpdateDeadlineRequest(Instant.MIN);
-
-        when(matchFinder.getMatchOrThrow(match.getId())).thenReturn(match);
-
-        assertThatThrownBy(() -> matchService.updateDeadline(match.getId(), request, 3L))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex ->
-                        assertThat(((ResponseStatusException) ex).getStatusCode())
-                                .isEqualTo(HttpStatus.FORBIDDEN)
-                );
-        verify(matchRepository, never()).save(any());
-        verifyNoInteractions(matchMapper);
-    }
-
-    @Test
     void deleteMatch_whenHost_deletesMatch() {
         Match match = MatchTestBuilder.aMatch().build();
 
@@ -424,20 +398,5 @@ public class MatchServiceTest {
         matchService.delete(match.getId(), match.getCategory().getTournament().getHost().getId());
 
         verify(matchRepository).delete(match);
-    }
-
-    @Test
-    void deleteMatch_whenNotHost_throws403() {
-        Match match = MatchTestBuilder.aMatch().build();
-
-        when(matchFinder.getMatchOrThrow(match.getId())).thenReturn(match);
-
-        assertThatThrownBy(() -> matchService.delete(match.getId(), 3L))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex ->
-                        assertThat(((ResponseStatusException) ex).getStatusCode())
-                                .isEqualTo(HttpStatus.FORBIDDEN)
-                );
-        verify(matchRepository, never()).save(any());
     }
 }

@@ -1,12 +1,12 @@
 package com.example.tts_in_spring.player;
 
+import com.example.tts_in_spring.exception.ResourceNotFoundException;
+import com.example.tts_in_spring.exception.ForbiddenException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 
@@ -37,10 +37,7 @@ public class PlayerFinderTest {
         when(playerRepository.findById(9999L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> playerFinder.getPlayerOrThrow(9999L))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex ->
-                        assertThat(((ResponseStatusException) ex).getStatusCode())
-                                .isEqualTo(HttpStatus.NOT_FOUND));
+                .isInstanceOf(ResourceNotFoundException.class);
     }
 
     @Test
@@ -54,9 +51,6 @@ public class PlayerFinderTest {
     @Test
     void assertHost_whenNotHost_throws403() {
         assertThatThrownBy(() -> playerFinder.assertHost(PlayerTestBuilder.aPlayer().build(), 3L))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex ->
-                        assertThat(((ResponseStatusException) ex).getStatusCode())
-                                .isEqualTo(HttpStatus.FORBIDDEN));
+                .isInstanceOf(ForbiddenException.class);
     }
 }

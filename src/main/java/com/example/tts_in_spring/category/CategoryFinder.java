@@ -1,9 +1,9 @@
 package com.example.tts_in_spring.category;
 
+import com.example.tts_in_spring.exception.ResourceNotFoundException;
+import com.example.tts_in_spring.exception.ForbiddenException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -12,12 +12,18 @@ public class CategoryFinder {
 
     public Category getCategoryOrThrow(Long id) {
         return categoryRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Category " + id + " not found"));
     }
 
     public void assertHost(Category category, Long userId) {
         if (!category.getTournament().getHost().getId().equals(userId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            throw new ForbiddenException(
+                    "Not host of tournament "
+                            + category.getTournament().getName()
+                            + " ("
+                            + category.getTournament().getId()
+                            + ")"
+            );
         }
     }
 }

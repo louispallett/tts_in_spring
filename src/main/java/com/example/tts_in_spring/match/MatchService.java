@@ -2,14 +2,14 @@ package com.example.tts_in_spring.match;
 
 import com.example.tts_in_spring.category.Category;
 import com.example.tts_in_spring.category.CategoryFinder;
+import com.example.tts_in_spring.exception.SeedingAlgorithmException;
+import com.example.tts_in_spring.exception.ForbiddenException;
 import com.example.tts_in_spring.match.dto.*;
 import com.example.tts_in_spring.participant.Participant;
 import com.example.tts_in_spring.participant.ParticipantService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.util.ArrayDeque;
@@ -27,19 +27,6 @@ public class MatchService {
     private final MatchFinder matchFinder;
     private final ParticipantService participantService;
 
-    private boolean isHost(Match match, Long userId) {
-        return match.getCategory()
-                .getTournament()
-                .getHost()
-                .getId()
-                .equals(userId);
-    }
-
-    private boolean isParticipant(Match match, Long userId) {
-        return match.getParticipants().stream()
-                .anyMatch(p -> p.getPlayer().getUser().getId().equals(userId));
-    }
-
     @Transactional(readOnly = true)
     public List<MatchResponse> getAllMatches() {
         return matchRepository.findAll()
@@ -52,11 +39,11 @@ public class MatchService {
     public MatchResponse getMatchById(Long id, Long userId) {
         Match match = matchFinder.getMatchOrThrow(id);
 
-        if (isHost(match, userId) || isParticipant(match, userId)) {
+        if (matchFinder.isHost(match, userId) || matchFinder.isParticipant(match, userId)) {
             return matchMapper.toResponse(match);
         }
 
-        throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        throw new ForbiddenException("Not host of tournament or participant in match");
     }
 
     public int calculateNumberOfRounds(int numOfPlayers) {
@@ -95,7 +82,7 @@ public class MatchService {
             return matchMapper.toResponse(savedMatch);
         }
 
-        throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        throw new ForbiddenException("Not host of tournament " + category.getTournament().getName());
     }
 
     public List<List<Match>> splitIntoFours(List<Match> matches) {
@@ -182,7 +169,7 @@ public class MatchService {
         }
 
         if (matchesByRound.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Match creation failed. Returned Empty List");
+            throw new SeedingAlgorithmException("Match creation failed. Returned Empty List");
         }
 
         return matchesByRound;
@@ -306,35 +293,37 @@ public class MatchService {
     public MatchResponseLite submitScore(Long id, MatchSubmitScoreRequest request, Long userId) {
         Match match = matchFinder.getMatchOrThrow(id);
 
-        if (isHost(match, userId) || isParticipant(match, userId)) {
+        if (matchFinder.isHost(match, userId) || matchFinder.isParticipant(match, userId)) {
             matchMapper.submitScoreEntity(request, match);
 
             Match savedMatch = matchRepository.save(match);
             return matchMapper.toResponseLite(savedMatch);
         }
 
-        throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        throw new ForbiddenException(
+                "Not host of "
+                        + match.getCategory().getTournament().getName()
+                        + " ("
+                        + match.getCategory().getTournament().getId()
+                        + ") or participant in match " + match.getId()
+        );
     }
 
     @Transactional
     public MatchResponseLite updateDeadline(Long id, MatchUpdateDeadlineRequest request, Long userId) {
         Match match = matchFinder.getMatchOrThrow(id);
+        matchFinder.assertHost(match, userId);
 
-        if (isHost(match, userId)) {
-            matchMapper.updateDeadlineEntity(request, match);
+        matchMapper.updateDeadlineEntity(request, match);
 
-            Match savedMatch = matchRepository.save(match);
-            return matchMapper.toResponseLite(savedMatch);
-        }
-
-        throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        Match savedMatch = matchRepository.save(match);
+        return matchMapper.toResponseLite(savedMatch);
     }
 
     @Transactional
     public void delete(Long id, Long userId) {
         Match match = matchFinder.getMatchOrThrow(id);
-
-        if (!isHost(match, userId)) throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        matchFinder.assertHost(match, userId);
 
         matchRepository.delete(match);
     }

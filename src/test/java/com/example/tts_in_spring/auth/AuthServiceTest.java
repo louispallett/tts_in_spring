@@ -2,6 +2,7 @@ package com.example.tts_in_spring.auth;
 
 import com.example.tts_in_spring.auth.dto.AuthResponse;
 import com.example.tts_in_spring.auth.dto.LoginRequest;
+import com.example.tts_in_spring.exception.UnauthorizedException;
 import com.example.tts_in_spring.security.JwtUtil;
 import com.example.tts_in_spring.user.User;
 import com.example.tts_in_spring.user.UserRepository;
@@ -10,9 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 
@@ -68,9 +67,7 @@ public class AuthServiceTest {
         when(passwordEncoder.matches("WrongPassword123!", "hashed_password")).thenReturn(false);
 
         assertThatThrownBy(() -> authService.login(request))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
-                        .isEqualTo(HttpStatus.UNAUTHORIZED));
+                .isInstanceOf(UnauthorizedException.class);
     }
 
     @Test
@@ -82,8 +79,6 @@ public class AuthServiceTest {
         when(userRepository.findByEmail("random@random.com")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> authService.login(request))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
-                        .isEqualTo(HttpStatus.UNAUTHORIZED));
+                .isInstanceOf(UnauthorizedException.class);
     }
 }

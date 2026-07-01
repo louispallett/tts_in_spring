@@ -1,5 +1,7 @@
 package com.example.tts_in_spring.user;
 
+import com.example.tts_in_spring.exception.ConflictException;
+import com.example.tts_in_spring.exception.GenericBadRequestException;
 import com.example.tts_in_spring.user.dto.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -7,9 +9,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.server.ResponseStatusException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -120,9 +120,7 @@ public class UserServiceTest {
         when(userRepository.findByEmail("john.doe@example.com")).thenReturn(Optional.of(new User()));
 
         assertThatThrownBy(() -> userService.createUser(request))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
-                        .isEqualTo(HttpStatus.CONFLICT));
+                .isInstanceOf(ConflictException.class);
 
         verify(userRepository, never()).save(any());
     }
@@ -204,9 +202,7 @@ public class UserServiceTest {
         when(passwordEncoder.matches("WrongPassword!", "hashed_old_password")).thenReturn(false);
 
         assertThatThrownBy(() -> userService.updatePassword(user.getId(), request))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
-                        .isEqualTo(HttpStatus.BAD_REQUEST));
+                .isInstanceOf(GenericBadRequestException.class);
 
         verify(userRepository, never()).save(any());
     }
@@ -220,9 +216,7 @@ public class UserServiceTest {
         );
 
         assertThatThrownBy(() -> userService.updatePassword(1L, request))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
-                        .isEqualTo(HttpStatus.BAD_REQUEST));
+                .isInstanceOf(GenericBadRequestException.class);
 
         verify(userRepository, never()).save(any());
     }

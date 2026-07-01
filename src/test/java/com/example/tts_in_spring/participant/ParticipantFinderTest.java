@@ -1,5 +1,7 @@
 package com.example.tts_in_spring.participant;
 
+import com.example.tts_in_spring.exception.ResourceNotFoundException;
+import com.example.tts_in_spring.exception.ForbiddenException;
 import com.example.tts_in_spring.player.Player;
 import com.example.tts_in_spring.player.PlayerTestBuilder;
 import com.example.tts_in_spring.team.Team;
@@ -9,8 +11,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 
@@ -41,10 +41,7 @@ public class ParticipantFinderTest {
         when(participantRepository.findById(9999999L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> participantFinder.getParticipantOrThrow(9999999L))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex ->
-                        assertThat(((ResponseStatusException) ex).getStatusCode())
-                                .isEqualTo(HttpStatus.NOT_FOUND));
+                .isInstanceOf(ResourceNotFoundException.class);
     }
 
     @Test
@@ -58,10 +55,7 @@ public class ParticipantFinderTest {
     @Test
     void assertHost_whenNotHost_throws403() {
         assertThatThrownBy(() -> participantFinder.assertHost(ParticipantTestBuilder.aParticipant().build(), 3L))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex ->
-                        assertThat(((ResponseStatusException) ex).getStatusCode())
-                                .isEqualTo(HttpStatus.FORBIDDEN));
+                .isInstanceOf(ForbiddenException.class);
     }
 
     @Test

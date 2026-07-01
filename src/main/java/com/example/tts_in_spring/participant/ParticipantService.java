@@ -1,6 +1,8 @@
 package com.example.tts_in_spring.participant;
 
 import com.example.tts_in_spring.category.Category;
+import com.example.tts_in_spring.exception.GenericBadRequestException;
+import com.example.tts_in_spring.exception.ForbiddenException;
 import com.example.tts_in_spring.match.Match;
 import com.example.tts_in_spring.match.MatchFinder;
 import com.example.tts_in_spring.participant.dto.*;
@@ -9,10 +11,8 @@ import com.example.tts_in_spring.player.PlayerFinder;
 import com.example.tts_in_spring.team.Team;
 import com.example.tts_in_spring.team.TeamFinder;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +43,7 @@ public class ParticipantService {
             return participantMapper.toResponse(participant);
         }
 
-        throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        throw new ForbiddenException();
     }
 
     // This is only used when creating matches, so is only called by matchService, which already authorizes the user
@@ -52,7 +52,7 @@ public class ParticipantService {
         Team team = request.teamId() == null ? null : teamFinder.getTeamOrThrow(request.teamId());
         Player player = request.playerId() == null ? null : playerFinder.getPlayerOrThrow(request.playerId());
         if (team == null && player == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Both team and player are null");
+            throw new GenericBadRequestException("Both team and player are null");
         }
 
         Match match = matchFinder.getMatchOrThrow(request.matchId());
@@ -79,11 +79,11 @@ public class ParticipantService {
 
     public List<Participant> generateParticipants(Category category) {
         if (category.getPlayers().isEmpty() && category.getTeams().isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No players or teams");
+            throw new GenericBadRequestException("No players or teams");
         }
 
         if (!category.getPlayers().isEmpty() && !category.getTeams().isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Category has both teams and players");
+            throw new GenericBadRequestException("Category has both teams and players");
         }
 
         List<Participant> participants = new ArrayList<>();

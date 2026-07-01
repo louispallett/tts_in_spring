@@ -2,14 +2,13 @@ package com.example.tts_in_spring.tournament;
 
 import com.example.tts_in_spring.category.dto.CategoryRequest;
 import com.example.tts_in_spring.category.CategoryService;
+import com.example.tts_in_spring.exception.ForbiddenException;
 import com.example.tts_in_spring.tournament.dto.*;
 import com.example.tts_in_spring.user.User;
 import com.example.tts_in_spring.user.UserFinder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.security.SecureRandom;
 import java.util.List;
@@ -74,7 +73,7 @@ public class TournamentService {
 
         if (isPlayer) return tournamentMapper.toResponse(tournament);
 
-        throw(new ResponseStatusException(HttpStatus.FORBIDDEN));
+        throw new ForbiddenException("You are not a host or player of this tournament");
     }
 
     @Transactional
@@ -143,7 +142,6 @@ public class TournamentService {
     }
 
     public Tournament checkCode(String code) {
-        return tournamentRepository.findByCode(code)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Invalid code"));
+        return tournamentFinder.getTournamentByCodeOrThrow(code);
     }
 }

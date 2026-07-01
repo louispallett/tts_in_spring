@@ -3,6 +3,7 @@ package com.example.tts_in_spring.team;
 import com.example.tts_in_spring.category.CategoryFinder;
 import com.example.tts_in_spring.category.dto.CategoryResponseLite;
 import com.example.tts_in_spring.category.CategoryTestBuilder;
+import com.example.tts_in_spring.exception.ForbiddenException;
 import com.example.tts_in_spring.player.Player;
 import com.example.tts_in_spring.player.PlayerTestBuilder;
 import com.example.tts_in_spring.team.dto.TeamRequest;
@@ -15,8 +16,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -107,11 +106,7 @@ public class TeamServiceTest {
         when(teamFinder.getTeamOrThrow(team.getId())).thenReturn(team);
 
         assertThatThrownBy(() -> teamService.getTeamById(team.getId(), 3L))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex ->
-                        assertThat(((ResponseStatusException) ex).getStatusCode())
-                                .isEqualTo(HttpStatus.FORBIDDEN)
-                );
+                .isInstanceOf(ForbiddenException.class);
     }
 
     @Test
@@ -138,11 +133,7 @@ public class TeamServiceTest {
         when(categoryFinder.getCategoryOrThrow(request.categoryId())).thenReturn(team.getCategory());
 
         assertThatThrownBy(() -> teamService.createTeam(request, 3L))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex ->
-                        assertThat(((ResponseStatusException) ex).getStatusCode())
-                                .isEqualTo(HttpStatus.FORBIDDEN)
-                );
+                .isInstanceOf(ForbiddenException.class);
 
         verify(teamRepository, never()).save(any());
         verifyNoInteractions(teamMapper);

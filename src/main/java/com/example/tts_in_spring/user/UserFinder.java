@@ -1,9 +1,8 @@
 package com.example.tts_in_spring.user;
 
+import com.example.tts_in_spring.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -12,6 +11,6 @@ public class UserFinder {
 
     public User getUserOrThrow(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User " + id + " not found"));
     }
 }

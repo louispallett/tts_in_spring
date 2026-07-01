@@ -4,13 +4,12 @@ import com.example.tts_in_spring.category.dto.CategoryLockedUpdateRequest;
 import com.example.tts_in_spring.category.dto.CategoryRequest;
 import com.example.tts_in_spring.category.dto.CategoryResponse;
 import com.example.tts_in_spring.category.dto.CategoryResponseLite;
+import com.example.tts_in_spring.exception.ForbiddenException;
 import com.example.tts_in_spring.tournament.Tournament;
 import com.example.tts_in_spring.tournament.TournamentFinder;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Objects;
@@ -43,7 +42,7 @@ public class CategoryService {
 
         if (isPlayer) return categoryMapper.toResponse(category);
 
-        throw(new ResponseStatusException(HttpStatus.FORBIDDEN));
+        throw new ForbiddenException();
     }
 
     @Transactional
@@ -62,7 +61,7 @@ public class CategoryService {
             return categoryMapper.toResponseLite(savedCategory);
         }
 
-        throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        throw new ForbiddenException();
     }
 
     @Transactional

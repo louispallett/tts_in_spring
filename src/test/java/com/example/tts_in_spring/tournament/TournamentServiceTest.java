@@ -2,6 +2,7 @@ package com.example.tts_in_spring.tournament;
 
 import com.example.tts_in_spring.category.*;
 import com.example.tts_in_spring.category.dto.CategoryRequest;
+import com.example.tts_in_spring.exception.ForbiddenException;
 import com.example.tts_in_spring.player.PlayerTestBuilder;
 import com.example.tts_in_spring.tournament.dto.*;
 import com.example.tts_in_spring.user.*;
@@ -12,11 +13,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
@@ -131,11 +129,8 @@ public class TournamentServiceTest {
         when(tournamentFinder.getTournamentOrThrow(tournament.getId())).thenReturn(tournament);
 
         assertThatThrownBy(() -> tournamentService.getTournamentById(10L, outsider.getId()))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex ->
-                        assertThat(((ResponseStatusException) ex).getStatusCode())
-                                .isEqualTo(HttpStatus.FORBIDDEN)
-                );
+                .isInstanceOf(ForbiddenException.class)
+                .hasMessage("You are not a host or player of this tournament");
     }
 
     @Test
@@ -252,24 +247,4 @@ public class TournamentServiceTest {
          verify(tournamentRepository).save(tournament);
          verify(tournamentMapper).toResponseLite(updatedTournament);
      }
-
-    @Test
-    void checkCode_whenCorrect_returnsTrue() {
-        Tournament tournament = TournamentTestBuilder.aTournament().build();
-
-        when(tournamentRepository.findByCode(tournament.getCode())).thenReturn(Optional.of(tournament));
-
-        assertThat(tournamentService.checkCode(tournament.getCode())).isEqualTo(tournament);
-    }
-
-    @Test
-    void checkCode_whenNotFound_throws404() {
-        String fakeCode = "abcdgefg";
-        when(tournamentRepository.findByCode(fakeCode)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> tournamentService.checkCode(fakeCode))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
-                        .isEqualTo(HttpStatus.NOT_FOUND));
-    }
 }

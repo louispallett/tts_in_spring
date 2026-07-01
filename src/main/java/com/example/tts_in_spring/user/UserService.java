@@ -1,12 +1,12 @@
 package com.example.tts_in_spring.user;
 
+import com.example.tts_in_spring.exception.ConflictException;
+import com.example.tts_in_spring.exception.GenericBadRequestException;
 import com.example.tts_in_spring.user.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Locale;
@@ -43,7 +43,7 @@ public class UserService {
         String email = userRequest.email().trim().toLowerCase(Locale.ROOT);
 
         if (userRepository.findByEmail(email).isPresent()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already registered");
+            throw new ConflictException("Email " + email + " is already registered");
         }
 
         User newUser = userMapper.toEntity(userRequest);
@@ -67,7 +67,7 @@ public class UserService {
                 !email.equals(existingUser.getEmail()) &&
                 userRepository.findByEmail(email).isPresent()
         ) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already registered");
+            throw new ConflictException("Email " + email + " is already registered");
         }
 
         userMapper.updateEntity(request, existingUser);
@@ -80,13 +80,13 @@ public class UserService {
     @Transactional
     public UserResponseLite updatePassword(Long id, UserUpdatePasswordRequest request) {
         if (!request.newPassword().equals(request.confirmNewPassword())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "New password and confirmed password do not match");
+            throw new GenericBadRequestException("New password and confirmed password do not match");
         }
 
         User existingUser = userFinder.getUserOrThrow(id);
 
         if (!passwordEncoder.matches(request.currentPassword(), existingUser.getPassword())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Current password incorrect");
+            throw new GenericBadRequestException("Current password incorrect");
         }
 
         existingUser.setPassword(passwordEncoder.encode(request.newPassword()));

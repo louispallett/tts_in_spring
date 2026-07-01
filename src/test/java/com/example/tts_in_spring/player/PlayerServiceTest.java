@@ -3,6 +3,7 @@ package com.example.tts_in_spring.player;
 import com.example.tts_in_spring.category.CategoryFinder;
 import com.example.tts_in_spring.category.CategoryTestBuilder;
 import com.example.tts_in_spring.category.dto.CategoryResponseLite;
+import com.example.tts_in_spring.exception.ForbiddenException;
 import com.example.tts_in_spring.player.dto.*;
 import com.example.tts_in_spring.user.UserFinder;
 import com.example.tts_in_spring.user.dto.UserResponseLite;
@@ -14,8 +15,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -113,11 +112,7 @@ public class PlayerServiceTest {
         when(playerFinder.getPlayerOrThrow(player.getId())).thenReturn(player);
 
         assertThatThrownBy(() -> playerService.getPlayerById(player.getId(), 3L))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex ->
-                        assertThat(((ResponseStatusException) ex).getStatusCode())
-                                .isEqualTo(HttpStatus.FORBIDDEN)
-                );
+                .isInstanceOf(ForbiddenException.class);
     }
 
     @Test
