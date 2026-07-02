@@ -45,6 +45,7 @@ public class UserServiceTest {
                 "john.doe@example.com",
                 "+44",
                 "1234567890",
+                null,
                 null
         );
     }
