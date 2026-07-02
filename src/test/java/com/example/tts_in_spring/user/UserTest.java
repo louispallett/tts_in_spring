@@ -27,6 +27,7 @@ class UserTest {
                 "123456789",
                 null,
                 null,
+                List.of(),
                 List.of()
         );
 

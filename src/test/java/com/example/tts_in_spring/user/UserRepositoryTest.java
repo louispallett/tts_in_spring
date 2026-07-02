@@ -27,6 +27,7 @@ class UserRepositoryTest {
                 "123456789",
                 null,
                 null,
+                List.of(),
                 List.of()
         );
 
@@ -39,6 +40,7 @@ class UserRepositoryTest {
                 "987654321",
                 null,
                 null,
+                List.of(),
                 List.of()
         );
 

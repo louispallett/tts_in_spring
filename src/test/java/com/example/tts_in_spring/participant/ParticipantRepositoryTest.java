@@ -52,8 +52,8 @@ class ParticipantRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        User host = new User("John", "Doe", "john.doe@example.com", "secret", "44", "123456789", null, null, List.of());
-        User user = new User("Simon", "Smith", "simon.smith@example.com", "secret", "44", "987654321", null, null, List.of());
+        User host = new User("John", "Doe", "john.doe@example.com", "secret", "44", "123456789", null, null, List.of(), List.of());
+        User user = new User("Simon", "Smith", "simon.smith@example.com", "secret", "44", "987654321", null, null, List.of(), List.of());
         userRepository.save(host);
         userRepository.save(user);
 

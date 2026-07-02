@@ -55,10 +55,9 @@ public class PlayerServiceTest {
         );
     }
 
-    private PlayerRequest buildPlayerRequest(User user, Category category) {
+    private PlayerRequest buildPlayerRequest(Category category) {
         return new PlayerRequest(
             true,
-            user.getId(),
             category.getId()
         );
     }
@@ -119,7 +118,7 @@ public class PlayerServiceTest {
     void createPlayer_savesAndReturnsMappedLite() {
         User user = UserTestBuilder.aUser().build();
         Category category = CategoryTestBuilder.aCategory().build();
-        PlayerRequest request = buildPlayerRequest(category.getTournament().getHost(), category);
+        PlayerRequest request = buildPlayerRequest(category);
 
         Player saved = PlayerTestBuilder.aPlayer().withCategory(category).build();
         PlayerResponseLite lite = new PlayerResponseLite(
