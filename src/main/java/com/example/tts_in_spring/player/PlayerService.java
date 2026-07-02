@@ -61,7 +61,7 @@ public class PlayerService {
     }
 
     @Transactional
-    public List<PlayerResponseLite> joinTouranment(JoinTournamentRequest request, Long userId) {
+    public List<PlayerResponseLite> joinTournament(JoinTournamentRequest request, Long userId) {
         List<PlayerResponseLite> players = new ArrayList<>();
         for (Long categoryId : request.categories()) {
             PlayerRequest playerRequest = new PlayerRequest(

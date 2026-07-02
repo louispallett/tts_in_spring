@@ -45,7 +45,7 @@ public class PlayerController {
             @Valid @RequestBody JoinTournamentRequest request,
             @AuthenticationPrincipal UserPrincipal user
     ) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(playerService.joinTouranment(request, user.userId()));
+        return ResponseEntity.status(HttpStatus.CREATED).body(playerService.joinTournament(request, user.userId()));
     }
 
     @PatchMapping("/{id}/update-rank")
