@@ -32,6 +32,14 @@ public class TournamentController {
         return ResponseEntity.ok(tournamentService.getTournamentById(id, user.userId()));
     }
 
+    @GetMapping("/{id}/validate")
+    public ResponseEntity<ValidateResponse> validate(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserPrincipal user
+    ) {
+        return ResponseEntity.ok(tournamentService.validate(id, user.userId()));
+    }
+
     @PostMapping("/create")
     public ResponseEntity<?> createTournament(
             @RequestBody TournamentRequest tournamentRequest,

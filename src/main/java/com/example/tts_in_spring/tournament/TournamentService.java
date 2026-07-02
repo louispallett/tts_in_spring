@@ -1,8 +1,10 @@
 package com.example.tts_in_spring.tournament;
 
+import com.example.tts_in_spring.category.Category;
 import com.example.tts_in_spring.category.dto.CategoryRequest;
 import com.example.tts_in_spring.category.CategoryService;
 import com.example.tts_in_spring.exception.ForbiddenException;
+import com.example.tts_in_spring.player.Player;
 import com.example.tts_in_spring.tournament.dto.*;
 import com.example.tts_in_spring.user.User;
 import com.example.tts_in_spring.user.UserFinder;
@@ -76,6 +78,47 @@ public class TournamentService {
         throw new ForbiddenException("You are not a host or player of this tournament");
     }
 
+    @Transactional(readOnly = true)
+    public ValidateResponse validate(Long id, Long userId) {
+        Tournament tournament = tournamentFinder.getTournamentOrThrow(id);
+        tournamentFinder.assertHost(tournament, userId);
+
+        boolean doublesHaveEightPlayers = true;
+        boolean doublesHaveEvenPlayers = true;
+        boolean singlesHaveFourPlayers = true;
+        boolean mixedHasEqualMaleAndFemale = true;
+
+        for (Category category : tournament.getCategories()) {
+            if (category.isDoubles()) {
+                if (category.getPlayers().size() < 8) {
+                    doublesHaveEightPlayers = false;
+                }
+                if (category.getPlayers().size() % 2 != 0) {
+                    doublesHaveEvenPlayers = false;
+                }
+            } else {
+                if (category.getPlayers().size() < 4) {
+                    singlesHaveFourPlayers = false;
+                }
+            }
+            if (category.getName().equals("Mixed Doubles")) {
+                Long males = category.getPlayers().stream().filter(Player::isMale).count();
+                Long females = category.getPlayers().size() - males;
+
+                if (!males.equals(females)) {
+                    mixedHasEqualMaleAndFemale = false;
+                }
+            }
+        }
+
+        return new ValidateResponse(
+                doublesHaveEightPlayers,
+                doublesHaveEvenPlayers,
+                singlesHaveFourPlayers,
+                mixedHasEqualMaleAndFemale
+        );
+    }
+
     @Transactional
     public TournamentResponseLite createTournament(TournamentRequest request, Long userId) {
         User user = userFinder.getUserOrThrow(userId);
@@ -121,16 +164,18 @@ public class TournamentService {
         return tournamentMapper.toResponseLite(savedTournament);
     }
 
-     public TournamentResponseLite updateStage(Long id, TournamentStageUpdateRequest request, Long userId) {
-         Tournament existingTournament = tournamentFinder.getTournamentOrThrow(id);
-         tournamentFinder.assertHost(existingTournament, userId);
+    @Transactional
+    public TournamentResponseLite updateStage(Long id, TournamentStageUpdateRequest request, Long userId) {
+        Tournament existingTournament = tournamentFinder.getTournamentOrThrow(id);
+        tournamentFinder.assertHost(existingTournament, userId);
 
-         tournamentMapper.updateStageEntity(request, existingTournament);
+        tournamentMapper.updateStageEntity(request, existingTournament);
 
-         Tournament savedTournament = tournamentRepository.save(existingTournament);
-         return tournamentMapper.toResponseLite(savedTournament);
-     }
+        Tournament savedTournament = tournamentRepository.save(existingTournament);
+        return tournamentMapper.toResponseLite(savedTournament);
+    }
 
+    @Transactional
     public TournamentResponseLite updateShowMobile(Long id, TournamentShowMobileUpdateRequest request, Long userId) {
         Tournament existingTournament = tournamentFinder.getTournamentOrThrow(id);
         tournamentFinder.assertHost(existingTournament, userId);
