@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -57,6 +58,20 @@ public class PlayerService {
 
         Player savedPlayer = playerRepository.save(player);
         return playerMapper.toResponseLite(savedPlayer);
+    }
+
+    @Transactional
+    public List<PlayerResponseLite> joinTouranment(JoinTournamentRequest request, Long userId) {
+        List<PlayerResponseLite> players = new ArrayList<>();
+        for (Long categoryId : request.categories()) {
+            PlayerRequest playerRequest = new PlayerRequest(
+                    request.male(),
+                    categoryId
+            );
+            players.add(createPlayer(playerRequest, userId));
+        }
+
+        return players;
     }
 
     @Transactional

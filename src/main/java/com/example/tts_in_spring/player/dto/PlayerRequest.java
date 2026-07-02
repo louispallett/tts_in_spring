@@ -5,8 +5,6 @@ import jakarta.validation.constraints.NotNull;
 public record PlayerRequest (
     @NotNull(message = "Male boolean cannot be null")
     boolean male,
-    @NotNull(message = "Seeded boolean cannot be null")
-    Long userId,
     @NotNull(message = "categoryId cannot be null")
     Long categoryId
 ) {}
