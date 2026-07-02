@@ -1,6 +1,7 @@
 package com.example.tts_in_spring.user;
 
 import com.example.tts_in_spring.base.Base;
+import com.example.tts_in_spring.player.Player;
 import com.example.tts_in_spring.tournament.Tournament;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
@@ -48,6 +49,9 @@ public class User extends Base {
     @Column
     private Instant deletedAt;
 
-    @OneToMany(mappedBy = "host", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "host", fetch = FetchType.LAZY)
     private List<Tournament> tournaments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<Player> players = new ArrayList<>();
 }
