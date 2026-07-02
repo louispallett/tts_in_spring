@@ -4,6 +4,8 @@ import com.example.tts_in_spring.category.Category;
 import com.example.tts_in_spring.category.dto.CategoryRequest;
 import com.example.tts_in_spring.category.CategoryService;
 import com.example.tts_in_spring.exception.ForbiddenException;
+import com.example.tts_in_spring.exception.IllegalStageException;
+import com.example.tts_in_spring.match.Match;
 import com.example.tts_in_spring.player.Player;
 import com.example.tts_in_spring.tournament.dto.*;
 import com.example.tts_in_spring.user.User;
@@ -124,7 +126,6 @@ public class TournamentService {
         User user = userFinder.getUserOrThrow(userId);
 
         Tournament newTournament = tournamentMapper.toEntity(request);
-        newTournament.setStage("SIGN_UP");
         newTournament.setHost(user);
         newTournament.setCode(generateCode(newTournament.getName()));
 
@@ -164,15 +165,92 @@ public class TournamentService {
         return tournamentMapper.toResponseLite(savedTournament);
     }
 
+    private void validateNextTransition(Tournament tournament) {
+        switch (tournament.getStage()) {
+            case REGISTRATION -> {
+                ValidateResponse expected = new ValidateResponse(true, true, true, true);
+                ValidateResponse response = validate(tournament.getId(), tournament.getHost().getId());
+
+                if (!response.equals(expected)) {
+                    throw new IllegalStageException("Tournament invalid for stage DRAW");
+                }
+            }
+            case DRAW -> {
+                for (Category category : tournament.getCategories()) {
+                    if (category.getMatches().isEmpty()) {
+                        throw new IllegalStageException("Tournament invalid for stage PLAY");
+                    }
+                }
+            }
+            case PLAY -> {
+                for (Category category : tournament.getCategories()) {
+                    List<Match> unfinishedMatches = category.getMatches().stream().filter(m -> !m.getState().equals("FINISHED")).toList();
+                    if (!unfinishedMatches.isEmpty()) {
+                        throw new IllegalStageException("Tournament invalid for stage FINISHED");
+                    }
+                }
+            }
+        }
+    }
+
+    private void validatePreviousTransition(Tournament tournament) {
+        switch (tournament.getStage()) {
+            case DRAW -> {
+                for (Category category : tournament.getCategories()) {
+                    if (!category.getTeams().isEmpty() || !category.getMatches().isEmpty()) {
+                        throw new IllegalStageException("Tournament invalid for stage REGISTRATION");
+                    }
+                }
+            }
+            case PLAY -> {
+                for (Category category : tournament.getCategories()) {
+                    List<Match> finishedMatches = category.getMatches().stream().filter(m -> m.getState().equals("FINISHED")).toList();
+                    if (!finishedMatches.isEmpty()) {
+                        throw new IllegalStageException("Tournament invalid for stage DRAW");
+                    }
+                }
+            }
+        }
+    }
+
     @Transactional
-    public TournamentResponseLite updateStage(Long id, TournamentStageUpdateRequest request, Long userId) {
-        Tournament existingTournament = tournamentFinder.getTournamentOrThrow(id);
-        tournamentFinder.assertHost(existingTournament, userId);
+    public TournamentResponseLite nextStage(Long id, Long userId) {
+        Tournament tournament = tournamentFinder.getTournamentOrThrow(id);
+        tournamentFinder.assertHost(tournament, userId);
 
-        tournamentMapper.updateStageEntity(request, existingTournament);
+        Stage current = tournament.getStage();
 
-        Tournament savedTournament = tournamentRepository.save(existingTournament);
-        return tournamentMapper.toResponseLite(savedTournament);
+        Stage next = switch (current) {
+            case REGISTRATION -> Stage.DRAW;
+            case DRAW -> Stage.PLAY;
+            case PLAY -> Stage.FINISHED;
+            case FINISHED -> throw new IllegalStageException("Tournament is already at final stage");
+        };
+
+        validateNextTransition(tournament);
+
+        tournament.setStage(next);
+        return tournamentMapper.toResponseLite(tournamentRepository.save(tournament));
+    }
+
+    @Transactional
+    public TournamentResponseLite previousStage(Long id, Long userId) {
+        Tournament tournament = tournamentFinder.getTournamentOrThrow(id);
+        tournamentFinder.assertHost(tournament, userId);
+
+        Stage current = tournament.getStage();
+
+        Stage prev = switch (current) {
+            case REGISTRATION -> throw new IllegalStageException("Tournament already at first stage");
+            case DRAW -> Stage.REGISTRATION;
+            case PLAY -> Stage.DRAW;
+            case FINISHED -> Stage.PLAY;
+        };
+
+        validatePreviousTransition(tournament);
+
+        tournament.setStage(prev);
+        return tournamentMapper.toResponseLite(tournamentRepository.save(tournament));
     }
 
     @Transactional

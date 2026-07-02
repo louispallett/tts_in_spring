@@ -20,8 +20,9 @@ public class Tournament extends Base {
    @Column(nullable = false)
    private String name;
 
+   @Enumerated(EnumType.STRING)
    @Column(nullable = false)
-   private String stage;
+   private Stage stage = Stage.REGISTRATION;
 
    @ManyToOne
    @JoinColumn(name = "host_id", nullable = false)

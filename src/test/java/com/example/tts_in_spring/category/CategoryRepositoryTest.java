@@ -1,5 +1,6 @@
 package com.example.tts_in_spring.category;
 
+import com.example.tts_in_spring.tournament.Stage;
 import com.example.tts_in_spring.tournament.Tournament;
 import com.example.tts_in_spring.tournament.TournamentRepository;
 import com.example.tts_in_spring.user.User;
@@ -35,7 +36,7 @@ public class CategoryRepositoryTest {
 
         tournament = new Tournament();
         tournament.setName("Test Tournament");
-        tournament.setStage("SIGN_UP");
+        tournament.setStage(Stage.REGISTRATION);
         tournament.setCode("1234567");
         tournament.setShowMobile(true);
         tournament.setHost(host);

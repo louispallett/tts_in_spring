@@ -51,7 +51,7 @@ public class TournamentMapperTest {
         assertThat(tournament.isShowMobile()).isFalse();
 
         assertThat(tournament.getId()).isNull();
-        assertThat(tournament.getStage()).isNull();
+        assertThat(tournament.getStage()).isEqualTo(Stage.REGISTRATION);
         assertThat(tournament.getCode()).isNull();
         assertThat(tournament.getHost()).isNull();
     }
@@ -66,17 +66,6 @@ public class TournamentMapperTest {
 
         assertThat(tournament.getName()).isEqualTo("New Tournament Name");
         assertThat(tournament.getHost().getId()).isNotNull().isEqualTo(1L);
-    }
-
-    @Test
-    void updateStageEntity_mapsFields() {
-        Tournament tournament = TournamentTestBuilder.aTournament().build();
-
-        TournamentStageUpdateRequest request = new TournamentStageUpdateRequest("DRAW");
-
-        tournamentMapper.updateStageEntity(request, tournament);
-
-        assertThat(tournament.getStage()).isEqualTo("DRAW");
     }
 
     @Test

@@ -39,7 +39,7 @@ public class TournamentMappingIntegrationTest {
         assertThat(response.host().id()).isEqualTo(1L);
         assertThat(response.host().firstName()).isEqualTo("John");
         assertThat(response.host().lastName()).isEqualTo("Doe");
-        assertThat(response.stage()).isEqualTo("SIGN_UP");
+        assertThat(response.stage()).isEqualTo(Stage.REGISTRATION.toString());
         assertThat(response.showMobile()).isFalse();
     }
 

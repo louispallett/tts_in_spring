@@ -6,7 +6,7 @@ import com.example.tts_in_spring.user.User;
 public class TournamentTestBuilder {
     private Long id = 10L;
     private final String name = "Test Tournament";
-    private final String stage = "SIGN_UP";
+    private final Stage stage = Stage.REGISTRATION;
     private User host = UserTestBuilder.aUser().build();
     private final String code = "1234567";
     private final boolean showMobile = false;

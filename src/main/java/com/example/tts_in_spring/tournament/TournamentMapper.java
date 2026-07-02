@@ -18,7 +18,5 @@ public interface TournamentMapper {
 
     void updateNameEntity(TournamentNameUpdateRequest request, @MappingTarget Tournament tournament);
 
-    void updateStageEntity(TournamentStageUpdateRequest request, @MappingTarget Tournament tournament);
-
     void updateShowMobileEntity(TournamentShowMobileUpdateRequest request, @MappingTarget Tournament tournament);
 }

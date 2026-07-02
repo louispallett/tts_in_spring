@@ -21,13 +21,13 @@ class TournamentTest {
         User host = new User();
 
         tournament.setName("Spring Championship");
-        tournament.setStage("SIGN_UP");
+        tournament.setStage(Stage.REGISTRATION);
         tournament.setHost(host);
         tournament.setCode("ABC123");
         tournament.setShowMobile(true);
 
         assertThat(tournament.getName()).isEqualTo("Spring Championship");
-        assertThat(tournament.getStage()).isEqualTo("SIGN_UP");
+        assertThat(tournament.getStage()).isEqualTo(Stage.REGISTRATION);
         assertThat(tournament.getHost()).isSameAs(host);
         assertThat(tournament.getCode()).isEqualTo("ABC123");
         assertThat(tournament.isShowMobile()).isTrue();

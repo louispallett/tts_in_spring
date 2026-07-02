@@ -266,37 +266,6 @@ public class TournamentServiceTest {
      }
 
      @Test
-     void updateTournamentStage_whenHost_returnsMappedLite() {
-         Tournament tournament = TournamentTestBuilder.aTournament().build();
-
-         TournamentStageUpdateRequest request = new TournamentStageUpdateRequest("DRAW");
-
-         Tournament updatedTournament = TournamentTestBuilder.aTournament().build();
-         updatedTournament.setStage("DRAW");
-         TournamentResponseLite lite = new TournamentResponseLite(
-                 10L,
-                 "Test Tournament",
-                 "DRAW",
-                 false
-         );
-
-         when(tournamentFinder.getTournamentOrThrow(tournament.getId())).thenReturn(tournament);
-         when(tournamentRepository.save(any(Tournament.class))).thenReturn(updatedTournament);
-         when(tournamentMapper.toResponseLite(updatedTournament)).thenReturn(lite);
-
-         TournamentResponseLite result = tournamentService.updateStage(
-                 tournament.getId(),
-                 request,
-                 tournament.getHost().getId()
-         );
-         assertThat(result).isEqualTo(lite);
-
-         verify(tournamentMapper).updateStageEntity(request, tournament);
-         verify(tournamentRepository).save(tournament);
-         verify(tournamentMapper).toResponseLite(updatedTournament);
-     }
-
-     @Test
      void updateTournamentShowMobile_whenHost_returnsMappedLite() {
          Tournament tournament = TournamentTestBuilder.aTournament().build();
 

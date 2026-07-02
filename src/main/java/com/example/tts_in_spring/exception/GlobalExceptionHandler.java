@@ -45,6 +45,11 @@ public class GlobalExceptionHandler {
         return buildError(HttpStatus.BAD_REQUEST, "Malformed request body", null);
     }
 
+    @ExceptionHandler(IllegalStageException.class)
+    public ResponseEntity<String> handleIllegalState(IllegalStageException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
     // 401
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<String> handleUnauthorized(UnauthorizedException ex) {

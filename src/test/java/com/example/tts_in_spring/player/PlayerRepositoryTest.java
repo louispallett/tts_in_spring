@@ -2,6 +2,7 @@ package com.example.tts_in_spring.player;
 
 import com.example.tts_in_spring.category.Category;
 import com.example.tts_in_spring.category.CategoryRepository;
+import com.example.tts_in_spring.tournament.Stage;
 import com.example.tts_in_spring.tournament.Tournament;
 import com.example.tts_in_spring.user.User;
 import com.example.tts_in_spring.tournament.TournamentRepository;
@@ -42,7 +43,7 @@ class PlayerRepositoryTest {
 
         Tournament tournament = new Tournament();
         tournament.setName("Test");
-        tournament.setStage("SIGN_UP");
+        tournament.setStage(Stage.REGISTRATION);
         tournament.setHost(host);
         tournament.setCode("ABC123");
         tournament.setShowMobile(true);

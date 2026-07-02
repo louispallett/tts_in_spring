@@ -57,13 +57,20 @@ public class TournamentController {
         return ResponseEntity.ok(tournamentService.updateName(id, request, principal.userId()));
     }
 
-    @PatchMapping("/{id}/update-stage")
-    public ResponseEntity<TournamentResponseLite> updateStage(
+    @PatchMapping("/{id}/next-stage")
+    public ResponseEntity<TournamentResponseLite> nextStage(
             @PathVariable Long id,
-            @Valid @RequestBody TournamentStageUpdateRequest request,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
-        return ResponseEntity.ok(tournamentService.updateStage(id, request, principal.userId()));
+        return ResponseEntity.ok(tournamentService.nextStage(id, principal.userId()));
+    }
+
+    @PatchMapping("/{id}/previous-stage")
+    public ResponseEntity<TournamentResponseLite> previousStage(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+        return ResponseEntity.ok(tournamentService.previousStage(id, principal.userId()));
     }
 
     @PatchMapping("/{id}/update-showMobile")
