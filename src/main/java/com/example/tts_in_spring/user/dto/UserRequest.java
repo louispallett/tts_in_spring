@@ -4,6 +4,7 @@ import jakarta.validation.constraints.*;
 
 public record UserRequest (
     @NotBlank(message = "First name is required")
+    @Size(max = 255, message = "Cannot be longer than 255 characters")
     String firstName,
     @NotBlank(message = "Last name is required")
     String lastName,

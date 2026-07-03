@@ -60,6 +60,7 @@ public class TournamentServiceTest {
                 "1234567",
                 false,
                 new UserResponseLite(1L, "John", "Doe"),
+                null,
                 null
         );
     }
