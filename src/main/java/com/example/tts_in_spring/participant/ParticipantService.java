@@ -160,6 +160,36 @@ public class ParticipantService {
     }
 
     @Transactional
+    public ParticipantResponseLite changeParticipantMatch(Long id, ParticipantChangeMatchRequest request, Long userId) {
+        if (request.oldParticipantId().equals(id))
+            throw new GenericBadRequestException("id param must be old participant id");
+
+        Participant participant = participantFinder.getParticipantOrThrow(id);
+        Match match = matchFinder.getMatchOrThrow(participant.getMatch().getId());
+        participantFinder.assertHost(participant, userId);
+
+        if (match.getCategory().isDoubles()) {
+            if (request.teamId() == null)
+                throw new GenericBadRequestException("TeamId cannot be null");
+
+            delete(participant.getId(), userId);
+
+            return createParticipant(new ParticipantRequest(
+                    request.teamId(), null, match.getId()
+            ));
+        } else {
+            if (request.playerId() == null)
+                throw new GenericBadRequestException("PlayerId cannot be null");
+
+            delete(participant.getId(), userId);
+
+            return createParticipant(new ParticipantRequest(
+                    null, request.playerId(), match.getId()
+            ));
+        }
+    }
+
+    @Transactional
     public void delete(Long id, Long userId) {
         Participant participant = participantFinder.getParticipantOrThrow(id);
         participantFinder.assertHost(participant, userId);

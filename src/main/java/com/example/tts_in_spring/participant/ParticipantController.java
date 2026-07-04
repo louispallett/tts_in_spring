@@ -58,6 +58,15 @@ public class ParticipantController {
         return ResponseEntity.ok(participantService.updateStatus(id, request, user.userId()));
     }
 
+    @PostMapping("/{id}/replace")
+    public ResponseEntity<ParticipantResponseLite> replace(
+            @PathVariable Long id,
+            @Valid @RequestBody ParticipantChangeMatchRequest request,
+            @AuthenticationPrincipal UserPrincipal user
+    ) {
+        return ResponseEntity.ok(participantService.changeParticipantMatch(id, request, user.userId()));
+    }
+
     @DeleteMapping("/{id}/delete")
     public ResponseEntity<Void> delete(
             @PathVariable Long id,
