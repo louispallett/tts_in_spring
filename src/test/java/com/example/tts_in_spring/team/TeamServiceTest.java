@@ -1,16 +1,20 @@
 package com.example.tts_in_spring.team;
 
+import com.example.tts_in_spring.category.Category;
 import com.example.tts_in_spring.category.CategoryFinder;
 import com.example.tts_in_spring.category.dto.CategoryResponseLite;
 import com.example.tts_in_spring.category.CategoryTestBuilder;
 import com.example.tts_in_spring.exception.ForbiddenException;
 import com.example.tts_in_spring.player.Player;
+import com.example.tts_in_spring.player.PlayerMapper;
 import com.example.tts_in_spring.player.PlayerTestBuilder;
+import com.example.tts_in_spring.player.dto.PlayerResponse;
 import com.example.tts_in_spring.team.dto.TeamRequest;
 import com.example.tts_in_spring.team.dto.TeamResponse;
 import com.example.tts_in_spring.team.dto.TeamResponseLite;
 import com.example.tts_in_spring.user.User;
 import com.example.tts_in_spring.user.UserTestBuilder;
+import com.example.tts_in_spring.user.dto.UserResponseLite;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -33,6 +37,9 @@ public class TeamServiceTest {
 
     @Mock
     private TeamFinder teamFinder;
+
+    @Mock
+    private PlayerMapper playerMapper;
 
     @Mock
     private CategoryFinder categoryFinder;
@@ -137,5 +144,114 @@ public class TeamServiceTest {
 
         verify(teamRepository, never()).save(any());
         verifyNoInteractions(teamMapper);
+    }
+
+    private void playerResponseInvocation() {
+        when(playerMapper.toResponse(any(Player.class)))
+                .thenAnswer(invocation -> {
+                    Player player = invocation.getArgument(0);
+                    return new PlayerResponse(
+                            player.getId(),
+                            player.isMale(),
+                            player.isSeeded(),
+                            player.getRank(),
+                            new UserResponseLite(
+                                    player.getUser().getId(),
+                                    player.getUser().getFirstName(),
+                                    player.getUser().getLastName()
+                            ),
+                            null,
+                            new CategoryResponseLite(
+                                    player.getCategory().getId(),
+                                    player.getCategory().getName(),
+                                    player.getCategory().isDoubles(),
+                                    player.getCategory().isLocked()
+                            ),
+                            null
+                    );
+                });
+    }
+
+    @Test
+    void generateTeams_forDoubles_returnsExpected() {
+        Category category = CategoryTestBuilder.aCategory().build();
+        category.setDoubles(true);
+
+        for (long i = 1; i <= 16; i++) {
+            Player player = PlayerTestBuilder.aPlayer().withId(i).build();
+            player.setSeeded(true);
+            category.getPlayers().add(player);
+        }
+        for (long i = 17; i <= 32; i++) {
+            Player player = PlayerTestBuilder.aPlayer().withId(i).build();
+            category.getPlayers().add(player);
+        }
+
+        when(categoryFinder.getCategoryOrThrow(category.getId())).thenReturn(category);
+        playerResponseInvocation();
+
+        List<List<PlayerResponse>> teams = teamService.generateTeams(
+                category.getId(),
+                category.getTournament().getHost().getId()
+        );
+
+        assertThat(teams.size()).isEqualTo(16);
+        for (List<PlayerResponse> team : teams) {
+            assertThat(team.size()).isEqualTo(2);
+            List<PlayerResponse> seeded = team.stream().filter(PlayerResponse::seeded).toList();
+            List<PlayerResponse> nonSeeded = team.stream().filter(p -> !p.seeded()).toList();
+            assertThat(seeded.size()).isEqualTo(1);
+            assertThat(nonSeeded.size()).isEqualTo(1);
+        }
+    }
+
+    @Test
+    void generateTeams_forMixed_returnsExpected() {
+        Category category = CategoryTestBuilder.aCategory().build();
+        category.setName("Mixed Doubles");
+        category.setDoubles(true);
+
+        for (long i = 1; i <= 8; i++) {
+            Player player = PlayerTestBuilder.aPlayer().withId(i).build();
+            player.setSeeded(true);
+            category.getPlayers().add(player);
+        }
+        for (long i = 9; i <= 16; i++) {
+            Player player = PlayerTestBuilder.aPlayer().withId(i).build();
+            category.getPlayers().add(player);
+        }
+        for (long i = 17; i <= 24; i++) {
+            Player player = PlayerTestBuilder.aPlayer().withId(i).build();
+            player.setSeeded(true);
+            player.setMale(false);
+            category.getPlayers().add(player);
+        }
+        for (long i = 25; i <= 32; i++) {
+            Player player = PlayerTestBuilder.aPlayer().withId(i).build();
+            player.setMale(false);
+            category.getPlayers().add(player);
+        }
+
+        when(categoryFinder.getCategoryOrThrow(category.getId())).thenReturn(category);
+        playerResponseInvocation();
+
+        List<List<PlayerResponse>> teams = teamService.generateTeams(
+                category.getId(),
+                category.getTournament().getHost().getId()
+        );
+
+        assertThat(teams.size()).isEqualTo(16);
+        for (List<PlayerResponse> team : teams) {
+            assertThat(team.size()).isEqualTo(2);
+            List<PlayerResponse> seeded = team.stream().filter(PlayerResponse::seeded).toList();
+            List<PlayerResponse> nonSeeded = team.stream().filter(p -> !p.seeded()).toList();
+            List<PlayerResponse> male = team.stream().filter(PlayerResponse::male).toList();
+            List<PlayerResponse> female = team.stream().filter(p -> !p.male()).toList();
+            assertThat(seeded.size()).isEqualTo(1);
+            assertThat(nonSeeded.size()).isEqualTo(1);
+            System.out.println(male.size());
+            assertThat(male.size()).isEqualTo(1);
+            assertThat(female.size()).isEqualTo(1);
+        }
     }
 }
