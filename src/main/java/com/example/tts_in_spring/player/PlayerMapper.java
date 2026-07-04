@@ -20,4 +20,6 @@ public interface PlayerMapper {
     void updateRankEntity(PlayerUpdateRankRequest request, @MappingTarget Player player);
 
     void updateSeededEntity(PlayerUpdateSeededRequest request, @MappingTarget Player player);
+
+    void updateTeamEntity(AddTeamRequest request, @MappingTarget Player player);
 }

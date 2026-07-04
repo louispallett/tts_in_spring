@@ -41,6 +41,15 @@ public class TeamController {
         return ResponseEntity.status(HttpStatus.CREATED).body(teamService.createTeam(teamRequest, user.userId()));
     }
 
+    @PostMapping("/{categoryId}/generate")
+    public ResponseEntity<?> generateTeams(
+            @PathVariable Long categoryId,
+            @AuthenticationPrincipal UserPrincipal user
+    ) {
+        return ResponseEntity.ok(teamService.generateTeams(categoryId, user.userId()));
+    }
+
+
     @DeleteMapping("/{id}/delete")
     public ResponseEntity<Void> delete(
             @PathVariable Long id,

@@ -97,6 +97,14 @@ public class PlayerService {
     }
 
     @Transactional
+    public PlayerResponseLite addTeam(Long id, AddTeamRequest request) {
+        Player player = playerFinder.getPlayerOrThrow(id);
+
+        playerMapper.updateTeamEntity(request, player);
+        return playerMapper.toResponseLite(player);
+    }
+
+    @Transactional
     public void delete(Long id, Long userId) {
         Player player = playerFinder.getPlayerOrThrow(id);
         playerFinder.assertHost(player, userId);
