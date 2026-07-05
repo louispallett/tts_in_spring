@@ -2,6 +2,7 @@ package com.example.tts_in_spring.player;
 
 import com.example.tts_in_spring.category.Category;
 import com.example.tts_in_spring.category.CategoryFinder;
+import com.example.tts_in_spring.exception.ConflictException;
 import com.example.tts_in_spring.exception.ForbiddenException;
 import com.example.tts_in_spring.player.dto.*;
 import com.example.tts_in_spring.user.User;
@@ -49,6 +50,13 @@ public class PlayerService {
     public PlayerResponseLite createPlayer(PlayerRequest playerRequest, Long userId) {
         User user = userFinder.getUserOrThrow(userId);
         Category category = categoryFinder.getCategoryOrThrow(playerRequest.categoryId());
+
+        if (!category.getPlayers().stream().filter(p -> p.getUser().getId().equals(userId)).toList().isEmpty())
+            throw new ConflictException(
+                    "User " + user.getFirstName()
+                            + " " + user.getLastName() + " is already part of category "
+                            + category.getName() + " (" + category.getId() + ")"
+            );
 
         Player player = playerMapper.toEntity(playerRequest);
         player.setUser(user);

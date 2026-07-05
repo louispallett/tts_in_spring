@@ -3,6 +3,7 @@ package com.example.tts_in_spring.player;
 import com.example.tts_in_spring.category.CategoryFinder;
 import com.example.tts_in_spring.category.CategoryTestBuilder;
 import com.example.tts_in_spring.category.dto.CategoryResponseLite;
+import com.example.tts_in_spring.exception.ConflictException;
 import com.example.tts_in_spring.exception.ForbiddenException;
 import com.example.tts_in_spring.player.dto.*;
 import com.example.tts_in_spring.user.UserFinder;
@@ -135,6 +136,22 @@ public class PlayerServiceTest {
         when(playerMapper.toResponseLite(saved)).thenReturn(lite);
 
         assertThat(playerService.createPlayer(request, user.getId())).isEqualTo(lite);
+    }
+
+    @Test
+    void createPlayer_whenUserAlreadyPlayer_throws409() {
+        User user = UserTestBuilder.aUser().build();
+        Category category = CategoryTestBuilder.aCategory().build();
+        Player existingPlayer = PlayerTestBuilder.aPlayer().withUser(user).build();
+        category.getPlayers().add(existingPlayer);
+
+        PlayerRequest request = buildPlayerRequest(category);
+
+        when(userFinder.getUserOrThrow(user.getId())).thenReturn(user);
+        when(categoryFinder.getCategoryOrThrow(category.getId())).thenReturn(category);
+
+        assertThatThrownBy(() -> playerService.createPlayer(request, user.getId()))
+                .isInstanceOf(ConflictException.class);
     }
 
     @Test
