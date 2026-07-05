@@ -1,10 +1,7 @@
 package com.example.tts_in_spring.user;
 
 import com.example.tts_in_spring.tournament.TournamentMapper;
-import com.example.tts_in_spring.user.dto.UserRequest;
-import com.example.tts_in_spring.user.dto.UserResponse;
-import com.example.tts_in_spring.user.dto.UserResponseLite;
-import com.example.tts_in_spring.user.dto.UserUpdateRequest;
+import com.example.tts_in_spring.user.dto.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -21,4 +18,6 @@ public interface UserMapper {
     User toEntity(UserRequest userRequest);
 
     void updateEntity(UserUpdateRequest request, @MappingTarget User user);
+
+    void updateEmailPreferencesEntity(UserEmailPreferencesRequest request, @MappingTarget User user);
 }

@@ -80,6 +80,14 @@ public class UserService {
     }
 
     @Transactional
+    public UserResponseLite updateEmailPreferences(Long id, UserEmailPreferencesRequest request) {
+        User user = userFinder.getUserOrThrow(id);
+
+        userMapper.updateEmailPreferencesEntity(request, user);
+        return userMapper.toResponseLite(user);
+    }
+
+    @Transactional
     public UserResponseLite updatePassword(Long id, UserUpdatePasswordRequest request) {
         if (!request.newPassword().equals(request.confirmNewPassword())) {
             throw new GenericBadRequestException("New password and confirmed password do not match");

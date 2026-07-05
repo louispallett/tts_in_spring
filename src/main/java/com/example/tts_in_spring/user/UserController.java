@@ -38,9 +38,17 @@ public class UserController {
     @PutMapping("/me/update-details")
     public ResponseEntity<UserResponseLite> updateDetails(
             @Valid @RequestBody UserUpdateRequest request,
-            @AuthenticationPrincipal UserPrincipal principal) {
-
+            @AuthenticationPrincipal UserPrincipal principal)
+    {
         return ResponseEntity.ok(userService.updateDetails(principal.userId(), request));
+    }
+
+    @PutMapping("/me/update-email-preferences")
+    public ResponseEntity<UserResponseLite> updateEmailPreferences(
+            @Valid @RequestBody UserEmailPreferencesRequest request,
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+        return ResponseEntity.ok(userService.updateEmailPreferences(principal.userId(), request));
     }
 
     @PatchMapping("/me/update-password")

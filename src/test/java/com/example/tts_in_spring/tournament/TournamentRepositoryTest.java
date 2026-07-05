@@ -25,7 +25,7 @@ class TournamentRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        host = new User("John", "Doe", "john.doe@example.com", "secret", "44", "123456789", null, null, List.of(), List.of());
+        host = new User("John", "Doe", "john.doe@example.com", "secret", "44", "123456789", false, null, null, List.of(), List.of());
         userRepository.save(host);
     }
 

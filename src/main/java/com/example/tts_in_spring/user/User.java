@@ -40,6 +40,9 @@ public class User extends Base {
     @Column(nullable = false)
     private String mobile;
 
+    @Column(nullable = false)
+    private boolean receivesEmails;
+
     @Column
     private Boolean deleted;
 

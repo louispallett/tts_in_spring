@@ -25,6 +25,7 @@ class UserTest {
                 "secret",
                 "44",
                 "123456789",
+                false,
                 null,
                 null,
                 List.of(),
