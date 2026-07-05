@@ -9,7 +9,9 @@ For id values, use:
  */
 
 import com.example.tts_in_spring.player.Player;
+import com.example.tts_in_spring.tournament.Tournament;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class UserTestBuilder {
@@ -19,8 +21,10 @@ public class UserTestBuilder {
     private String email = "john.doe@example.com";
     private String mobCode = "+44";
     private String mobile = "1234567890";
+    private boolean recievesEmails = false;
     private String password = "Hello123!";
-    private List<Player> players = null;
+    private List<Tournament> tournaments = new ArrayList<>();
+    private List<Player> players = new ArrayList<>();
 
     public static UserTestBuilder aUser() {
         return new UserTestBuilder();
@@ -64,7 +68,10 @@ public class UserTestBuilder {
         user.setEmail(email);
         user.setMobCode(mobCode);
         user.setMobile(mobile);
+        user.setReceivesEmails(recievesEmails);
         user.setPassword(password);
+        user.setTournaments(tournaments);
+        user.setPlayers(players);
 
         return user;
     }

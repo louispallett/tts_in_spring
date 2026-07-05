@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 
-import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -18,33 +17,11 @@ class UserRepositoryTest {
 
     @Test
     void save_throwsException_whenEmailAlreadyExists() {
-        User user1 = new User(
-                "John",
-                "Doe",
-                "john@example.com",
-                "secret",
-                "44",
-                "123456789",
-                false,
-                null,
-                null,
-                List.of(),
-                List.of()
-        );
+        User user1 = BuildUser.buildUser();
 
-        User user2 = new User(
-                "Jane",
-                "Smith",
-                "john@example.com",
-                "secret",
-                "44",
-                "987654321",
-                false,
-                null,
-                null,
-                List.of(),
-                List.of()
-        );
+        User user2 = BuildUser.buildUser();
+        user2.setFirstName("Jane");
+        user2.setLastName("Smith");
 
         userRepository.save(user1);
 

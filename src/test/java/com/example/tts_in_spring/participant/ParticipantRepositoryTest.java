@@ -11,6 +11,7 @@ import com.example.tts_in_spring.team.TeamRepository;
 import com.example.tts_in_spring.tournament.Stage;
 import com.example.tts_in_spring.tournament.Tournament;
 import com.example.tts_in_spring.tournament.TournamentRepository;
+import com.example.tts_in_spring.user.BuildUser;
 import com.example.tts_in_spring.user.User;
 import com.example.tts_in_spring.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 
 import java.time.Instant;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -53,8 +53,11 @@ class ParticipantRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        User host = new User("John", "Doe", "john.doe@example.com", "secret", "44", "123456789", false, null, null, List.of(), List.of());
-        User user = new User("Simon", "Smith", "simon.smith@example.com", "secret", "44", "987654321", false, null, null, List.of(), List.of());
+        User host = BuildUser.buildUser();
+        User user = BuildUser.buildUser();
+        user.setFirstName("Simon");
+        user.setLastName("Smith");
+        user.setEmail("simon.smith@example.com");
         userRepository.save(host);
         userRepository.save(user);
 

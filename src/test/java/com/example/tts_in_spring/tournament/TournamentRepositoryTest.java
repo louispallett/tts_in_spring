@@ -1,5 +1,6 @@
 package com.example.tts_in_spring.tournament;
 
+import com.example.tts_in_spring.user.BuildUser;
 import com.example.tts_in_spring.user.User;
 import com.example.tts_in_spring.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,7 +26,7 @@ class TournamentRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        host = new User("John", "Doe", "john.doe@example.com", "secret", "44", "123456789", false, null, null, List.of(), List.of());
+        host = BuildUser.buildUser();
         userRepository.save(host);
     }
 
