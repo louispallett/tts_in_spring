@@ -143,6 +143,7 @@ public class MatchService {
 
         Match finalMatch = new Match();
         finalMatch.setTournamentRoundText(String.valueOf(totalRounds));
+        finalMatch.setState("SCHEDULED");
         finalMatch.setDeadline(Instant.now());
         finalMatch.setQualifyingMatch(false);
         finalMatch.setCategory(category);
@@ -157,6 +158,7 @@ public class MatchService {
 
                 Match newMatch = new Match();
                 newMatch.setTournamentRoundText(String.valueOf(totalRounds - round));
+                newMatch.setState("SCHEDULED");
                 newMatch.setDeadline(Instant.now());
                 newMatch.setQualifyingMatch(false);
                 newMatch.setCategory(category);
@@ -195,6 +197,7 @@ public class MatchService {
                 Participant participant = queue.poll();
                 participant.setMatch(firstRoundOrdered.get(index));
                 finalParticipants.add(participant);
+                qualifyingParticipants.subList(0, 1).clear();
             } else {
                 break;
             }
@@ -218,6 +221,7 @@ public class MatchService {
 
                 Match match = new Match();
                 match.setTournamentRoundText("1");
+                match.setState("SCHEDULED");
                 match.setDeadline(Instant.now());
                 match.setQualifyingMatch(true);
                 match.setCategory(category);
@@ -281,7 +285,7 @@ public class MatchService {
         );
 
         List<Match> matchesFlattened = matches.stream().flatMap(List::stream).toList();
-        List<Match> finalMatches = Stream.of(firstRoundOrdered, matchesFlattened).flatMap(List::stream).toList();
+        List<Match> finalMatches = Stream.of(qualifyingMatches, firstRoundOrdered, matchesFlattened).flatMap(List::stream).toList();
 
         List<Match> savedMatches = matchRepository.saveAll(finalMatches);
         participantService.saveAllParticipants(participantsFinal);

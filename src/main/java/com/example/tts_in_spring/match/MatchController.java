@@ -19,7 +19,7 @@ public class MatchController {
     private final MatchService matchService;
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    //@PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<MatchResponse>> getAllMatches() {
         return ResponseEntity.ok(matchService.getAllMatches());
     }
@@ -38,6 +38,14 @@ public class MatchController {
             @AuthenticationPrincipal UserPrincipal user
     ) {
         return ResponseEntity.status(HttpStatus.CREATED).body(matchService.createMatch(request, user.userId()));
+    }
+
+    @PostMapping("/{categoryId}/generate")
+    public ResponseEntity<List<MatchResponse>> generateMatches(
+            @PathVariable Long categoryId,
+            @AuthenticationPrincipal UserPrincipal user
+    ) {
+        return ResponseEntity.ok(matchService.generateMatchesParent(categoryId, user.userId()));
     }
 
     @PatchMapping("/{id}/submit-score")

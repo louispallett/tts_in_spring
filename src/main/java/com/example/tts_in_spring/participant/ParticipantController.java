@@ -18,7 +18,7 @@ public class ParticipantController {
     private final ParticipantService participantService;
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    //@PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<ParticipantResponse>> getAllParticipants() {
         return ResponseEntity.ok(participantService.getAllParticipants());
     }
