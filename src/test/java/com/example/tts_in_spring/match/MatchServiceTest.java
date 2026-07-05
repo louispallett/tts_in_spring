@@ -277,7 +277,7 @@ public class MatchServiceTest {
     }
 
     @Test
-    void generateAndSaveMatches_whenNoQual_buildsCorrectStructure() {
+    void generateMatches_whenNoQual_buildsCorrectStructure() {
         Category category = CategoryTestBuilder.aCategory().build();
 
         List<List<Match>> result = matchService.generateMatches(category, 8);
@@ -291,7 +291,7 @@ public class MatchServiceTest {
     }
 
     @Test
-    void generateAndSaveMatches_whenQual_buildsCorrectStructure() {
+    void generateMatches_whenQual_buildsCorrectStructure() {
         Category category = CategoryTestBuilder.aCategory().build();
 
         int numOfParticipants = 24;
