@@ -19,7 +19,7 @@ public class MatchController {
     private final MatchService matchService;
 
     @GetMapping
-    //@PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<MatchResponse>> getAllMatches() {
         return ResponseEntity.ok(matchService.getAllMatches());
     }
@@ -51,10 +51,9 @@ public class MatchController {
     @PatchMapping("/{id}/submit-score")
     public ResponseEntity<MatchResponseLite> submitScore(
             @PathVariable Long id,
-            @Valid @RequestBody MatchSubmitScoreRequest request,
             @AuthenticationPrincipal UserPrincipal user
     ) {
-        return ResponseEntity.ok(matchService.submitScore(id, request, user.userId()));
+        return ResponseEntity.ok(matchService.submitScore(id, user.userId()));
     }
 
     @PatchMapping("/{id}/update-deadline")

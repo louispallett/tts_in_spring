@@ -294,10 +294,11 @@ public class MatchService {
     }
 
     @Transactional
-    public MatchResponseLite submitScore(Long id, MatchSubmitScoreRequest request, Long userId) {
+    public MatchResponseLite submitScore(Long id, Long userId) {
         Match match = matchFinder.getMatchOrThrow(id);
 
         if (matchFinder.isHost(match, userId) || matchFinder.isParticipant(match, userId)) {
+            MatchSubmitScoreRequest request = new MatchSubmitScoreRequest("SCORE_DONE");
             matchMapper.submitScoreEntity(request, match);
 
             Match savedMatch = matchRepository.save(match);
