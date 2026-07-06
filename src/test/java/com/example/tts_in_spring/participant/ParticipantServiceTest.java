@@ -222,14 +222,14 @@ public class ParticipantServiceTest {
         Player player = PlayerTestBuilder.aPlayer().build();
         Participant participant = ParticipantTestBuilder.aParticipant().withPlayer(player).build();
         participant.setWinner(true);
-        participant.setStatus("PLAYED");
+        participant.setStatus(Status.PLAYED);
         participant.setResultText("2-6");
 
         ParticipantUpdateResultTextRequest request = new ParticipantUpdateResultTextRequest("6-2");
 
         Participant updatedParticipant = ParticipantTestBuilder.aParticipant().withPlayer(player).build();
         updatedParticipant.setWinner(true);
-        updatedParticipant.setStatus("PLAYED");
+        updatedParticipant.setStatus(Status.PLAYED);
         updatedParticipant.setResultText("6-2");
         ParticipantResponseLite lite = new ParticipantResponseLite(
                 1000000L,
@@ -261,14 +261,14 @@ public class ParticipantServiceTest {
         Player player = PlayerTestBuilder.aPlayer().build();
         Participant participant = ParticipantTestBuilder.aParticipant().withPlayer(player).build();
         participant.setWinner(false);
-        participant.setStatus("PLAYED");
+        participant.setStatus(Status.PLAYED);
         participant.setResultText("6-2");
 
         ParticipantUpdateWinnerRequest request = new ParticipantUpdateWinnerRequest(true);
 
         Participant updatedParticipant = ParticipantTestBuilder.aParticipant().withPlayer(player).build();
         updatedParticipant.setWinner(true);
-        updatedParticipant.setStatus("PLAYED");
+        updatedParticipant.setStatus(Status.PLAYED);
         updatedParticipant.setResultText("6-2");
         ParticipantResponseLite lite = new ParticipantResponseLite(
                 1000000L,
@@ -300,14 +300,14 @@ public class ParticipantServiceTest {
         Player player = PlayerTestBuilder.aPlayer().build();
         Participant participant = ParticipantTestBuilder.aParticipant().withPlayer(player).build();
         participant.setWinner(false);
-        participant.setStatus("PLAYE");
+        participant.setStatus(Status.PLAYED);
         participant.setResultText("6-2");
 
         ParticipantUpdateStatusRequest request = new ParticipantUpdateStatusRequest("PLAYED");
 
         Participant updatedParticipant = ParticipantTestBuilder.aParticipant().withPlayer(player).build();
         updatedParticipant.setWinner(true);
-        updatedParticipant.setStatus("PLAYED");
+        updatedParticipant.setStatus(Status.PLAYED);
         updatedParticipant.setResultText("6-2");
         ParticipantResponseLite lite = new ParticipantResponseLite(
                 1000000L,

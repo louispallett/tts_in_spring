@@ -9,7 +9,7 @@ public class ParticipantTestBuilder {
     private Long id = 1000000L;
     private final String resultText = "";
     private final boolean isWinner = false;
-    private final String status = "";
+    private final Status status = Status.TBD;
     private Team team = null;
     private Player player = null;
     private Match match = MatchTestBuilder.aMatch().build();

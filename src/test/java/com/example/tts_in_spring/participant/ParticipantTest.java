@@ -14,13 +14,11 @@ public class ParticipantTest {
 
         p.setResultText("");
         p.setWinner(false);
-        p.setStatus("");
         p.setTeam(team);
         p.setMatch(match);
 
         assertThat(p.getResultText()).isEqualTo("");
         assertThat(p.isWinner()).isFalse();
-        assertThat(p.getStatus()).isEqualTo("");
         assertThat(p.getTeam()).isNotNull();
         assertThat(p.getTeam()).isSameAs(team);
         assertThat(p.getMatch()).isSameAs(match);

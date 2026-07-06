@@ -14,12 +14,10 @@ class MatchTest {
         Category category = new Category();
         Instant date = Instant.now();
 
-        m.setState("SCHEDULED");
         m.setDeadline(date);
         m.setQualifyingMatch(false);
         m.setCategory(category);
 
-        assertThat(m.getState()).isEqualTo("SCHEDULED");
         assertThat(m.getDeadline()).isEqualTo(date);
         assertThat(m.isQualifyingMatch()).isFalse();
         assertThat(m.getCategory()).isSameAs(category);

@@ -74,7 +74,6 @@ public class MatchService {
 
         if (category.getTournament().getHost().getId().equals(userId)) {
             Match match = matchMapper.toEntity(request);
-            match.setState("SCHEDULED");
             match.setCategory(category);
             match.setNextMatch(nextMatch);
 
@@ -143,7 +142,6 @@ public class MatchService {
 
         Match finalMatch = new Match();
         finalMatch.setTournamentRoundText(String.valueOf(totalRounds));
-        finalMatch.setState("SCHEDULED");
         finalMatch.setDeadline(Instant.now());
         finalMatch.setQualifyingMatch(false);
         finalMatch.setCategory(category);
@@ -158,7 +156,6 @@ public class MatchService {
 
                 Match newMatch = new Match();
                 newMatch.setTournamentRoundText(String.valueOf(totalRounds - round));
-                newMatch.setState("SCHEDULED");
                 newMatch.setDeadline(Instant.now());
                 newMatch.setQualifyingMatch(false);
                 newMatch.setCategory(category);
@@ -221,7 +218,6 @@ public class MatchService {
 
                 Match match = new Match();
                 match.setTournamentRoundText("1");
-                match.setState("SCHEDULED");
                 match.setDeadline(Instant.now());
                 match.setQualifyingMatch(true);
                 match.setCategory(category);

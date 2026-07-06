@@ -21,8 +21,9 @@ public class Match extends Base {
     @Column(name = "tournament_round_text", nullable = false)
     private String tournamentRoundText;
 
-    @Column(name = "state", nullable = false)
-    private String state;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private State state = State.SCHEDULED;
 
     @Column(name = "deadline", nullable = false)
     private Instant deadline;

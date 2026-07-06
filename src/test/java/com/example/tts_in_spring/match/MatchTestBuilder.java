@@ -8,7 +8,7 @@ import java.time.Instant;
 public class MatchTestBuilder {
     private Long id = 100000L;
     private final String tournamentRoundText = "1";
-    private final String state = "SCHEDULED";
+    private final State state = State.SCHEDULED;
     private final Instant deadline = Instant.now();
     private final boolean qualifyingMatch = false;
     private Category category = CategoryTestBuilder.aCategory().build();

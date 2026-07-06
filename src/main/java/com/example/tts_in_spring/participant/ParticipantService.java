@@ -64,7 +64,6 @@ public class ParticipantService {
         participant.setMatch(match);
         participant.setResultText("");
         participant.setWinner(false);
-        participant.setStatus("TBC");
 
         Participant savedParticipant = participantRepository.save(participant);
         return participantMapper.toResponseLite(savedParticipant);
@@ -74,7 +73,6 @@ public class ParticipantService {
         Participant participant = new Participant();
         participant.setResultText("");
         participant.setWinner(false);
-        participant.setStatus("TBC");
         return participant;
     }
 

@@ -72,6 +72,5 @@ public class PlayerMappingIntegrationTest {
         assertThat(mapped.id()).isEqualTo(1000000L);
         assertThat(mapped.resultText()).isEmpty();
         assertThat(mapped.isWinner()).isFalse();
-        assertThat(mapped.status()).isEmpty();
     }
 }

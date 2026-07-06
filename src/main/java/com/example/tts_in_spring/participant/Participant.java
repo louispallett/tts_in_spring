@@ -23,8 +23,9 @@ public class Participant extends Base {
     @Column(name = "is_winner", nullable = false)
     private boolean isWinner;
 
-    @Column(name = "status", nullable = false)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Status status = Status.TBD;
 
     @ManyToOne
     @JoinColumn(name = "team_id")

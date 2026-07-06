@@ -314,7 +314,7 @@ public class MatchServiceTest {
         MatchSubmitScoreRequest request = new MatchSubmitScoreRequest("SCORE_DONE");
 
         Match updatedMatch = MatchTestBuilder.aMatch().build();
-        updatedMatch.setState("SCORE_DONE");
+        updatedMatch.setState(State.SCORE_DONE);
         MatchResponseLite lite = buildMatchResponseLite("SCORE_DONE", Instant.now());
 
         when(matchFinder.getMatchOrThrow(match.getId())).thenReturn(match);
@@ -339,7 +339,7 @@ public class MatchServiceTest {
         MatchSubmitScoreRequest request = new MatchSubmitScoreRequest("SCORE_DONE");
 
         Match updatedMatch = MatchTestBuilder.aMatch().build();
-        updatedMatch.setState("SCORE_DONE");
+        updatedMatch.setState(State.SCORE_DONE);
         MatchResponseLite lite = buildMatchResponseLite("SCORE_DONE", Instant.now());
 
         when(matchFinder.getMatchOrThrow(match.getId())).thenReturn(match);

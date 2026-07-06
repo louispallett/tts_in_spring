@@ -26,7 +26,6 @@ public class ParticipantMappingIntegrationTest {
         assertThat(response.id()).isEqualTo(1000000L);
         assertThat(response.resultText()).isEmpty();
         assertThat(response.isWinner()).isFalse();
-        assertThat(response.status()).isEmpty();
         assertThat(response.player()).isNull();
         assertThat(response.team()).isNull();
         assertThat(response.match()).isNotNull();

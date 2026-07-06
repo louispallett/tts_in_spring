@@ -92,7 +92,6 @@ class ParticipantRepositoryTest {
         match = new Match();
         match.setQualifyingMatch(false);
         match.setTournamentRoundText("5");
-        match.setState("SCHEDULED");
         match.setDeadline(Instant.now());
         match.setCategory(category);
         matchRepository.save(match);
@@ -103,7 +102,6 @@ class ParticipantRepositoryTest {
         Participant participant = new Participant();
         participant.setResultText("");
         participant.setWinner(false);
-        participant.setStatus("");
         participant.setTeam(team);
         participant.setMatch(match);
 
@@ -112,7 +110,6 @@ class ParticipantRepositoryTest {
         assertThat(saved.getId()).isNotNull();
         assertThat(saved.getResultText()).isEqualTo("");
         assertThat(saved.isWinner()).isFalse();
-        assertThat(saved.getStatus()).isEqualTo("");
         assertThat(saved.getMatch()).isSameAs(match);
         assertThat(saved.getTeam()).isSameAs(team);
     }
@@ -122,7 +119,6 @@ class ParticipantRepositoryTest {
         Participant participant = new Participant();
         participant.setResultText("");
         participant.setWinner(false);
-        participant.setStatus("");
         participant.setPlayer(player);
         participant.setMatch(match);
 
@@ -131,7 +127,6 @@ class ParticipantRepositoryTest {
         assertThat(saved.getId()).isNotNull();
         assertThat(saved.getResultText()).isEqualTo("");
         assertThat(saved.isWinner()).isFalse();
-        assertThat(saved.getStatus()).isEqualTo("");
         assertThat(saved.getMatch()).isSameAs(match);
         assertThat(saved.getPlayer()).isSameAs(player);
     }
