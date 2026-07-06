@@ -180,8 +180,8 @@ public class MatchService {
     private List<Match> orderMatches(List<Match> firstRound) {
         List<List<Match>> intoFours = splitIntoFours(firstRound);
         List<List<Match>> groupsOrdered = reorderGroups(intoFours);
-        return reorderArray(groupsOrdered);
 
+        return reorderArray(groupsOrdered);
     }
 
     private List<Participant> addQualifyingPlayersToMatches(

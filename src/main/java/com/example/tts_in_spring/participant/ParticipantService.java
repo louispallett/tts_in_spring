@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -87,18 +88,33 @@ public class ParticipantService {
         }
 
         List<Participant> participants = new ArrayList<>();
-        for (Player player : category.getPlayers()) {
-            Participant newParticipant = createDefaultParticipant();
-            newParticipant.setPlayer(player);
 
-            participants.add(newParticipant);
-        }
+        if (category.isDoubles()) {
+            List<Team> teams = category.getTeams().stream().sorted(
+                    Comparator.comparingInt(team ->
+                            team.getPlayers().stream()
+                                    .mapToInt(Player::getRank)
+                                    .sum()
+                    ))
+                    .toList();
 
-        for (Team team : category.getTeams()) {
-            Participant newParticipant = createDefaultParticipant();
-            newParticipant.setTeam(team);
+            for (Team team : teams) {
+                Participant newParticipant = createDefaultParticipant();
+                newParticipant.setTeam(team);
 
-            participants.add(newParticipant);
+                participants.add(newParticipant);
+            }
+        } else {
+            List<Player> players = category.getPlayers().stream().sorted(
+                            Comparator.comparingInt(Player::getRank))
+                    .toList();
+
+            for (Player player : players) {
+                Participant newParticipant = createDefaultParticipant();
+                newParticipant.setPlayer(player);
+
+                participants.add(newParticipant);
+            }
         }
 
         return participants;
