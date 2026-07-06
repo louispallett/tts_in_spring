@@ -1,9 +1,7 @@
 package com.example.tts_in_spring.auth;
 
-import com.example.tts_in_spring.auth.dto.AuthResponse;
 import com.example.tts_in_spring.auth.dto.LoginRequest;
 import com.example.tts_in_spring.exception.UnauthorizedException;
-import com.example.tts_in_spring.security.JwtUtil;
 import com.example.tts_in_spring.user.User;
 import com.example.tts_in_spring.user.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -17,14 +15,10 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class AuthServiceTest {
-    @Mock
-    private JwtUtil jwtUtil;
-
     @Mock
     private UserRepository userRepository;
 
@@ -44,14 +38,11 @@ public class AuthServiceTest {
         user.setId(1L);
         user.setEmail("john.doe@example.com");
         user.setPassword("hashed_password");
-        AuthResponse authResponse = new AuthResponse("asbcsdefsg");
 
         when(userRepository.findByEmail("john.doe@example.com")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("Hello123!", "hashed_password")).thenReturn(true);
-        when(jwtUtil.generateToken(user.getId())).thenReturn("asbcsdefsg");
 
-        assertThat(authService.login(request)).isEqualTo(authResponse);
-        verify(jwtUtil).generateToken(user.getId());
+        assertThat(authService.login(request)).isEqualTo(1L);
     }
 
     @Test

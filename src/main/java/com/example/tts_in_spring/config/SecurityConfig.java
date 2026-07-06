@@ -33,13 +33,12 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // Disable CSRF for APIs (safe if you’re not using cookies/sessions for auth)
                 .csrf(csrf -> csrf.disable())
-                // Define endpoint access rules
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/user/create",
-                                "/api/auth/login"
+                                "/api/auth/login",
+                                "/api/auth/login/token"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

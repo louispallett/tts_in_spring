@@ -2,6 +2,7 @@ package com.example.tts_in_spring.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,40 +26,42 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        String authHeader = request.getHeader("Authorization");
+        String jwt = extractToken(request);
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        if (jwt == null || !jwtUtil.validateToken(jwt)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String jwt = authHeader.substring(7);
-
-        // 1. validate token first (signature + expiry)
-        if (!jwtUtil.validateToken(jwt)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        // 2. extract identity
         Long userId = jwtUtil.extractUserId(jwt);
 
-        // 3. avoid re-authentication
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
-
             UserPrincipal principal = new UserPrincipal(userId);
-
             UsernamePasswordAuthenticationToken auth =
-                    new UsernamePasswordAuthenticationToken(
-                            principal,
-                            null,
-                            List.of()
-                    );
-
+                    new UsernamePasswordAuthenticationToken(principal, null, List.of());
             SecurityContextHolder.getContext().setAuthentication(auth);
         }
 
         filterChain.doFilter(request, response);
     }
-}
 
+    private String extractToken(HttpServletRequest request) {
+        // 1. Authorization header — mobile apps, curl, Postman, etc.
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            return authHeader.substring(7);
+        }
+
+        // 2. Cookie — browser
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("jwt".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+
+        return null;
+    }
+}
