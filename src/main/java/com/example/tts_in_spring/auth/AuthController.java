@@ -5,6 +5,7 @@ import com.example.tts_in_spring.auth.dto.LoginRequest;
 import com.example.tts_in_spring.security.JwtUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,8 @@ import java.time.Duration;
 public class AuthController {
     private final AuthService authService;
     private final JwtUtil jwtUtil;
+    @Value("${cookie.secure}")
+    private boolean secureCookie;
 
     // For browser requests
     @PostMapping("/login")
@@ -30,7 +33,7 @@ public class AuthController {
 
         ResponseCookie cookie = ResponseCookie.from("jwt", token)
                 .httpOnly(true)
-                .secure(true)
+                .secure(secureCookie)
                 .sameSite("Lax")
                 .path("/")
                 .maxAge(Duration.ofMillis(jwtUtil.getExpiration()))
@@ -49,7 +52,7 @@ public class AuthController {
 
         ResponseCookie cookie = ResponseCookie.from("jwt", token)
                 .httpOnly(true)
-                .secure(true)
+                .secure(secureCookie)
                 .sameSite("Lax")
                 .path("/")
                 .maxAge(Duration.ofMillis(jwtUtil.getExpiration()))
