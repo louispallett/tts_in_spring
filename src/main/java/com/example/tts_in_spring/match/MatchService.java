@@ -290,27 +290,6 @@ public class MatchService {
     }
 
     @Transactional
-    public MatchResponseLite submitScore(Long id, Long userId) {
-        Match match = matchFinder.getMatchOrThrow(id);
-
-        if (matchFinder.isHost(match, userId) || matchFinder.isParticipant(match, userId)) {
-            MatchSubmitScoreRequest request = new MatchSubmitScoreRequest("SCORE_DONE");
-            matchMapper.submitScoreEntity(request, match);
-
-            Match savedMatch = matchRepository.save(match);
-            return matchMapper.toResponseLite(savedMatch);
-        }
-
-        throw new ForbiddenException(
-                "Not host of "
-                        + match.getCategory().getTournament().getName()
-                        + " ("
-                        + match.getCategory().getTournament().getId()
-                        + ") or participant in match " + match.getId()
-        );
-    }
-
-    @Transactional
     public MatchResponseLite updateDeadline(Long id, MatchUpdateDeadlineRequest request, Long userId) {
         Match match = matchFinder.getMatchOrThrow(id);
         matchFinder.assertHost(match, userId);

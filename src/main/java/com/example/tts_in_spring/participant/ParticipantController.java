@@ -5,7 +5,6 @@ import com.example.tts_in_spring.security.UserPrincipal;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,7 +33,7 @@ public class ParticipantController {
     @PatchMapping("/{id}/update-result-text")
     public ResponseEntity<ParticipantResponseLite> updateResultText(
             @PathVariable Long id,
-            @Valid @RequestBody ParticipantUpdateResultTextRequest request,
+            @Valid @RequestBody UpdateResultTextRequest request,
             @AuthenticationPrincipal UserPrincipal user
     ) {
         return ResponseEntity.ok(participantService.updateResultText(id, request, user.userId()));
@@ -67,7 +66,7 @@ public class ParticipantController {
         return ResponseEntity.ok(participantService.changeParticipantMatch(id, request, user.userId()));
     }
 
-    @DeleteMapping("/{id}/delete")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(
             @PathVariable Long id,
             @AuthenticationPrincipal UserPrincipal principal

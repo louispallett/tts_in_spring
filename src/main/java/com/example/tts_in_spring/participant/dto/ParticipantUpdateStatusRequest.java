@@ -1,8 +1,6 @@
 package com.example.tts_in_spring.participant.dto;
 
-import jakarta.validation.constraints.NotEmpty;
+import com.example.tts_in_spring.participant.Status;
+import jakarta.validation.constraints.NotNull;
 
-public record ParticipantUpdateStatusRequest (
-    @NotEmpty(message = "Status cannot be empty")
-    String status
-) {}
+public record ParticipantUpdateStatusRequest (@NotNull Status status) {}

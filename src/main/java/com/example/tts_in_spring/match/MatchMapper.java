@@ -15,6 +15,6 @@ public interface MatchMapper {
     @Mapping(target = "id", ignore = true)
     Match toEntity(MatchRequest request);
 
-    void submitScoreEntity(MatchSubmitScoreRequest request, @MappingTarget Match match);
+    void updateStateEntity(UpdateStateRequest request, @MappingTarget Match match);
     void updateDeadlineEntity(MatchUpdateDeadlineRequest request, @MappingTarget Match match);
 }

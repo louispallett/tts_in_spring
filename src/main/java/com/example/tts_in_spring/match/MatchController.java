@@ -17,6 +17,7 @@ import java.util.List;
 @RequestMapping("/api/match")
 public class MatchController {
     private final MatchService matchService;
+    private final MatchScoreSubmissionService matchScoreSubmissionService;
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -48,12 +49,13 @@ public class MatchController {
         return ResponseEntity.ok(matchService.generateMatchesParent(categoryId, user.userId()));
     }
 
-    @PatchMapping("/{id}/submit-score")
-    public ResponseEntity<MatchResponseLite> submitScore(
+    @PostMapping("/{id}/submit-score")
+    public ResponseEntity<MatchResponse> submitScore(
             @PathVariable Long id,
+            @Valid @RequestBody SubmitScoreRequest request,
             @AuthenticationPrincipal UserPrincipal user
     ) {
-        return ResponseEntity.ok(matchService.submitScore(id, user.userId()));
+        return ResponseEntity.ok(matchScoreSubmissionService.submitScore(id, request, user.userId()));
     }
 
     @PatchMapping("/{id}/update-deadline")

@@ -123,19 +123,9 @@ public class ParticipantService {
     }
 
     @Transactional
-    public ParticipantResponseLite submitScore(Long id, ParticipantSubmitScoreRequest request) {
-        Participant participant = participantFinder.getParticipantOrThrow(id);
-
-        participantMapper.submitScore(request, participant);
-
-        Participant savedParticipant = participantRepository.save(participant);
-        return participantMapper.toResponseLite(savedParticipant);
-    }
-
-    @Transactional
     public ParticipantResponseLite updateResultText(
             Long id,
-            ParticipantUpdateResultTextRequest request,
+            UpdateResultTextRequest request,
             Long userId
     ) {
         Participant participant = participantFinder.getParticipantOrThrow(id);
@@ -143,8 +133,7 @@ public class ParticipantService {
 
         participantMapper.updateResultText(request, participant);
 
-        Participant savedParticipant = participantRepository.save(participant);
-        return participantMapper.toResponseLite(savedParticipant);
+        return participantMapper.toResponseLite(participant);
     }
 
     @Transactional
@@ -157,20 +146,20 @@ public class ParticipantService {
         participantFinder.assertHost(participant, userId);
 
         participantMapper.updateIsWinner(request, participant);
-
-        Participant savedParticipant = participantRepository.save(participant);
-        return participantMapper.toResponseLite(savedParticipant);
+        return participantMapper.toResponseLite(participant);
     }
 
     @Transactional
-    public ParticipantResponseLite updateStatus(Long id, ParticipantUpdateStatusRequest request, Long userId) {
+    public ParticipantResponseLite updateStatus(
+            Long id,
+            ParticipantUpdateStatusRequest request,
+            Long userId
+    ) {
         Participant participant = participantFinder.getParticipantOrThrow(id);
         participantFinder.assertHost(participant, userId);
 
         participantMapper.updateStatus(request, participant);
-
-        Participant savedParticipant = participantRepository.save(participant);
-        return participantMapper.toResponseLite(savedParticipant);
+        return participantMapper.toResponseLite(participant);
     }
 
     @Transactional
