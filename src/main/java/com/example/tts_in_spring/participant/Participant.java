@@ -20,8 +20,8 @@ public class Participant extends Base {
     @Column(name = "result_text", nullable = false)
     private String resultText;
 
-    @Column(name = "is_winner", nullable = false)
-    private boolean isWinner;
+    @Column(name = "winner", nullable = false)
+    private boolean winner;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
