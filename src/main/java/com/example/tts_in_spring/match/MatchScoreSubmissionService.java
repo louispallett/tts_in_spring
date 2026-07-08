@@ -1,5 +1,6 @@
 package com.example.tts_in_spring.match;
 
+import com.example.tts_in_spring.exception.ConflictException;
 import com.example.tts_in_spring.exception.ForbiddenException;
 import com.example.tts_in_spring.exception.GenericBadRequestException;
 import com.example.tts_in_spring.match.dto.MatchResponse;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -24,31 +27,17 @@ public class MatchScoreSubmissionService {
     private final ParticipantFinder participantFinder;
     private final ParticipantService participantService;
 
-    @Transactional
-    public MatchResponse submitScore(
-            Long id,
-            SubmitScoreRequest request,
-            Long userId
-    ) {
-        Match match = matchFinder.getMatchOrThrow(id);
+    private void assertParticipants(List<ParticipantSubmitScoreRequest> participants, Match match) {
+        Set<Long> matchParticipantIds = match.getParticipants().stream()
+                .map(Participant::getId)
+                .collect(Collectors.toSet());
 
-        if (match.getState() == State.SCORE_DONE)
-            throw new GenericBadRequestException("Match score already submitted");
+        boolean hasInvalidPlayer = participants.stream()
+                .map(ParticipantSubmitScoreRequest::id)
+                .anyMatch(id -> !matchParticipantIds.contains(id));
 
-        if (!matchFinder.isHost(match, userId) && !matchFinder.isParticipant(match, userId)) {
-            throw new ForbiddenException(
-                    "Not host of "
-                            + match.getCategory().getTournament().getName()
-                            + " ("
-                            + match.getCategory().getTournament().getId()
-                            + ") or participant in match " + match.getId()
-            );
-        }
-
-        handleParticipants(request.participants(), match);
-
-        matchMapper.updateStateEntity(new UpdateStateRequest(State.SCORE_DONE), match);
-        return matchMapper.toResponse(match);
+        if (hasInvalidPlayer)
+            throw new ConflictException("Participant in request is not part of this match");
     }
 
     private void handleParticipants(List<ParticipantSubmitScoreRequest> participants, Match match) {
@@ -83,4 +72,33 @@ public class MatchScoreSubmissionService {
             }
         }
     }
+
+    @Transactional
+    public MatchResponse submitScore(
+            Long id,
+            SubmitScoreRequest request,
+            Long userId
+    ) {
+        Match match = matchFinder.getMatchOrThrow(id);
+
+        if (match.getState() == State.SCORE_DONE)
+            throw new GenericBadRequestException("Match score already submitted");
+
+        if (!matchFinder.isHost(match, userId) && !matchFinder.isParticipant(match, userId)) {
+            throw new ForbiddenException(
+                    "Not host of "
+                            + match.getCategory().getTournament().getName()
+                            + " ("
+                            + match.getCategory().getTournament().getId()
+                            + ") or participant in match " + match.getId()
+            );
+        }
+
+        assertParticipants(request.participants(), match);
+        handleParticipants(request.participants(), match);
+
+        matchMapper.updateStateEntity(new UpdateStateRequest(State.SCORE_DONE), match);
+        return matchMapper.toResponse(match);
+    }
+
 }
