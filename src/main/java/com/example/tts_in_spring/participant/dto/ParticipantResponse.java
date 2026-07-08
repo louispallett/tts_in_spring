@@ -6,6 +6,7 @@ import com.example.tts_in_spring.team.dto.TeamResponseLite;
 
 public record ParticipantResponse (
         Long id,
+        String name,
         String resultText,
         boolean isWinner,
         String status,

@@ -5,8 +5,10 @@ import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
 public interface ParticipantMapper {
+    @Mapping(target = "name", source = "player.user.fullName")
     ParticipantResponse toResponse(Participant participant);
 
+    @Mapping(target = "name", source = "player.user.fullName")
     ParticipantResponseLite toResponseLite(Participant participant);
 
     @Mapping(target = "id", ignore = true)

@@ -8,8 +8,10 @@ import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring", uses = {ParticipantMapper.class})
 public interface PlayerMapper {
+    @Mapping(target = "name", source = "user.fullName")
     PlayerResponse toResponse(Player player);
 
+    @Mapping(target = "name", source = "user.fullName")
     PlayerResponseLite toResponseLite(Player player);
 
     @Mapping(target = "id", ignore = true)

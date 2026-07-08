@@ -9,6 +9,7 @@ import java.util.List;
 
 public record PlayerResponse (
         Long id,
+        String name,
         Boolean male,
         Boolean seeded,
         int rank,
