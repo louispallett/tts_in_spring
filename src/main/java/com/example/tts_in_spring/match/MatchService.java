@@ -267,7 +267,6 @@ public class MatchService {
         List<Match> firstRound = matches.removeLast();
         List<Match> firstRoundOrdered = orderMatches(firstRound);
 
-        // FIXME: Ensure that participants list is actually affected here. We need qualified players to actually be removed here.
         List<Participant> byeInParticipants = getByeInParticipants(participants);
 
         List<Participant> qualifyingParticipantsFinal = addQualifyingPlayersToMatches(byeInParticipants, firstRoundOrdered);
