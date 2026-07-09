@@ -46,6 +46,7 @@ public class PlayerServiceTest {
     private PlayerResponse buildPlayerResponse() {
         return new PlayerResponse(
                 1000L,
+                "Player",
                 false,
                 false,
                 0,
@@ -124,6 +125,7 @@ public class PlayerServiceTest {
         Player saved = PlayerTestBuilder.aPlayer().withCategory(category).build();
         PlayerResponseLite lite = new PlayerResponseLite(
                 1000L,
+                "Player",
                 true,
                 false,
                 0
@@ -164,6 +166,7 @@ public class PlayerServiceTest {
         updatedPlayer.setRank(1);
         PlayerResponseLite lite = new PlayerResponseLite(
                 1000L,
+                "Player",
                 true,
                 false,
                 1
@@ -191,6 +194,7 @@ public class PlayerServiceTest {
         updatedPlayer.setSeeded(true);
         PlayerResponseLite lite = new PlayerResponseLite(
                 1000L,
+                "Player",
                 true,
                 true,
                 0

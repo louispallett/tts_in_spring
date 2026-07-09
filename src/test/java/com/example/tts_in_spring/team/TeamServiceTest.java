@@ -152,6 +152,7 @@ public class TeamServiceTest {
                     Player player = invocation.getArgument(0);
                     return new PlayerResponse(
                             player.getId(),
+                            "Player",
                             player.isMale(),
                             player.isSeeded(),
                             player.getRank(),

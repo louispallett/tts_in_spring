@@ -21,7 +21,7 @@ public interface ParticipantMapper {
     void updateResultText(UpdateResultTextRequest request, @MappingTarget Participant participant);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateIsWinner(ParticipantUpdateWinnerRequest request, @MappingTarget Participant participant);
+    void updateWinner(ParticipantUpdateWinnerRequest request, @MappingTarget Participant participant);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateStatus(ParticipantUpdateStatusRequest request, @MappingTarget Participant participant);

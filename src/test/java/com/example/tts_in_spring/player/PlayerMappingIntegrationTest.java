@@ -71,6 +71,6 @@ public class PlayerMappingIntegrationTest {
         ParticipantResponseLite mapped = response.participants().getFirst();
         assertThat(mapped.id()).isEqualTo(1000000L);
         assertThat(mapped.resultText()).isEmpty();
-        assertThat(mapped.isWinner()).isFalse();
+        assertThat(mapped.winner()).isFalse();
     }
 }

@@ -137,7 +137,7 @@ public class ParticipantService {
     }
 
     @Transactional
-    public ParticipantResponseLite updateIsWinner(
+    public ParticipantResponseLite updateWinner(
             Long id,
             ParticipantUpdateWinnerRequest request,
             Long userId
@@ -145,7 +145,7 @@ public class ParticipantService {
         Participant participant = participantFinder.getParticipantOrThrow(id);
         participantFinder.assertHost(participant, userId);
 
-        participantMapper.updateIsWinner(request, participant);
+        participantMapper.updateWinner(request, participant);
         return participantMapper.toResponseLite(participant);
     }
 

@@ -48,7 +48,7 @@ public class MatchScoreSubmissionService {
                     match.getCategory().getTournament().getHost().getId()
             );
 
-            participantService.updateIsWinner(
+            participantService.updateWinner(
                     participant.id(),
                     new ParticipantUpdateWinnerRequest(participant.winner()),
                     match.getCategory().getTournament().getHost().getId()
@@ -66,7 +66,7 @@ public class MatchScoreSubmissionService {
                         new ParticipantRequest(
                                 existingParticipant.getTeam() == null ? null : existingParticipant.getTeam().getId(),
                                 existingParticipant.getPlayer() == null ? null : existingParticipant.getPlayer().getId(),
-                                match.getNextMatch().getId()
+                                match.getNextMatch() == null ? null : match.getNextMatch().getId()
                         )
                 );
             }

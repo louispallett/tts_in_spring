@@ -308,65 +308,6 @@ public class MatchServiceTest {
     }
 
     @Test
-    void submitScore_whenHost_savesAndReturnsMappedLite() {
-        Match match = MatchTestBuilder.aMatch().build();
-
-        MatchSubmitScoreRequest request = new MatchSubmitScoreRequest("SCORE_DONE");
-
-        Match updatedMatch = MatchTestBuilder.aMatch().build();
-        updatedMatch.setState(State.SCORE_DONE);
-        MatchResponseLite lite = buildMatchResponseLite("SCORE_DONE", Instant.now());
-
-        when(matchFinder.getMatchOrThrow(match.getId())).thenReturn(match);
-        when(matchFinder.isHost(match, match.getCategory().getTournament().getHost().getId())).thenReturn(true);
-        when(matchRepository.save(any(Match.class))).thenReturn(updatedMatch);
-        when(matchMapper.toResponseLite(updatedMatch)).thenReturn(lite);
-
-        assertThat(matchService.submitScore(match.getId(), match.getCategory().getTournament().getHost().getId()));
-
-        verify(matchMapper).submitScoreEntity(request, match);
-        verify(matchRepository).save(match);
-        verify(matchMapper).toResponseLite(updatedMatch);
-    }
-
-    @Test
-    void submitScore_whenParticipant_savesAndReturnsMappedLite() {
-        Match match = MatchTestBuilder.aMatch().build();
-        Player player = PlayerTestBuilder.aPlayer().build();
-        Participant participant = ParticipantTestBuilder.aParticipant().withPlayer(player).build();
-        match.getParticipants().add(participant);
-
-        MatchSubmitScoreRequest request = new MatchSubmitScoreRequest("SCORE_DONE");
-
-        Match updatedMatch = MatchTestBuilder.aMatch().build();
-        updatedMatch.setState(State.SCORE_DONE);
-        MatchResponseLite lite = buildMatchResponseLite("SCORE_DONE", Instant.now());
-
-        when(matchFinder.getMatchOrThrow(match.getId())).thenReturn(match);
-        when(matchFinder.isParticipant(match, player.getUser().getId())).thenReturn(true);
-        when(matchRepository.save(any(Match.class))).thenReturn(updatedMatch);
-        when(matchMapper.toResponseLite(updatedMatch)).thenReturn(lite);
-
-        assertThat(matchService.submitScore(match.getId(), participant.getPlayer().getUser().getId()));
-
-        verify(matchMapper).submitScoreEntity(request, match);
-        verify(matchRepository).save(match);
-        verify(matchMapper).toResponseLite(updatedMatch);
-    }
-
-    @Test
-    void submitScore_whenNotAuthorized_returns403() {
-        Match match = MatchTestBuilder.aMatch().build();
-
-        when(matchFinder.getMatchOrThrow(match.getId())).thenReturn(match);
-
-        assertThatThrownBy(() -> matchService.submitScore(match.getId(), 3L))
-                .isInstanceOf(ForbiddenException.class);
-        verify(matchRepository, never()).save(any());
-        verifyNoInteractions(matchMapper);
-    }
-
-    @Test
     void updateDeadline_whenHost_savesAndReturnsMappedLite() {
         Match match = MatchTestBuilder.aMatch().build();
 

@@ -40,12 +40,12 @@ public class ParticipantController {
     }
 
     @PatchMapping("/{id}/update-is-winner")
-    public ResponseEntity<ParticipantResponseLite> updateIsWinner(
+    public ResponseEntity<ParticipantResponseLite> updateWinner(
             @PathVariable Long id,
             @Valid @RequestBody ParticipantUpdateWinnerRequest request,
             @AuthenticationPrincipal UserPrincipal user
     ) {
-        return ResponseEntity.ok(participantService.updateIsWinner(id, request, user.userId()));
+        return ResponseEntity.ok(participantService.updateWinner(id, request, user.userId()));
     }
 
     @PatchMapping("/{id}/update-status")
