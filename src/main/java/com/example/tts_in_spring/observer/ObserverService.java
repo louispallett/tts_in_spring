@@ -55,7 +55,7 @@ public class ObserverService {
         newObserver.setUser(user);
 
         Observer savedObserver = observerRepository.save(newObserver);
-        return observerMapper.toResponseLite(newObserver);
+        return observerMapper.toResponseLite(savedObserver);
     }
 
     public void delete(Long id, Long userId) {
