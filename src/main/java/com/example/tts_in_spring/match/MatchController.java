@@ -4,7 +4,6 @@ import com.example.tts_in_spring.match.dto.*;
 import com.example.tts_in_spring.security.UserPrincipal;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,6 +16,7 @@ import java.util.List;
 @RequestMapping("/api/match")
 public class MatchController {
     private final MatchService matchService;
+    private final MatchGenerationService matchGenerationService;
     private final MatchScoreSubmissionService matchScoreSubmissionService;
 
     @GetMapping
@@ -33,20 +33,12 @@ public class MatchController {
         return ResponseEntity.ok(matchService.getMatchById(id, user.userId()));
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<?> createMatch(
-            @Valid @RequestBody MatchRequest request,
-            @AuthenticationPrincipal UserPrincipal user
-    ) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(matchService.createMatch(request, user.userId()));
-    }
-
     @PostMapping("/{categoryId}/generate")
     public ResponseEntity<List<MatchResponse>> generateMatches(
             @PathVariable Long categoryId,
             @AuthenticationPrincipal UserPrincipal user
     ) {
-        return ResponseEntity.ok(matchService.generateMatchesParent(categoryId, user.userId()));
+        return ResponseEntity.ok(matchGenerationService.generateMatchesParent(categoryId, user.userId()));
     }
 
     @PostMapping("/{id}/submit-score")

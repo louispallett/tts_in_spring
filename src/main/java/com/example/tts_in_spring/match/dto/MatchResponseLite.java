@@ -1,11 +1,13 @@
 package com.example.tts_in_spring.match.dto;
 
+import com.example.tts_in_spring.match.State;
+
 import java.time.Instant;
 
 public record MatchResponseLite(
         Long id,
         String tournamentRoundText,
-        String state,
+        State state,
         Instant deadline,
         boolean qualifyingMatch
 ) {}

@@ -1,6 +1,7 @@
 package com.example.tts_in_spring.participant;
 
 import com.example.tts_in_spring.match.MatchFinder;
+import com.example.tts_in_spring.match.State;
 import com.example.tts_in_spring.match.dto.MatchResponseLite;
 import com.example.tts_in_spring.match.MatchTestBuilder;
 import com.example.tts_in_spring.participant.dto.*;
@@ -55,7 +56,7 @@ public class ParticipantServiceTest {
                 null,
                 team,
                 player,
-                new MatchResponseLite(100000L, "1", "SCHEDULED", Instant.now(), false)
+                new MatchResponseLite(100000L, "1", State.SCHEDULED, Instant.now(), false)
         );
     }
 
@@ -183,38 +184,6 @@ public class ParticipantServiceTest {
 
         assertThat(participantService.createParticipant(request)).isEqualTo(lite);
     }
-
-    // NOTE: Submit score is a request which is only called by MatchService.submitScore. Therefore, MatchService handles
-    // authorization, hence no need to handle this here. Submit score is only ever called during a score submission by the
-    // host or one of the participants.
-    // @Test
-    // void submitScore_savesAndReturnsMappedLite() {
-    //     Player player = PlayerTestBuilder.aPlayer().build();
-    //     Participant participant = ParticipantTestBuilder.aParticipant().withPlayer(player).build();
-    //     Participant updatedParticipant = ParticipantTestBuilder.aParticipant().withPlayer(player).build();
-    //     ParticipantSubmitScoreRequest request = new ParticipantSubmitScoreRequest(
-    //         updatedParticipant.getId(),
-    //         "6-6",
-    //             true
-    //     );
-
-    //     ParticipantResponseLite lite = buildParticipantResponseLite(
-    //             "6-6",
-    //             true,
-    //             updatedParticipant.getPlayer().getUser().getFirstName() + " " + updatedParticipant.getPlayer().getUser().getLastName()
-    //     );
-
-    //     when(participantFinder.getParticipantOrThrow(participant.getId())).thenReturn(participant);
-    //     when(participantRepository.save(any(Participant.class))).thenReturn(updatedParticipant);
-    //     when(participantMapper.toResponseLite(updatedParticipant)).thenReturn(lite);
-
-    //     ParticipantResponseLite result = participantService.submitScore(updatedParticipant.getId(), request);
-    //     assertThat(result).isEqualTo(lite);
-
-    //     verify(participantMapper).submitScore(request, participant);
-    //     verify(participantRepository).save(participant);
-    //     verify(participantMapper).toResponseLite(updatedParticipant);
-    // }
 
     // NOTE: Alternatively, the methods below are called by ParticipantController, and only the host is authorized to call
     // them. Therefore, these DO need to check and authorize.

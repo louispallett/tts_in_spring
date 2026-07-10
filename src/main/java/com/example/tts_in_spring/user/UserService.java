@@ -21,7 +21,6 @@ public class UserService {
     private final UserMapper userMapper;
     private final UserFinder userFinder;
 
-
     @Transactional(readOnly = true)
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll()

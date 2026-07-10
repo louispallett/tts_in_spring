@@ -1,6 +1,5 @@
 package com.example.tts_in_spring.match;
 
-import com.example.tts_in_spring.category.Category;
 import com.example.tts_in_spring.category.CategoryFinder;
 import com.example.tts_in_spring.category.dto.CategoryResponseLite;
 import com.example.tts_in_spring.category.CategoryTestBuilder;
@@ -17,7 +16,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
@@ -45,7 +43,7 @@ public class MatchServiceTest {
         return new MatchResponse(
                 100000L,
                 "",
-                "SCHEDULED",
+                State.SCHEDULED,
                 Instant.now(),
                 false,
                 new CategoryResponseLite(100L, "Mens Singles", false, false),
@@ -55,11 +53,11 @@ public class MatchServiceTest {
         );
     }
 
-    private MatchResponseLite buildMatchResponseLite(String state, Instant deadline) {
+    private MatchResponseLite buildMatchResponseLite(Instant deadline) {
         return new MatchResponseLite(
                 100000L,
                 "",
-                state,
+                State.SCHEDULED,
                 deadline,
                 false
         );
@@ -135,197 +133,24 @@ public class MatchServiceTest {
     }
 
     @Test
-    void createMatch_whenHost_savesAndReturnsMapped() {
-        Instant deadline = Instant.now();
-        MatchRequest request = buildMatchRequest(deadline);
-
-        Match saved = MatchTestBuilder.aMatch().build();
-        MatchResponse response = new MatchResponse(
-            100000L,
-            "",
-            "SCHEDULED",
-            deadline,
-            false,
-                new CategoryResponseLite(
-                        100L,
-                        "Mens Singles",
-                        false,
-                        false
-                ),
-                new MatchResponseLite(
-                        100001L,
-                        "",
-                        "SCHEDULED",
-                        deadline,
-                        false
-                ),
-                List.of(),
-                List.of()
-        );
-
-        when(categoryFinder.getCategoryOrThrow(request.categoryId())).thenReturn(saved.getCategory());
-        when(matchMapper.toEntity(request)).thenReturn(saved);
-        when(matchRepository.save(any(Match.class))).thenReturn(saved);
-        when(matchMapper.toResponse(saved)).thenReturn(response);
-
-        assertThat(matchService.createMatch(request, saved.getCategory().getTournament().getHost().getId()));
-    }
-
-    @Test
-    void createMatch_whenNotHost_returns403() {
-        MatchRequest request = buildMatchRequest(Instant.now());
-        Match match = MatchTestBuilder.aMatch().build();
-
-        when(categoryFinder.getCategoryOrThrow(request.categoryId())).thenReturn(match.getCategory());
-
-        assertThatThrownBy(() -> matchService.createMatch(request, 3L))
-                .isInstanceOf(ForbiddenException.class);
-
-        verify(matchRepository, never()).save(any());
-        verifyNoInteractions(matchMapper);
-    }
-
-    @Test
-    void calculateNumberOfRounds_returnsExpected() {
-        assertThat(matchService.calculateNumberOfRounds(8)).isEqualTo(3);
-        assertThat(matchService.calculateNumberOfRounds(10)).isEqualTo(4);
-        assertThat(matchService.calculateNumberOfRounds(16)).isEqualTo(4);
-        assertThat(matchService.calculateNumberOfRounds(20)).isEqualTo(5);
-        assertThat(matchService.calculateNumberOfRounds(256)).isEqualTo(8);
-    }
-
-    @Test
-    void getNextPowerOfTwo_returnsExpected() {
-        assertThat(matchService.getNextPowerOfTwo(4)).isEqualTo(4);
-        assertThat(matchService.getNextPowerOfTwo(5)).isEqualTo(8);
-        assertThat(matchService.getNextPowerOfTwo(29)).isEqualTo(32);
-    }
-
-    @Test
-    void calculateByes_returnsExpected() {
-        assertThat(matchService.calculateByes(16)).isEqualTo(0);
-        assertThat(matchService.calculateByes(19)).isEqualTo(13);
-        assertThat(matchService.calculateByes(31)).isEqualTo(1);
-    }
-
-    @Test
-    void roundLoopLimit_returnsExpected() {
-        assertThat(matchService.roundLoopLimit(16, 16, 4)).isEqualTo(4);
-        assertThat(matchService.roundLoopLimit(1, 31, 5)).isEqualTo(4);
-    }
-
-    @Test
-    void splitIntoFours_returnsExpected() {
-        List<Match> matches = new ArrayList<>();
-        for (int i = 0; i < 16; i++) {
-            matches.add(MatchTestBuilder.aMatch().build());
-        }
-
-        assertThat(matchService.splitIntoFours(matches)).hasSize(4);
-        assertThat(matchService.splitIntoFours(matches).getFirst()).hasSize(4);
-    }
-
-    @Test
-    void reorderGroups_returnsExpected() {
-        List<Match> matches = new ArrayList<>();
-        for (int i = 0; i < 16; i++) {
-            matches.add(MatchTestBuilder.aMatch().build());
-        }
-        List<List<Match>> splitIntoFours = matchService.splitIntoFours(matches);
-        List<List<Match>> result = matchService.reorderGroups(splitIntoFours);
-
-        assertThat(result).hasSize(4);
-        assertThat(result.getFirst()).hasSize(4);
-        assertThat(result.getFirst().getFirst()).isEqualTo(matches.getFirst());
-        assertThat(result.getFirst().getLast()).isEqualTo(matches.get(3));
-        assertThat(result.get(1).getFirst()).isEqualTo(matches.get(12));
-        assertThat(result.get(1).getLast()).isEqualTo(matches.get(15));
-        assertThat(result.get(2).getFirst()).isEqualTo(matches.get(8));
-        assertThat(result.get(2).getLast()).isEqualTo(matches.get(11));
-        assertThat(result.getLast().getFirst()).isEqualTo(matches.get(4));
-        assertThat(result.getLast().getLast()).isEqualTo(matches.get(7));
-    }
-
-    @Test
-    void reorderArray_returnsExpected() {
-        List<Match> matches = new ArrayList<>();
-        for (int i = 0; i < 16; i++) {
-            matches.add(MatchTestBuilder.aMatch().build());
-        }
-        List<List<Match>> splitIntoFours = matchService.splitIntoFours(matches);
-        List<List<Match>> reorderGroups = matchService.reorderGroups(splitIntoFours);
-
-        List<Match> result = matchService.reorderArray(reorderGroups);
-
-        assertThat(result).hasSize(16);
-        assertThat(result.getFirst()).isEqualTo(matches.getFirst());
-        assertThat(result.get(1)).isEqualTo(matches.get(12));
-        assertThat(result.get(2)).isEqualTo(matches.get(8));
-        assertThat(result.get(3)).isEqualTo(matches.get(4));
-        assertThat(result.get(4)).isEqualTo(matches.get(3));
-        assertThat(result.get(5)).isEqualTo(matches.get(15));
-        assertThat(result.get(6)).isEqualTo(matches.get(11));
-        assertThat(result.get(7)).isEqualTo(matches.get(7));
-        assertThat(result.get(8)).isEqualTo(matches.get(2));
-        assertThat(result.get(9)).isEqualTo(matches.get(14));
-        assertThat(result.get(10)).isEqualTo(matches.get(10));
-        assertThat(result.get(11)).isEqualTo(matches.get(6));
-        assertThat(result.get(12)).isEqualTo(matches.get(1));
-        assertThat(result.get(13)).isEqualTo(matches.get(13));
-        assertThat(result.get(14)).isEqualTo(matches.get(9));
-        assertThat(result.get(15)).isEqualTo(matches.get(5));
-    }
-
-    @Test
-    void generateMatches_whenNoQual_buildsCorrectStructure() {
-        Category category = CategoryTestBuilder.aCategory().build();
-
-        List<List<Match>> result = matchService.generateMatches(category, 8);
-
-        assertThat(result).hasSize(matchService.calculateNumberOfRounds(8));
-
-        assertThat(result.get(0)).hasSize(1);
-
-        assertThat(result.get(1)).hasSize(2);
-        assertThat(result.get(2)).hasSize(4);
-    }
-
-    @Test
-    void generateMatches_whenQual_buildsCorrectStructure() {
-        Category category = CategoryTestBuilder.aCategory().build();
-
-        int numOfParticipants = 24;
-
-        List<List<Match>> result = matchService.generateMatches(category, numOfParticipants);
-
-        assertThat(result).hasSize(matchService.calculateNumberOfRounds(numOfParticipants) - 1);
-
-        assertThat(result.get(0)).hasSize(1);
-
-        assertThat(result.get(1)).hasSize(2);
-        assertThat(result.get(2)).hasSize(4);
-        assertThat(result.get(3)).hasSize(8);
-    }
-
-    @Test
     void updateDeadline_whenHost_savesAndReturnsMappedLite() {
         Match match = MatchTestBuilder.aMatch().build();
 
         MatchUpdateDeadlineRequest request = new MatchUpdateDeadlineRequest(Instant.MIN);
 
-        Match updatedMatch = MatchTestBuilder.aMatch().build();
-        updatedMatch.setDeadline(Instant.MIN);
-        MatchResponseLite lite = buildMatchResponseLite("SCHEDULED", Instant.MIN);
+        MatchResponseLite lite = buildMatchResponseLite(Instant.MIN);
 
         when(matchFinder.getMatchOrThrow(match.getId())).thenReturn(match);
-        when(matchRepository.save(any(Match.class))).thenReturn(updatedMatch);
-        when(matchMapper.toResponseLite(updatedMatch)).thenReturn(lite);
+        when(matchMapper.toResponseLite(match)).thenReturn(lite);
 
-        assertThat(matchService.updateDeadline(match.getId(), request, match.getCategory().getTournament().getHost().getId()));
+        assertThat(matchService.updateDeadline(
+                match.getId(),
+                request,
+                match.getCategory().getTournament().getHost().getId())
+        ).isEqualTo(lite);
 
         verify(matchMapper).updateDeadlineEntity(request, match);
-        verify(matchRepository).save(match);
-        verify(matchMapper).toResponseLite(updatedMatch);
+        verify(matchMapper).toResponseLite(match);
     }
 
     @Test

@@ -31,7 +31,7 @@ public class MatchMappingIntegrationTest {
 
         assertThat(response.id()).isEqualTo(100000L);
         assertThat(response.tournamentRoundText()).isEqualTo("1");
-        assertThat(response.state()).isEqualTo("SCHEDULED");
+        assertThat(response.state()).isEqualTo(State.SCHEDULED);
         assertThat(response.deadline()).isBeforeOrEqualTo(Instant.now());
         assertThat(response.qualifyingMatch()).isFalse();
         assertThat(response.category()).isNotNull();
