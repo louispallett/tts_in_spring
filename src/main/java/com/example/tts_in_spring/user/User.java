@@ -58,6 +58,9 @@ public class User extends Base {
     // @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     // private List<Notification> notifications = new ArrayList<>();
 
+    // @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    // private List<Observer> observers = new ArrayList<>();
+
     public String getFullName() {
         return firstName + " " + lastName;
     }
