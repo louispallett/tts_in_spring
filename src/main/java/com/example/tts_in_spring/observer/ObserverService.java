@@ -51,6 +51,7 @@ public class ObserverService {
         Tournament tournament = tournamentFinder.getTournamentOrThrow(request.tournamentId());
 
         Observer newObserver = observerMapper.toEntity(request);
+        newObserver.setTournament(tournament);
         newObserver.setUser(user);
 
         Observer savedObserver = observerRepository.save(newObserver);
