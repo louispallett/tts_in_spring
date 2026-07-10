@@ -27,9 +27,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class MatchScoreSubmissionServiceTest {
     @Mock
-    private MatchRepository matchRepository;
-
-    @Mock
     private MatchMapper matchMapper;
 
     @Mock
@@ -43,16 +40,6 @@ public class MatchScoreSubmissionServiceTest {
 
     @InjectMocks
     private MatchScoreSubmissionService matchScoreSubmissionService;
-
-    private MatchResponseLite buildMatchResponseLite(Instant deadline) {
-        return new MatchResponseLite(
-                100000L,
-                "",
-                State.SCORE_DONE,
-                deadline,
-                false
-        );
-    }
 
     private ParticipantResponseLite buildParticipantResponseLite(Long id, String resultText, boolean winner, String name) {
         return new ParticipantResponseLite(

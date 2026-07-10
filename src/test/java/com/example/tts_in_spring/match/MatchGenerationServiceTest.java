@@ -1,12 +1,10 @@
 package com.example.tts_in_spring.match;
 
 import com.example.tts_in_spring.category.Category;
-import com.example.tts_in_spring.category.CategoryFinder;
 import com.example.tts_in_spring.category.CategoryTestBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
@@ -16,18 +14,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 public class MatchGenerationServiceTest {
-    @Mock
-    private MatchRepository matchRepository;
-
-    @Mock
-    private MatchMapper matchMapper;
-
-    @Mock
-    private MatchFinder matchFinder;
-
-    @Mock
-    private CategoryFinder categoryFinder;
-
     @InjectMocks
     private MatchGenerationService matchGenerationService;
 

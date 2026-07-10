@@ -1,6 +1,5 @@
 package com.example.tts_in_spring.match;
 
-import com.example.tts_in_spring.category.CategoryFinder;
 import com.example.tts_in_spring.category.dto.CategoryResponseLite;
 import com.example.tts_in_spring.category.CategoryTestBuilder;
 import com.example.tts_in_spring.exception.ForbiddenException;
@@ -33,9 +32,6 @@ public class MatchServiceTest {
     @Mock
     private MatchFinder matchFinder;
 
-    @Mock
-    private CategoryFinder categoryFinder;
-
     @InjectMocks
     private MatchService matchService;
 
@@ -53,23 +49,13 @@ public class MatchServiceTest {
         );
     }
 
-    private MatchResponseLite buildMatchResponseLite(Instant deadline) {
+    private MatchResponseLite buildMatchResponseLite() {
         return new MatchResponseLite(
                 100000L,
                 "",
                 State.SCHEDULED,
-                deadline,
+                Instant.MIN,
                 false
-        );
-    }
-
-    private MatchRequest buildMatchRequest(Instant deadline) {
-        return new MatchRequest(
-                "",
-                deadline,
-                false,
-                CategoryTestBuilder.aCategory().build().getId(),
-                null
         );
     }
 
@@ -138,7 +124,7 @@ public class MatchServiceTest {
 
         MatchUpdateDeadlineRequest request = new MatchUpdateDeadlineRequest(Instant.MIN);
 
-        MatchResponseLite lite = buildMatchResponseLite(Instant.MIN);
+        MatchResponseLite lite = buildMatchResponseLite();
 
         when(matchFinder.getMatchOrThrow(match.getId())).thenReturn(match);
         when(matchMapper.toResponseLite(match)).thenReturn(lite);

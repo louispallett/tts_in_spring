@@ -1,6 +1,5 @@
 package com.example.tts_in_spring.match;
 
-import com.example.tts_in_spring.category.CategoryFinder;
 import com.example.tts_in_spring.exception.ForbiddenException;
 import com.example.tts_in_spring.match.dto.*;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +13,6 @@ import java.util.List;
 public class MatchService {
     private final MatchRepository matchRepository;
     private final MatchMapper matchMapper;
-    private final CategoryFinder categoryFinder;
     private final MatchFinder matchFinder;
 
     @Transactional(readOnly = true)
