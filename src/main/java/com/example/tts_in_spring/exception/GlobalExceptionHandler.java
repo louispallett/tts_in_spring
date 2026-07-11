@@ -80,6 +80,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
 
+    @ExceptionHandler(EmailServiceException.class)
+    public ResponseEntity<String> handleEmailServiceException(EmailServiceException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
+    }
+
     // 500 - Seeding algorithm specific error
     @ExceptionHandler(SeedingAlgorithmException.class)
     public ResponseEntity<String> handleSeedingAlgorithmException(SeedingAlgorithmException ex) {
