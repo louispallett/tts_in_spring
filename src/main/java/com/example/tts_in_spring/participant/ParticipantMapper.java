@@ -5,11 +5,27 @@ import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
 public interface ParticipantMapper {
-    @Mapping(target = "name", source = "player.user.fullName")
+    @Mapping(target = "name", expression = "java(getParticipantName(participant))")
     ParticipantResponse toResponse(Participant participant);
 
-    @Mapping(target = "name", source = "player.user.fullName")
+    @Mapping(target = "name", expression = "java(getParticipantName(participant))")
     ParticipantResponseLite toResponseLite(Participant participant);
+
+    default String getParticipantName(Participant participant) {
+        if (participant.getPlayer() != null) {
+            return participant.getPlayer().getUser().getFullName();
+        }
+
+        if (participant.getTeam() != null) {
+            var players = participant.getTeam().getPlayers();
+
+            return players.getFirst().getUser().getFullName()
+                    + " and "
+                    + players.getLast().getUser().getFullName();
+        }
+
+        return null;
+    }
 
     @Mapping(target = "id", ignore = true)
     Participant toEntity(ParticipantRequest participantRequest);
