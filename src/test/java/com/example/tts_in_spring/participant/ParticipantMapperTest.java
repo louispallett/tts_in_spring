@@ -3,9 +3,7 @@ package com.example.tts_in_spring.participant;
 import com.example.tts_in_spring.participant.dto.ParticipantResponse;
 import com.example.tts_in_spring.participant.dto.ParticipantResponseLite;
 import com.example.tts_in_spring.player.PlayerTestBuilder;
-import com.example.tts_in_spring.team.TeamTestBuilder;
 import com.example.tts_in_spring.player.Player;
-import com.example.tts_in_spring.team.Team;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 
