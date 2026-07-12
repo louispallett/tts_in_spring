@@ -2,8 +2,11 @@ package com.example.tts_in_spring.match;
 
 import com.example.tts_in_spring.exception.ResourceNotFoundException;
 import com.example.tts_in_spring.exception.ForbiddenException;
+import com.example.tts_in_spring.participant.Participant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -24,8 +27,16 @@ public class MatchFinder {
     }
 
     public boolean isParticipant(Match match, Long userId) {
-        return match.getParticipants().stream()
-                .anyMatch(p -> p.getPlayer().getUser().getId().equals(userId));
+        if (match.getCategory().isDoubles()) {
+            return match.getParticipants().stream()
+                    .map(Participant::getTeam)
+                    .filter(Objects::nonNull)
+                    .anyMatch(team -> team.getPlayers().stream()
+                            .anyMatch(player -> player.getUser().getId().equals(userId)));
+        } else {
+            return match.getParticipants().stream()
+                    .anyMatch(p -> p.getPlayer().getUser().getId().equals(userId));
+        }
     }
 
     public void assertHost(Match match, Long userId) {
