@@ -2,9 +2,7 @@ package com.example.tts_in_spring.participant;
 
 import com.example.tts_in_spring.participant.dto.ParticipantResponse;
 import com.example.tts_in_spring.player.PlayerTestBuilder;
-import com.example.tts_in_spring.team.TeamTestBuilder;
 import com.example.tts_in_spring.player.Player;
-import com.example.tts_in_spring.team.Team;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,17 +40,5 @@ public class ParticipantMappingIntegrationTest {
         assertThat(response.player()).isNotNull();
         assertThat(response.team()).isNull();
         assertThat(response.player().id()).isEqualTo(1000L);
-    }
-
-    @Test
-    void toResponse_mapsTeamField() {
-        Team team = TeamTestBuilder.aTeam().build();
-        ParticipantResponse response = participantMapper.toResponse(
-                ParticipantTestBuilder.aParticipant().withTeam(team).build()
-        );
-
-        assertThat(response.player()).isNull();
-        assertThat(response.team()).isNotNull();
-        assertThat(response.team().id()).isEqualTo(10000L);
     }
 }

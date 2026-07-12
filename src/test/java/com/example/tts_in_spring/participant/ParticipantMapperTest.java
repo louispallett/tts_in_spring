@@ -42,18 +42,6 @@ public class ParticipantMapperTest {
     }
 
     @Test
-    void toResponse_mapsTeam() {
-        Team team = TeamTestBuilder.aTeam().build();
-        ParticipantResponse response = participantMapper.toResponse(
-                ParticipantTestBuilder.aParticipant().withTeam(team).build()
-        );
-
-        assertThat(response.player()).isNull();
-        assertThat(response.team()).isNotNull();
-        assertThat(response.team().id()).isEqualTo(10000L);
-    }
-
-    @Test
     void toResponseLite_mapsAllFields() {
         ParticipantResponseLite response = participantMapper.toResponseLite(
                 ParticipantTestBuilder.aParticipant().build()

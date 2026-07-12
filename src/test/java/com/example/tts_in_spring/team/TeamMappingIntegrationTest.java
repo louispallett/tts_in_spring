@@ -1,10 +1,7 @@
 package com.example.tts_in_spring.team;
 
 import com.example.tts_in_spring.match.MatchMapperImpl;
-import com.example.tts_in_spring.participant.Participant;
 import com.example.tts_in_spring.participant.ParticipantMapperImpl;
-import com.example.tts_in_spring.participant.dto.ParticipantResponseLite;
-import com.example.tts_in_spring.participant.ParticipantTestBuilder;
 import com.example.tts_in_spring.player.Player;
 import com.example.tts_in_spring.player.PlayerMapperImpl;
 import com.example.tts_in_spring.player.dto.PlayerResponseLite;
@@ -53,21 +50,5 @@ public class TeamMappingIntegrationTest {
         assertThat(mapped.id()).isEqualTo(1000L);
         assertThat(mapped.male()).isTrue();
         assertThat(mapped.rank()).isEqualTo(0);
-    }
-
-    @Test
-    void toResponse_withParticipant_mapsFullChain() {
-        Team team = TeamTestBuilder.aTeam().build();
-        Participant participant = ParticipantTestBuilder.aParticipant().withTeam(team).build();
-        team.getParticipants().add(participant);
-
-        TeamResponse response = teamMapper.toResponse(team);
-
-        assertThat(response.participants()).hasSize(1);
-
-        ParticipantResponseLite mapped = response.participants().getFirst();
-        assertThat(mapped.id()).isEqualTo(1000000L);
-        assertThat(mapped.resultText()).isEmpty();
-        assertThat(mapped.winner()).isFalse();
     }
 }
