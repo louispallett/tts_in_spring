@@ -41,7 +41,7 @@ public class User extends Base {
     private String mobile;
 
     @Column(nullable = false)
-    private boolean receivesEmails;
+    private boolean receivesEmails = true;
 
     @Column
     private Boolean deleted;
