@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "categories", schema = "public")
+@Table(name = "category", schema = "public")
 @Getter
 @Setter
 @NoArgsConstructor
