@@ -170,6 +170,7 @@ public class TeamService {
             PlayerResponse player2 = getPlayerResponse(categoryId, team.getLast());
 
             Team newTeamMapped = teamMapper.toEntity(new TeamRequest(categoryId));
+            newTeamMapped.setCategory(category);
             teamsFinal.add(newTeamMapped);
             Team newTeam = teamRepository.save(newTeamMapped);
 

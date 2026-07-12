@@ -1,8 +1,10 @@
 package com.example.tts_in_spring.team;
 
+import com.example.tts_in_spring.player.dto.PlayerResponse;
 import com.example.tts_in_spring.security.UserPrincipal;
 import com.example.tts_in_spring.team.dto.TeamRequest;
 import com.example.tts_in_spring.team.dto.TeamResponse;
+import com.example.tts_in_spring.team.dto.TeamsRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -42,13 +44,21 @@ public class TeamController {
     }
 
     @PostMapping("/{categoryId}/generate")
-    public ResponseEntity<?> generateTeams(
+    public ResponseEntity<List<List<PlayerResponse>>> generateTeams(
             @PathVariable Long categoryId,
             @AuthenticationPrincipal UserPrincipal user
     ) {
         return ResponseEntity.ok(teamService.generateTeams(categoryId, user.userId()));
     }
 
+    @PostMapping("/{categoryId}/save-all")
+    public ResponseEntity<List<TeamResponse>> saveAllTeams(
+            @PathVariable Long categoryId,
+            @Valid @RequestBody TeamsRequest teams,
+            @AuthenticationPrincipal UserPrincipal user
+    ) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(teamService.saveTeams(categoryId, teams, user.userId()));
+    }
 
     @DeleteMapping("/{id}/delete")
     public ResponseEntity<Void> delete(

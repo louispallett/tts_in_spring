@@ -3,6 +3,7 @@ package com.example.tts_in_spring.participant;
 import com.example.tts_in_spring.category.Category;
 import com.example.tts_in_spring.exception.GenericBadRequestException;
 import com.example.tts_in_spring.exception.ForbiddenException;
+import com.example.tts_in_spring.exception.TeamGenerationException;
 import com.example.tts_in_spring.match.Match;
 import com.example.tts_in_spring.match.MatchFinder;
 import com.example.tts_in_spring.participant.dto.*;
@@ -77,17 +78,15 @@ public class ParticipantService {
     }
 
     public List<Participant> generateParticipants(Category category) {
-        if (category.getPlayers().isEmpty() && category.getTeams().isEmpty()) {
-            throw new GenericBadRequestException("No players or teams");
-        }
-
-        if (!category.getPlayers().isEmpty() && !category.getTeams().isEmpty()) {
-            throw new GenericBadRequestException("Category has both teams and players");
-        }
+        if (category.getPlayers().isEmpty())
+            throw new GenericBadRequestException("No players");
 
         List<Participant> participants = new ArrayList<>();
 
         if (category.isDoubles()) {
+            if (category.getTeams().isEmpty())
+                throw new TeamGenerationException("No teams in doubles category");
+
             List<Team> teams = category.getTeams().stream().sorted(
                     Comparator.comparingInt(team ->
                             team.getPlayers().stream()
