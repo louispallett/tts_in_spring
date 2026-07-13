@@ -2,6 +2,7 @@ package com.example.tts_in_spring.match;
 
 import com.example.tts_in_spring.category.Category;
 import com.example.tts_in_spring.category.CategoryRepository;
+import com.example.tts_in_spring.category.Type;
 import com.example.tts_in_spring.tournament.Stage;
 import com.example.tts_in_spring.tournament.Tournament;
 import com.example.tts_in_spring.tournament.TournamentRepository;
@@ -47,7 +48,7 @@ class MatchRepositoryTest {
         tournamentRepository.save(tournament);
 
         category = new Category();
-        category.setName("Mens Singles");
+        category.setName(Type.MEN_SINGLES);
         category.setLocked(false);
         category.setDoubles(false);
         category.setTournament(tournament);

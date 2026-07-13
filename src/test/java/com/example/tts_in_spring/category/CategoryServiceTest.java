@@ -54,7 +54,7 @@ public class CategoryServiceTest {
     }
 
     private CategoryRequest buildCategoryRequest() {
-        return new CategoryRequest("Men's Singles", TournamentTestBuilder.aTournament().build().getId());
+        return new CategoryRequest(Type.MEN_SINGLES, TournamentTestBuilder.aTournament().build().getId());
     }
 
     private Category buildCategoryWithTournamentAndPlayers(Tournament tournament, User user) {

@@ -20,7 +20,7 @@ public class CategoryMapperTest {
         CategoryResponse response = categoryMapper.toResponse(CategoryTestBuilder.aCategory().build());
 
         assertThat(response.id()).isEqualTo(100L);
-        assertThat(response.name()).isEqualTo("Mens Singles");
+        assertThat(response.name()).isEqualTo("Men's Singles");
         assertThat(response.locked()).isFalse();
         assertThat(response.doubles()).isFalse();
         assertThat(response.tournament()).isNotNull();
@@ -33,7 +33,7 @@ public class CategoryMapperTest {
         CategoryResponseLite response = categoryMapper.toResponseLite(CategoryTestBuilder.aCategory().build());
 
         assertThat(response.id()).isEqualTo(100L);
-        assertThat(response.name()).isEqualTo("Mens Singles");
+        assertThat(response.name()).isEqualTo("Men's Singles");
         assertThat(response.doubles()).isFalse();
         assertThat(response.locked()).isFalse();
     }

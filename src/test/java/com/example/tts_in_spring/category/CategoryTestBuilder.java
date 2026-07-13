@@ -5,7 +5,7 @@ import com.example.tts_in_spring.tournament.Tournament;
 
 public class CategoryTestBuilder {
     private Long id = 100L;
-    private final String name = "Mens Singles";
+    private final Type name = Type.MEN_SINGLES;
     private final boolean locked = false;
     private final boolean doubles = false;
     private Tournament tournament = TournamentTestBuilder.aTournament().build();

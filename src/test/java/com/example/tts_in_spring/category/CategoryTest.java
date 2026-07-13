@@ -20,12 +20,12 @@ public class CategoryTest {
         Category category = new Category();
         Tournament tournament = new Tournament();
 
-        category.setName("Mens Singles");
+        category.setName(Type.MEN_SINGLES);
         category.setDoubles(false);
         category.setLocked(false);
         category.setTournament(tournament);
 
-        assertThat(category.getName()).isEqualTo("Mens Singles");
+        assertThat(category.getName()).isEqualTo(Type.MEN_SINGLES);
         assertThat(category.isDoubles()).isFalse();
         assertThat(category.isLocked()).isFalse();
         assertThat(category.getTournament()).isSameAs(tournament);

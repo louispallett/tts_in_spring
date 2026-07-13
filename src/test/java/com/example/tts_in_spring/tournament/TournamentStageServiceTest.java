@@ -2,6 +2,7 @@ package com.example.tts_in_spring.tournament;
 
 import com.example.tts_in_spring.category.Category;
 import com.example.tts_in_spring.category.CategoryTestBuilder;
+import com.example.tts_in_spring.category.Type;
 import com.example.tts_in_spring.player.PlayerTestBuilder;
 import com.example.tts_in_spring.player.Player;
 import com.example.tts_in_spring.tournament.dto.ValidateResponse;
@@ -24,7 +25,7 @@ public class TournamentStageServiceTest {
     @InjectMocks
     private TournamentStageService tournamentStageService;
 
-    Category buildCategoryToValidate(int playerN, int maleN, boolean doubles, String name) {
+    Category buildCategoryToValidate(int playerN, int maleN, boolean doubles, Type name) {
         Category category = CategoryTestBuilder.aCategory().build();
         category.setName(name);
         category.setDoubles(doubles);
@@ -46,11 +47,11 @@ public class TournamentStageServiceTest {
     @Test
     void validate_whenValidAllCategories_returnsValidResponse() {
         Tournament tournament = TournamentTestBuilder.aTournament().build();
-        Category maleSingles = buildCategoryToValidate(4, 4, false, "Mens Singles");
-        Category femaleSingles = buildCategoryToValidate(4, 0, false, "Womens Singles");
-        Category maleDoubles = buildCategoryToValidate(8, 8, true, "Mens Doubles");
-        Category femaleDoubles = buildCategoryToValidate(8, 0, true, "Womens Doubles");
-        Category mixDoubles = buildCategoryToValidate(16, 8, true, "Mixed Doubles");
+        Category maleSingles = buildCategoryToValidate(4, 4, false, Type.MEN_SINGLES);
+        Category femaleSingles = buildCategoryToValidate(4, 0, false, Type.WOMEN_SINGLES);
+        Category maleDoubles = buildCategoryToValidate(8, 8, true, Type.MEN_DOUBLES);
+        Category femaleDoubles = buildCategoryToValidate(8, 0, true, Type.WOMEN_DOUBLES);
+        Category mixDoubles = buildCategoryToValidate(16, 8, true, Type.MIXED_DOUBLES);
         tournament.setCategories(List.of(maleSingles, femaleSingles, maleDoubles, femaleDoubles, mixDoubles));
 
         ValidateResponse response = new ValidateResponse(true, true, true, true);
@@ -63,11 +64,11 @@ public class TournamentStageServiceTest {
     @Test
     void validate_whenInvalidAllCategories_returnsInvalidResponse() {
         Tournament tournament = TournamentTestBuilder.aTournament().build();
-        Category maleSingles = buildCategoryToValidate(9, 9, false, "Mens Singles");
-        Category femaleSingles = buildCategoryToValidate(3, 0, false, "Womens Singles");
-        Category maleDoubles = buildCategoryToValidate(9, 9, true, "Mens Doubles");
-        Category femaleDoubles = buildCategoryToValidate(6, 0, true, "Womens Doubles");
-        Category mixDoubles = buildCategoryToValidate(18, 8, true, "Mixed Doubles");
+        Category maleSingles = buildCategoryToValidate(9, 9, false, Type.MEN_SINGLES);
+        Category femaleSingles = buildCategoryToValidate(3, 0, false, Type.WOMEN_SINGLES);
+        Category maleDoubles = buildCategoryToValidate(9, 9, true, Type.MEN_DOUBLES);
+        Category femaleDoubles = buildCategoryToValidate(6, 0, true, Type.WOMEN_DOUBLES);
+        Category mixDoubles = buildCategoryToValidate(18, 8, true, Type.MIXED_DOUBLES);
         tournament.setCategories(List.of(maleSingles, femaleSingles, maleDoubles, femaleDoubles, mixDoubles));
 
         ValidateResponse response = new ValidateResponse(false, false, false, false);
@@ -80,7 +81,7 @@ public class TournamentStageServiceTest {
     @Test
     void validate_whenValidSingleCategory_returnsValidResponse() {
         Tournament tournament = TournamentTestBuilder.aTournament().build();
-        Category maleSingles = buildCategoryToValidate(9, 9, false, "Mens Singles");
+        Category maleSingles = buildCategoryToValidate(9, 9, false, Type.MEN_SINGLES);
         tournament.getCategories().add(maleSingles);
 
         ValidateResponse response = new ValidateResponse(true, true, true, true);
@@ -93,7 +94,7 @@ public class TournamentStageServiceTest {
     @Test
     void validate_whenInvalidSingleCategory_returnsInvalidResponse() {
         Tournament tournament = TournamentTestBuilder.aTournament().build();
-        Category mixDoubles = buildCategoryToValidate(18, 8, true, "Mixed Doubles");
+        Category mixDoubles = buildCategoryToValidate(18, 8, true, Type.MIXED_DOUBLES);
         tournament.getCategories().add(mixDoubles);
 
         ValidateResponse response = new ValidateResponse(true, true, true, false);

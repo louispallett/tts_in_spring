@@ -2,6 +2,7 @@ package com.example.tts_in_spring.team;
 
 import com.example.tts_in_spring.category.Category;
 import com.example.tts_in_spring.category.CategoryFinder;
+import com.example.tts_in_spring.category.Type;
 import com.example.tts_in_spring.category.dto.CategoryResponseLite;
 import com.example.tts_in_spring.category.CategoryTestBuilder;
 import com.example.tts_in_spring.exception.ForbiddenException;
@@ -166,7 +167,7 @@ public class TeamServiceTest {
                             null,
                             new CategoryResponseLite(
                                     player.getCategory().getId(),
-                                    player.getCategory().getName(),
+                                    player.getCategory().getName().getDisplayName(),
                                     player.getCategory().isDoubles(),
                                     player.getCategory().isLocked()
                             ),
@@ -211,7 +212,7 @@ public class TeamServiceTest {
     @Test
     void generateTeams_forMixed_returnsExpected() {
         Category category = CategoryTestBuilder.aCategory().build();
-        category.setName("Mixed Doubles");
+        category.setName(Type.MIXED_DOUBLES);
         category.setDoubles(true);
 
         for (long i = 1; i <= 8; i++) {

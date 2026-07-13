@@ -49,7 +49,7 @@ public class CategoryRepositoryTest {
     @Test
     void save_savesCategorySuccessfully() {
         Category category = new Category();
-        category.setName("Mens Singles");
+        category.setName(Type.MEN_SINGLES);
         category.setLocked(false);
         category.setDoubles(false);
         category.setTournament(tournament);
@@ -57,7 +57,7 @@ public class CategoryRepositoryTest {
         Category saved = categoryRepository.save(category);
 
         assertThat(saved.getId()).isNotNull();
-        assertThat(saved.getName()).isEqualTo("Mens Singles");
+        assertThat(saved.getName()).isEqualTo(Type.MEN_SINGLES);
         assertThat(saved.getTournament()).isSameAs(tournament);
         assertThat(saved.isLocked()).isFalse();
         assertThat(saved.isDoubles()).isFalse();
@@ -82,7 +82,7 @@ public class CategoryRepositoryTest {
     @Test
     void save_persistsRelationships() {
         Category category = new Category();
-        category.setName("Mens Singles");
+        category.setName(Type.MEN_SINGLES);
         category.setLocked(false);
         category.setDoubles(false);
         category.setTournament(tournament);
