@@ -1,0 +1,8 @@
+package com.example.tts_in_spring.config;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
+@ConfigurationProperties(prefix = "app")
+public record AppProperties(
+        String frontendUrl
+) {}

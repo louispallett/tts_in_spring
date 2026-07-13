@@ -1,7 +1,9 @@
 package com.example.tts_in_spring.auth;
 
 import com.example.tts_in_spring.auth.dto.AuthResponse;
+import com.example.tts_in_spring.auth.dto.ForgotPasswordRequest;
 import com.example.tts_in_spring.auth.dto.LoginRequest;
+import com.example.tts_in_spring.auth.dto.ResetPasswordRequest;
 import com.example.tts_in_spring.security.JwtUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -61,5 +63,21 @@ public class AuthController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body(new AuthResponse(token));
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Void> forgotPassword(
+            @RequestBody @Valid ForgotPasswordRequest request
+    ) {
+        authService.requestPasswordReset(request.email());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Void> resetPassword(
+            @RequestBody @Valid ResetPasswordRequest request
+    ) {
+        authService.resetPassword(request.token(), request.newPassword());
+        return ResponseEntity.ok().build();
     }
 }
