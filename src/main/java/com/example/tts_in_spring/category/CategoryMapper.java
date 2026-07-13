@@ -15,6 +15,10 @@ public interface CategoryMapper {
 
     CategoryResponseLite toResponseLite(Category category);
 
+    default String map(Type type) {
+        return type == null ? null : type.getDisplayName();
+    }
+
     @Mapping(target = "id", ignore = true)
     Category toEntity(CategoryRequest request);
 

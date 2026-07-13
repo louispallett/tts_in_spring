@@ -1,6 +1,7 @@
 package com.example.tts_in_spring.tournament;
 
 import com.example.tts_in_spring.category.Category;
+import com.example.tts_in_spring.category.Type;
 import com.example.tts_in_spring.exception.IllegalStageException;
 import com.example.tts_in_spring.match.Match;
 import com.example.tts_in_spring.match.State;
@@ -44,7 +45,7 @@ public class TournamentStageService {
                     singlesHaveFourPlayers = false;
                 }
             }
-            if (category.getName().equals("Mixed Doubles")) {
+            if (category.getName().equals(Type.MIXED_DOUBLES)) {
                 Long males = category.getPlayers().stream().filter(Player::isMale).count();
                 Long females = category.getPlayers().size() - males;
 

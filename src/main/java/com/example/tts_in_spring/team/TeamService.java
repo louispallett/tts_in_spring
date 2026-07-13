@@ -2,6 +2,7 @@ package com.example.tts_in_spring.team;
 
 import com.example.tts_in_spring.category.Category;
 import com.example.tts_in_spring.category.CategoryFinder;
+import com.example.tts_in_spring.category.Type;
 import com.example.tts_in_spring.exception.ForbiddenException;
 import com.example.tts_in_spring.exception.GenericBadRequestException;
 import com.example.tts_in_spring.exception.TeamGenerationException;
@@ -142,7 +143,7 @@ public class TeamService {
 
         List<List<Player>> teams;
 
-        if (category.getName().equals("Mixed Doubles")) {
+        if (category.getName().equals(Type.MIXED_DOUBLES)) {
             teams = generateMixed(category.getPlayers());
         } else {
             teams = generateDoubles(category.getPlayers());

@@ -4,6 +4,7 @@ import com.example.tts_in_spring.category.dto.CategoryLockedUpdateRequest;
 import com.example.tts_in_spring.category.dto.CategoryRequest;
 import com.example.tts_in_spring.category.dto.CategoryResponse;
 import com.example.tts_in_spring.category.dto.CategoryResponseLite;
+import com.example.tts_in_spring.exception.ConflictException;
 import com.example.tts_in_spring.exception.ForbiddenException;
 import com.example.tts_in_spring.tournament.Tournament;
 import com.example.tts_in_spring.tournament.TournamentFinder;
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -48,20 +50,22 @@ public class CategoryService {
     @Transactional
     public CategoryResponseLite createCategory(CategoryRequest categoryRequest, Long userId) {
         Tournament tournament = tournamentFinder.getTournamentOrThrow(categoryRequest.tournamentId());
+        tournamentFinder.assertHost(tournament, userId);
 
-        if (tournament.getHost().getId().equals(userId)) {
-            Category category = categoryMapper.toEntity(categoryRequest);
-            category.setTournament(tournament);
-            category.setLocked(false);
+        Optional<Category> categoryExists = categoryRepository.findCategoryByTournamentIdAndName(tournament.getId(), categoryRequest.name());
 
-            category.setDoubles(!Objects.equals(categoryRequest.name(), "Men's Singles")
-                    && !Objects.equals(categoryRequest.name(), "Women's Singles"));
+        if (categoryExists.isPresent())
+            throw new ConflictException("Category of this type already exists in " + tournament.getName());
 
-            Category savedCategory = categoryRepository.save(category);
-            return categoryMapper.toResponseLite(savedCategory);
-        }
+        Category category = categoryMapper.toEntity(categoryRequest);
+        category.setTournament(tournament);
+        category.setLocked(false);
 
-        throw new ForbiddenException();
+        category.setDoubles(!Objects.equals(categoryRequest.name(), Type.MEN_SINGLES)
+                && !Objects.equals(categoryRequest.name(), Type.WOMEN_SINGLES));
+
+        Category savedCategory = categoryRepository.save(category);
+        return categoryMapper.toResponseLite(savedCategory);
     }
 
     @Transactional

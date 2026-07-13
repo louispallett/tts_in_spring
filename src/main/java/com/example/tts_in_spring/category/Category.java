@@ -19,8 +19,9 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class Category extends Base {
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String name;
+    private Type name;
 
     @Column(nullable = false)
     private boolean locked;

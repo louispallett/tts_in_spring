@@ -1,5 +1,6 @@
 package com.example.tts_in_spring.tournament;
 
+import com.example.tts_in_spring.category.Type;
 import com.example.tts_in_spring.category.dto.CategoryRequest;
 import com.example.tts_in_spring.category.CategoryService;
 import com.example.tts_in_spring.exception.ForbiddenException;
@@ -88,23 +89,23 @@ public class TournamentService {
         Tournament savedTournament = tournamentRepository.save(newTournament);
 
         if (request.men_singles()) categoryService.createCategory(
-                new CategoryRequest("Men's Singles", savedTournament.getId()), userId
+                new CategoryRequest(Type.MEN_SINGLES, savedTournament.getId()), userId
         );
 
         if (request.men_doubles()) categoryService.createCategory(
-                new CategoryRequest("Men's Doubles", savedTournament.getId()), userId
+                new CategoryRequest(Type.MEN_DOUBLES, savedTournament.getId()), userId
         );
 
         if (request.women_singles()) categoryService.createCategory(
-                new CategoryRequest("Women's Singles", savedTournament.getId()), userId
+                new CategoryRequest(Type.WOMEN_SINGLES, savedTournament.getId()), userId
         );
 
         if (request.women_doubles()) categoryService.createCategory(
-                new CategoryRequest("Women's Doubles", savedTournament.getId()), userId
+                new CategoryRequest(Type.WOMEN_DOUBLES, savedTournament.getId()), userId
         );
 
         if (request.mix_doubles()) categoryService.createCategory(
-                new CategoryRequest("Mixed Doubles", savedTournament.getId()), userId
+                new CategoryRequest(Type.MIXED_DOUBLES, savedTournament.getId()), userId
         );
 
         return tournamentMapper.toResponseLite(savedTournament);
