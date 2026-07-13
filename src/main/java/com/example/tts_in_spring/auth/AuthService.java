@@ -61,16 +61,21 @@ public class AuthService {
         token.setExpiresAt(Instant.now().plus(30, ChronoUnit.MINUTES));
         passwordResetTokenRepository.save(token);
 
+        String html = """
+                <p>Dear <b>%s</b>,</p>
+                <p>Please click <a href="%s/reset-password?token=%s">here</a> to reset your password.</p>
+                """
+                .formatted(
+                        user.getFirstName(),
+                        appProperties.frontendUrl(),
+                        rawToken
+                );
+
         try {
             emailerService.sendEmail(
                     email,
                     "Password Reset Request",
-                    "Dear " + user.getFirstName()
-                            + ",\nPlease click <a href\""
-                            + appProperties.frontendUrl()
-                            + "/reset-password?token="
-                            + rawToken
-                            + "\">here</a> to reset your password."
+                    html
             );
         } catch (ResendException e) {
             log.error("Failed to send password reset email to user {}", user.getId(), e);
