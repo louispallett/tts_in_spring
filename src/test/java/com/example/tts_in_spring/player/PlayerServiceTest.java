@@ -50,6 +50,8 @@ public class PlayerServiceTest {
                 false,
                 false,
                 0,
+                "+44",
+                "1234567890",
                 new UserResponseLite(2L, "John", "Doe"),
                 null,
                 new CategoryResponseLite(100L, "Mens Singles", false, false),
@@ -60,6 +62,8 @@ public class PlayerServiceTest {
     private PlayerRequest buildPlayerRequest(Category category) {
         return new PlayerRequest(
             true,
+            "+44",
+            "1234567890",
             category.getId()
         );
     }

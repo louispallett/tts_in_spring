@@ -42,6 +42,7 @@ class PlayerRepositoryTest {
         user.setFirstName("Simon");
         user.setLastName("Smith");
         user.setEmail("simon.smith@example.com");
+        user.setDeleted(false);
         userRepository.save(host);
 
         Tournament tournament = new Tournament();
@@ -68,6 +69,8 @@ class PlayerRepositoryTest {
         player.setMale(true);
         player.setSeeded(false);
         player.setRank(3);
+        player.setMobCode("+44");
+        player.setMobile("1234567890");
         player.setUser(user);
         player.setCategory(category);
 
@@ -77,6 +80,8 @@ class PlayerRepositoryTest {
        assertThat(saved.isMale()).isTrue();
        assertThat(saved.isSeeded()).isFalse();
        assertThat(saved.getRank()).isEqualTo(3);
+       assertThat(saved.getMobCode()).isEqualTo("+44");
+       assertThat(saved.getMobile()).isEqualTo("1234567890");
        assertThat(saved.getUser()).isSameAs(user);
        assertThat(saved.getCategory()).isSameAs(category);
     }
@@ -102,6 +107,8 @@ class PlayerRepositoryTest {
         player.setMale(true);
         player.setSeeded(false);
         player.setRank(3);
+        player.setMobCode("+44");
+        player.setMobile("1234567890");
         player.setUser(user);
         player.setCategory(category);
 

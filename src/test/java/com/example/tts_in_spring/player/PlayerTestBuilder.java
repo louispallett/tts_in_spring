@@ -11,6 +11,8 @@ public class PlayerTestBuilder {
     private final boolean male = true;
     private final boolean seeded = false;
     private final int rank = 0;
+    private final String mobCode = "+44";
+    private final String mobile = "1234567890";
     private User user = UserTestBuilder.aUser().withId(2L).build();
     private Category category = CategoryTestBuilder.aCategory().build();
     private Team team = null;
@@ -45,6 +47,8 @@ public class PlayerTestBuilder {
         player.setMale(male);
         player.setSeeded(seeded);
         player.setRank(rank);
+        player.setMobCode(mobCode);
+        player.setMobile(mobile);
         player.setUser(user);
         player.setCategory(category);
         player.setTeam(team);

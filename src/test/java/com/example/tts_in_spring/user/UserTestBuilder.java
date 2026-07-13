@@ -19,8 +19,6 @@ public class UserTestBuilder {
     private String firstName = "John";
     private String lastName = "Doe";
     private String email = "john.doe@example.com";
-    private String mobCode = "+44";
-    private String mobile = "1234567890";
     private boolean recievesEmails = false;
     private String password = "Hello123!";
     private List<Tournament> tournaments = new ArrayList<>();
@@ -66,8 +64,6 @@ public class UserTestBuilder {
         user.setFirstName(firstName);
         user.setLastName(lastName);
         user.setEmail(email);
-        user.setMobCode(mobCode);
-        user.setMobile(mobile);
         user.setReceivesEmails(recievesEmails);
         user.setPassword(password);
         user.setTournaments(tournaments);

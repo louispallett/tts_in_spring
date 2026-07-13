@@ -121,7 +121,6 @@ public class TournamentService {
         return tournamentMapper.toResponseLite(savedTournament);
     }
 
-
     @Transactional
     public TournamentResponseLite updateShowMobile(Long id, TournamentShowMobileUpdateRequest request, Long userId) {
         Tournament existingTournament = tournamentFinder.getTournamentOrThrow(id);

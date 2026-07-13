@@ -25,8 +25,6 @@ class UserMapperTest {
         assertThat(response.firstName()).isEqualTo("John");
         assertThat(response.lastName()).isEqualTo("Doe");
         assertThat(response.email()).isEqualTo("john.doe@example.com");
-        assertThat(response.mobCode()).isEqualTo("+44");
-        assertThat(response.mobile()).isEqualTo("1234567890");
     }
 
     @Test
@@ -44,9 +42,7 @@ class UserMapperTest {
             "John",
             "Doe",
             "john.doe@example.com",
-            "Hello123!",
-            "+44",
-            "1234567890"
+            "Hello123!"
         );
 
         User user = userMapper.toEntity(request);
@@ -55,8 +51,6 @@ class UserMapperTest {
 
         assertThat(user.getFirstName()).isEqualTo("John");
         assertThat(user.getLastName()).isEqualTo("Doe");
-        assertThat(user.getMobCode()).isEqualTo("+44");
-        assertThat(user.getMobile()).isEqualTo("1234567890");
 
         assertThat(user.getId()).isNull();
         assertThat(user.getEmail()).isNull();
@@ -70,9 +64,7 @@ class UserMapperTest {
         UserUpdateRequest request = new UserUpdateRequest(
             "Simon",
             "Smith",
-            "simon.smith@example.com",
-            "+1",
-            "987654321"
+            "simon.smith@example.com"
         );
 
         userMapper.updateEntity(request, user);
@@ -80,9 +72,6 @@ class UserMapperTest {
         assertThat(user.getFirstName()).isEqualTo("Simon");
         assertThat(user.getLastName()).isEqualTo("Smith");
         assertThat(user.getEmail()).isEqualTo("simon.smith@example.com");
-        assertThat(user.getMobCode()).isEqualTo("+1");
-        assertThat(user.getMobile()).isEqualTo("987654321");
-
         assertThat(user.getId()).isEqualTo(1L);
         assertThat(user.getPassword()).isEqualTo("Hello123!");
     }

@@ -9,10 +9,8 @@ public class BuildUser {
                 "Doe",
                 "john.doe@example.com",
                 "secret",
-                "44",
-                "123456789",
                 false,
-                null,
+                false,
                 null,
                 List.of(),
                 List.of()

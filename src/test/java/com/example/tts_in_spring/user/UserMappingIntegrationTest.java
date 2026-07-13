@@ -40,8 +40,6 @@ class UserMappingIntegrationTest {
         assertThat(response.firstName()).isEqualTo("John");
         assertThat(response.lastName()).isEqualTo("Doe");
         assertThat(response.email()).isEqualTo("john.doe@example.com");
-        assertThat(response.mobCode()).isEqualTo("+44");
-        assertThat(response.mobile()).isEqualTo("1234567890");
     }
 
     @Test

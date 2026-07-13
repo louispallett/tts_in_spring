@@ -58,6 +58,7 @@ class ParticipantRepositoryTest {
         user.setFirstName("Simon");
         user.setLastName("Smith");
         user.setEmail("simon.smith@example.com");
+        user.setDeleted(false);
         userRepository.save(host);
         userRepository.save(user);
 
@@ -84,6 +85,8 @@ class ParticipantRepositoryTest {
         player.setMale(true);
         player.setSeeded(false);
         player.setRank(3);
+        player.setMobCode("+44");
+        player.setMobile("1234567890");
         player.setUser(user);
         player.setCategory(category);
         player.setTeam(team);

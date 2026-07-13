@@ -16,12 +16,16 @@ public class PlayerTest {
        player.setMale(true);
        player.setRank(2);
        player.setSeeded(false);
+       player.setMobCode("+44");
+       player.setMobile("1234567890");
        player.setUser(user);
        player.setCategory(category);
 
        assertThat(player.isMale()).isTrue();
        assertThat(player.getRank()).isEqualTo(2);
        assertThat(player.isSeeded()).isFalse();
+       assertThat(player.getMobCode()).isEqualTo("+44");
+       assertThat(player.getMobile()).isEqualTo("1234567890");
        assertThat(player.getUser()).isSameAs(user);
        assertThat(player.getCategory()).isSameAs(category);
    }

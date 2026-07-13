@@ -35,6 +35,8 @@ public class PlayerMappingIntegrationTest {
         assertThat(response.male()).isTrue();
         assertThat(response.seeded()).isFalse();
         assertThat(response.rank()).isEqualTo(0);
+        assertThat(response.mobCode()).isEqualTo("+44");
+        assertThat(response.mobile()).isEqualTo("1234567890");
         assertThat(response.user()).isNotNull();
         assertThat(response.user().id()).isEqualTo(2L);
         assertThat(response.category()).isNotNull();

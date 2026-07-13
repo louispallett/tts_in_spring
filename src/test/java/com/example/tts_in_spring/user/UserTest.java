@@ -23,8 +23,6 @@ class UserTest {
                 "Doe",
                 "john@example.com",
                 "secret",
-                "44",
-                "123456789",
                 false,
                 null,
                 null,
@@ -36,8 +34,6 @@ class UserTest {
         assertThat(user.getLastName()).isEqualTo("Doe");
         assertThat(user.getEmail()).isEqualTo("john@example.com");
         assertThat(user.getPassword()).isEqualTo("secret");
-        assertThat(user.getMobCode()).isEqualTo("44");
-        assertThat(user.getMobile()).isEqualTo("123456789");
     }
 
     @Test
@@ -47,8 +43,6 @@ class UserTest {
         user.setLastName("Doe");
         user.setEmail("john@example.com");
         user.setPassword("secret");
-        user.setMobCode("44");
-        user.setMobile("123456789");
 
         String json = objectMapper.writeValueAsString(user);
 
@@ -59,9 +53,7 @@ class UserTest {
                   "firstName": "John",
                   "lastName": "Doe",
                   "email": "john@example.com",
-                  "password": "secret",
-                  "mobCode": "44",
-                  "mobile": "123456789"
+                  "password": "secret"
                 }
                 """;
 

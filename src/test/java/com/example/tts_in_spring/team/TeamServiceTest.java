@@ -156,6 +156,8 @@ public class TeamServiceTest {
                             player.isMale(),
                             player.isSeeded(),
                             player.getRank(),
+                            player.getMobCode(),
+                            player.getMobile(),
                             new UserResponseLite(
                                     player.getUser().getId(),
                                     player.getUser().getFirstName(),

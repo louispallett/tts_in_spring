@@ -43,8 +43,6 @@ public class UserServiceTest {
                 "John",
                 "Doe",
                 "john.doe@example.com",
-                "+44",
-                "1234567890",
                 null,
                 null
         );
@@ -55,9 +53,7 @@ public class UserServiceTest {
             " John ",
             " Doe ",
             "john.doe@example.com",
-            "Hello123!",
-            "+44",
-            "123456789"
+            "Hello123!"
         );
     }
 
@@ -133,9 +129,7 @@ public class UserServiceTest {
         UserUpdateRequest request = new UserUpdateRequest(
             "Simon",
             "Smith",
-            "Simon.Smith@example.com",
-                user.getMobCode(),
-                user.getMobile()
+            "Simon.Smith@example.com"
         );
 
         User updatedUser = UserTestBuilder.aUser()
