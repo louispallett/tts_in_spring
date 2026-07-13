@@ -30,12 +30,12 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserById(principal.userId()));
     }
 
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<?> createUser(@Valid @RequestBody UserRequest userRequest) {
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(userRequest));
     }
 
-    @PutMapping("/me/update-details")
+    @PutMapping("/update-details")
     public ResponseEntity<UserResponseLite> updateDetails(
             @Valid @RequestBody UserUpdateRequest request,
             @AuthenticationPrincipal UserPrincipal principal)
@@ -43,7 +43,7 @@ public class UserController {
         return ResponseEntity.ok(userService.updateDetails(principal.userId(), request));
     }
 
-    @PutMapping("/me/update-email-preferences")
+    @PutMapping("/update-email-preferences")
     public ResponseEntity<UserResponseLite> updateEmailPreferences(
             @Valid @RequestBody UserEmailPreferencesRequest request,
             @AuthenticationPrincipal UserPrincipal principal
@@ -51,7 +51,7 @@ public class UserController {
         return ResponseEntity.ok(userService.updateEmailPreferences(principal.userId(), request));
     }
 
-    @PatchMapping("/me/update-password")
+    @PatchMapping("/update-password")
     public ResponseEntity<UserResponseLite> updatePassword(
             @Valid @RequestBody UserUpdatePasswordRequest request,
             @AuthenticationPrincipal UserPrincipal principal
@@ -59,7 +59,7 @@ public class UserController {
         return ResponseEntity.ok(userService.updatePassword(principal.userId(), request));
     }
 
-    @DeleteMapping("/me/delete")
+    @DeleteMapping
     public ResponseEntity<Void> deleteUser(
             @AuthenticationPrincipal UserPrincipal principal
     ) {

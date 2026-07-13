@@ -35,7 +35,7 @@ public class TeamController {
         return ResponseEntity.ok(teamService.getTeamById(id, user.userId()));
     }
 
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<?> createTeam(
             @Valid @RequestBody TeamRequest teamRequest,
             @AuthenticationPrincipal UserPrincipal user
@@ -60,7 +60,7 @@ public class TeamController {
         return ResponseEntity.status(HttpStatus.CREATED).body(teamService.saveTeams(categoryId, teams, user.userId()));
     }
 
-    @DeleteMapping("/{id}/delete")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(
             @PathVariable Long id,
             @AuthenticationPrincipal UserPrincipal principal

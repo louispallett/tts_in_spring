@@ -32,7 +32,7 @@ public class PlayerController {
         return ResponseEntity.ok(playerService.getPlayerById(id, user.userId()));
     }
 
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<?> createPlayer(
             @Valid @RequestBody PlayerRequest playerRequest,
             @AuthenticationPrincipal UserPrincipal user
@@ -75,7 +75,7 @@ public class PlayerController {
         return ResponseEntity.ok(playerService.updateSeeded(id, request, user.userId()));
     }
 
-    @DeleteMapping("/{id}/delete")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(
             @PathVariable Long id,
             @AuthenticationPrincipal UserPrincipal user

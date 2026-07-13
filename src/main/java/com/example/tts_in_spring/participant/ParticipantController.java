@@ -5,6 +5,7 @@ import com.example.tts_in_spring.security.UserPrincipal;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,7 +18,7 @@ public class ParticipantController {
     private final ParticipantService participantService;
 
     @GetMapping
-    //@PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<ParticipantResponse>> getAllParticipants() {
         return ResponseEntity.ok(participantService.getAllParticipants());
     }

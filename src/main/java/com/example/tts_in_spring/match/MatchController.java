@@ -59,7 +59,7 @@ public class MatchController {
         return ResponseEntity.ok(matchService.updateDeadline(id, request, user.userId()));
     }
 
-    @DeleteMapping("/{id}/delete")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(
             @PathVariable Long id,
             @AuthenticationPrincipal UserPrincipal principal

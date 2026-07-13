@@ -34,7 +34,7 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.getCategoryById(id, user.userId()));
     }
 
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<?> createCategory(
             @RequestBody CategoryRequest categoryRequest,
             @AuthenticationPrincipal UserPrincipal user
@@ -51,7 +51,7 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.updateLocked(id, request, principal.userId()));
     }
 
-    @DeleteMapping("/{id}/delete")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(
             @PathVariable Long id,
             @AuthenticationPrincipal UserPrincipal principal

@@ -41,7 +41,7 @@ public class TournamentController {
         return ResponseEntity.ok(tournamentStageService.validate(id, user.userId()));
     }
 
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<?> createTournament(
             @RequestBody TournamentRequest tournamentRequest,
             @AuthenticationPrincipal UserPrincipal user
@@ -90,7 +90,7 @@ public class TournamentController {
         return ResponseEntity.ok(tournamentService.checkCode(request));
     }
 
-    @DeleteMapping("/{id}/delete")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(
             @PathVariable Long id,
             @AuthenticationPrincipal UserPrincipal principal

@@ -26,7 +26,7 @@ public class AuthController {
     private boolean secureCookie;
 
     // For browser requests
-    @PostMapping("/login")
+    @PostMapping
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest) {
         Long userId = authService.login(loginRequest);
         String token = jwtUtil.generateToken(userId);
@@ -45,7 +45,7 @@ public class AuthController {
     }
 
     // For curl/app requests which require the token
-    @PostMapping("/login/token")
+    @PostMapping("/token")
     public ResponseEntity<?> loginReturnToken(@Valid @RequestBody LoginRequest loginRequest) {
         Long userId = authService.login(loginRequest);
         String token = jwtUtil.generateToken(userId);
