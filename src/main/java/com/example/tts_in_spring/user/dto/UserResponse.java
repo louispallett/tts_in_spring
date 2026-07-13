@@ -10,8 +10,6 @@ public record UserResponse(
         String firstName,
         String lastName,
         String email,
-        String mobCode,
-        String mobile,
         List<TournamentResponseLite> tournaments,
         List<PlayerResponseLite> players
 ) {}

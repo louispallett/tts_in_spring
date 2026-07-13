@@ -39,8 +39,6 @@ public class UserService {
     public UserResponseLite createUser(UserRequest userRequest) {
         String firstName = userRequest.firstName().trim();
         String lastName = userRequest.lastName().trim();
-        String mobCode = userRequest.mobCode().trim();
-        String mobile = userRequest.mobile().trim();
         String email = userRequest.email().trim().toLowerCase(Locale.ROOT);
 
         if (userRepository.findByEmail(email).isPresent()) {
@@ -51,8 +49,6 @@ public class UserService {
         newUser.setFirstName(firstName);
         newUser.setLastName(lastName);
         newUser.setEmail(email);
-        newUser.setMobCode(mobCode);
-        newUser.setMobile(mobile);
         newUser.setPassword(passwordEncoder.encode(userRequest.password()));
 
         User savedUser = userRepository.save(newUser);
@@ -116,8 +112,6 @@ public class UserService {
         user.setFirstName("Deleted");
         user.setLastName("User");
         user.setEmail(UUID.randomUUID() + "@deleted.local");
-        user.setMobile("");
-        user.setMobCode("");
         user.setPassword("");
         user.setActive(false);
 

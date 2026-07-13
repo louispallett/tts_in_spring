@@ -22,11 +22,5 @@ public record UserRequest (
             regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]).{8,}$",
             message = "Password must be at least 8 characters and contain one uppercase letter, one lowercase letter, one number, and one special character"
     )
-    String password,
-    @NotBlank(message = "Mobile country code is required")
-    @Pattern(regexp = "\\+\\d{1,4}", message = "Mobile code must be in the format +XX or +XXX")
-    String mobCode,
-    @NotBlank(message = "Mobile number is required")
-    @Pattern(regexp = "\\d{7,15}", message = "Mobile number must be between 7 and 15 digits")
-    String mobile
+    String password
 ) {}

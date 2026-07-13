@@ -19,6 +19,8 @@ public interface PlayerMapper {
     @Mapping(target = "seeded", ignore = true)
     Player toEntity(PlayerRequest playerRequest);
 
+    void updateMobileEntity(PlayerUpdateMobileRequest request, @MappingTarget Player player);
+
     void updateRankEntity(PlayerUpdateRankRequest request, @MappingTarget Player player);
 
     void updateSeededEntity(PlayerUpdateSeededRequest request, @MappingTarget Player player);

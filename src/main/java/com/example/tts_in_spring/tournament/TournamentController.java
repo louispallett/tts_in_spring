@@ -17,6 +17,7 @@ import java.util.List;
 @RequestMapping("/api/tournament")
 public class TournamentController {
     private final TournamentService tournamentService;
+    private final TournamentStageService tournamentStageService;
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -37,7 +38,7 @@ public class TournamentController {
             @PathVariable Long id,
             @AuthenticationPrincipal UserPrincipal user
     ) {
-        return ResponseEntity.ok(tournamentService.validate(id, user.userId()));
+        return ResponseEntity.ok(tournamentStageService.validate(id, user.userId()));
     }
 
     @PostMapping("/create")
@@ -62,7 +63,7 @@ public class TournamentController {
             @PathVariable Long id,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
-        return ResponseEntity.ok(tournamentService.nextStage(id, principal.userId()));
+        return ResponseEntity.ok(tournamentStageService.nextStage(id, principal.userId()));
     }
 
     @PatchMapping("/{id}/previous-stage")
@@ -70,7 +71,7 @@ public class TournamentController {
             @PathVariable Long id,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
-        return ResponseEntity.ok(tournamentService.previousStage(id, principal.userId()));
+        return ResponseEntity.ok(tournamentStageService.previousStage(id, principal.userId()));
     }
 
     @PatchMapping("/{id}/update-showMobile")

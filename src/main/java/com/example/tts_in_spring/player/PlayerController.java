@@ -48,6 +48,15 @@ public class PlayerController {
         return ResponseEntity.status(HttpStatus.CREATED).body(playerService.joinTournament(request, user.userId()));
     }
 
+    @PatchMapping("{tournamentId}/update-mobile")
+    public ResponseEntity<List<PlayerResponse>> updateMobile(
+            @PathVariable Long tournamentId,
+            @Valid @RequestBody PlayerUpdateMobileRequest request,
+            @AuthenticationPrincipal UserPrincipal user
+    ) {
+        return ResponseEntity.ok(playerService.updateMobile(tournamentId, request, user.userId()));
+    }
+
     @PatchMapping("/{id}/update-rank")
     public ResponseEntity<PlayerResponseLite> updateRank(
             @PathVariable Long id,

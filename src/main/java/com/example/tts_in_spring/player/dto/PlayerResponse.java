@@ -13,6 +13,8 @@ public record PlayerResponse (
         Boolean male,
         Boolean seeded,
         int rank,
+        String mobCode,
+        String mobile,
         UserResponseLite user,
         TeamResponseLite team,
         CategoryResponseLite category,

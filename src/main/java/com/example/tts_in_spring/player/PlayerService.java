@@ -74,12 +74,33 @@ public class PlayerService {
         for (Long categoryId : request.categories()) {
             PlayerRequest playerRequest = new PlayerRequest(
                     request.male(),
+                    request.mobCode(),
+                    request.mobile(),
                     categoryId
             );
             players.add(createPlayer(playerRequest, userId));
         }
 
         return players;
+    }
+
+    @Transactional
+    public List<PlayerResponse> updateMobile(
+            Long tournamentId,
+            PlayerUpdateMobileRequest request,
+            Long userId
+    ) {
+        User user = userFinder.getUserOrThrow(userId);
+
+        List<Player> players = user.getPlayers().stream().filter(
+                p -> p.getCategory().getTournament().getId().equals(tournamentId)
+        ).toList();
+
+        for (Player player : players) {
+            playerMapper.updateMobileEntity(request, player);
+        }
+
+        return players.stream().map(playerMapper::toResponse).toList();
     }
 
     @Transactional
@@ -110,6 +131,16 @@ public class PlayerService {
 
         playerMapper.updateTeamEntity(request, player);
         return playerMapper.toResponseLite(player);
+    }
+
+    @Transactional
+    public void wipeMobiles(List<Category> categories) {
+        PlayerUpdateMobileRequest request = new PlayerUpdateMobileRequest("", "");
+        for (Category category : categories) {
+            for (Player player : category.getPlayers()) {
+                playerMapper.updateMobileEntity(request, player);
+            }
+        }
     }
 
     @Transactional

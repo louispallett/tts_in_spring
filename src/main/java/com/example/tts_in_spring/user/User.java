@@ -35,16 +35,10 @@ public class User extends Base {
     private String password;
 
     @Column(nullable = false)
-    private String mobCode;
-
-    @Column(nullable = false)
-    private String mobile;
-
-    @Column(nullable = false)
     private boolean receivesEmails = true;
 
-    @Column
-    private Boolean deleted;
+    @Column(nullable = false)
+    private Boolean deleted = false;
 
     @Column
     private Instant deletedAt;

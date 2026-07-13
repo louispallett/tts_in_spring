@@ -19,14 +19,20 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class Player extends Base {
-    @Column(name = "male", nullable = false)
+    @Column(nullable = false)
     private boolean male;
 
-    @Column(name = "seeded", nullable = false)
+    @Column(nullable = false)
     private boolean seeded;
 
-    @Column(name = "rank", nullable = false)
+    @Column(nullable = false)
     private int rank;
+
+    @Column(nullable = false)
+    private String mobCode;
+
+    @Column(nullable = false)
+    private String mobile;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -42,4 +48,8 @@ public class Player extends Base {
 
     @OneToMany(mappedBy = "player", fetch = FetchType.LAZY)
     private List<Participant> participants = new ArrayList<>();
+
+    public String getMobileNumber() {
+        return mobCode + " " + mobile;
+    }
 }

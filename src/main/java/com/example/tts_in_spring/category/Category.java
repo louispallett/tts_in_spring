@@ -19,13 +19,13 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class Category extends Base {
-    @Column(name = "name", nullable = false)
+    @Column(nullable = false)
     private String name;
 
-    @Column(name = "locked", nullable = false)
+    @Column(nullable = false)
     private boolean locked;
 
-    @Column(name = "doubles", nullable = false)
+    @Column(nullable = false)
     private boolean doubles;
 
     @ManyToOne
