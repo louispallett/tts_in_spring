@@ -19,8 +19,8 @@ public record UserRequest (
     // - .{8,} --> At least 8 characters total
     @NotBlank(message = "Password is required")
     @Pattern(
-            regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]).{8,}$",
-            message = "Password must be at least 8 characters and contain one uppercase letter, one lowercase letter, one number, and one special character"
+            regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]).{8,256}$",
+            message = "Password must be between 8 and 128 characters and contain one uppercase letter, one lowercase letter, one number, and one special character"
     )
     String password
 ) {}
