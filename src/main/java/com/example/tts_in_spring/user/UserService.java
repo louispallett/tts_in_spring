@@ -103,8 +103,8 @@ public class UserService {
     // Delete User route wipes user personal data from database whilst maintaining their row. This is critical to maintain
     // things like tournament and match results.
     @Transactional
-    public void delete(Long id) {
-        User user = userFinder.getUserOrThrow(id);
+    public void delete(DeleteRequest request, Long id) {
+        User user = userFinder.getUserByIdWithPasswordOrThrow(id, request.password());
 
         user.setDeleted(true);
         user.setDeletedAt(Instant.now());

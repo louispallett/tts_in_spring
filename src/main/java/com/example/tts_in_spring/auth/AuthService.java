@@ -4,11 +4,11 @@ import com.example.tts_in_spring.auth.dto.LoginRequest;
 import com.example.tts_in_spring.config.AppProperties;
 import com.example.tts_in_spring.emailer.EmailerService;
 import com.example.tts_in_spring.exception.InvalidTokenException;
-import com.example.tts_in_spring.exception.UnauthorizedException;
 import com.example.tts_in_spring.password_reset_token.PasswordResetToken;
 import com.example.tts_in_spring.password_reset_token.PasswordResetTokenRepository;
 import com.example.tts_in_spring.password_reset_token.PasswordResetTokenService;
 import com.example.tts_in_spring.user.User;
+import com.example.tts_in_spring.user.UserFinder;
 import com.example.tts_in_spring.user.UserRepository;
 import com.resend.core.exception.ResendException;
 import lombok.RequiredArgsConstructor;
@@ -32,12 +32,11 @@ public class AuthService {
     private final PasswordResetTokenService passwordResetTokenService;
     private final EmailerService emailerService;
     private final AppProperties appProperties;
+    private final UserFinder userFinder;
 
     @Transactional(readOnly = true)
     public Long login(LoginRequest loginRequest) {
-        User user = userRepository.findByEmail(loginRequest.email().toLowerCase())
-                .filter(u -> passwordEncoder.matches(loginRequest.password(), u.getPassword()))
-                .orElseThrow(() -> new UnauthorizedException("Invalid Credentials"));
+        User user = userFinder.getUserByEmailWithPasswordOrThrow(loginRequest.email(), loginRequest.password());
 
         return user.getId();
     }

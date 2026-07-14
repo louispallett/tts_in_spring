@@ -61,9 +61,10 @@ public class UserController {
 
     @DeleteMapping
     public ResponseEntity<Void> deleteUser(
+            @Valid @RequestBody DeleteRequest request,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
-        userService.delete(principal.userId());
+        userService.delete(request, principal.userId());
         return ResponseEntity.noContent().build();
     }
 }
