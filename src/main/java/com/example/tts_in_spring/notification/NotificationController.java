@@ -27,6 +27,14 @@ public class NotificationController {
         throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED);
     }
 
+    @DeleteMapping
+    public ResponseEntity<Void> deleteAllNotifications(
+            @AuthenticationPrincipal UserPrincipal user
+    ) {
+        notificationService.deleteAll(user.userId());
+        return ResponseEntity.noContent().build();
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteNotification(
             @PathVariable Long id,
