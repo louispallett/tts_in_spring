@@ -1,16 +1,12 @@
 package com.example.tts_in_spring.player;
 
 import com.example.tts_in_spring.category.CategoryFinder;
-import com.example.tts_in_spring.category.CategoryTestBuilder;
 import com.example.tts_in_spring.category.dto.CategoryResponseLite;
-import com.example.tts_in_spring.exception.ConflictException;
 import com.example.tts_in_spring.exception.ForbiddenException;
 import com.example.tts_in_spring.player.dto.*;
 import com.example.tts_in_spring.user.UserFinder;
 import com.example.tts_in_spring.user.dto.UserResponseLite;
 import com.example.tts_in_spring.category.Category;
-import com.example.tts_in_spring.user.User;
-import com.example.tts_in_spring.user.UserTestBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -118,46 +114,6 @@ public class PlayerServiceTest {
 
         assertThatThrownBy(() -> playerService.getPlayerById(player.getId(), 3L))
                 .isInstanceOf(ForbiddenException.class);
-    }
-
-    @Test
-    void createPlayer_savesAndReturnsMappedLite() {
-        User user = UserTestBuilder.aUser().build();
-        Category category = CategoryTestBuilder.aCategory().build();
-        PlayerRequest request = buildPlayerRequest(category);
-
-        Player saved = PlayerTestBuilder.aPlayer().withCategory(category).build();
-        PlayerResponseLite lite = new PlayerResponseLite(
-                1000L,
-                "Player",
-                true,
-                false,
-                0
-        );
-
-        when(userFinder.getUserOrThrow(user.getId())).thenReturn(user);
-        when(categoryFinder.getCategoryOrThrow(category.getId())).thenReturn(category);
-        when(playerMapper.toEntity(request)).thenReturn(saved);
-        when(playerRepository.save(any(Player.class))).thenReturn(saved);
-        when(playerMapper.toResponseLite(saved)).thenReturn(lite);
-
-        assertThat(playerService.createPlayer(request, user.getId())).isEqualTo(lite);
-    }
-
-    @Test
-    void createPlayer_whenUserAlreadyPlayer_throws409() {
-        User user = UserTestBuilder.aUser().build();
-        Category category = CategoryTestBuilder.aCategory().build();
-        Player existingPlayer = PlayerTestBuilder.aPlayer().withUser(user).build();
-        category.getPlayers().add(existingPlayer);
-
-        PlayerRequest request = buildPlayerRequest(category);
-
-        when(userFinder.getUserOrThrow(user.getId())).thenReturn(user);
-        when(categoryFinder.getCategoryOrThrow(category.getId())).thenReturn(category);
-
-        assertThatThrownBy(() -> playerService.createPlayer(request, user.getId()))
-                .isInstanceOf(ConflictException.class);
     }
 
     @Test

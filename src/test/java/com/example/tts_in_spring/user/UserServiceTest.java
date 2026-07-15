@@ -2,6 +2,7 @@ package com.example.tts_in_spring.user;
 
 import com.example.tts_in_spring.exception.ConflictException;
 import com.example.tts_in_spring.exception.GenericBadRequestException;
+import com.example.tts_in_spring.notification.NotificationService;
 import com.example.tts_in_spring.user.dto.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,6 +34,9 @@ public class UserServiceTest {
 
     @Mock
     private UserFinder userFinder;
+
+    @Mock
+    private NotificationService notificationService;
 
     @InjectMocks
     private UserService userService;
