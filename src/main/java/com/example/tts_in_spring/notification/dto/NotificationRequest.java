@@ -8,5 +8,6 @@ public record NotificationRequest(
         @NotBlank String text,
         @NotNull NotificationType type,
         Long tournamentId,
+        Long categoryId,
         Long targetId
 ) {}

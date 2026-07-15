@@ -5,8 +5,6 @@ import com.example.tts_in_spring.config.AppProperties;
 import com.example.tts_in_spring.emailer.EmailerService;
 import com.example.tts_in_spring.exception.InvalidTokenException;
 import com.example.tts_in_spring.notification.NotificationService;
-import com.example.tts_in_spring.notification.NotificationType;
-import com.example.tts_in_spring.notification.dto.NotificationRequest;
 import com.example.tts_in_spring.password_reset_token.PasswordResetToken;
 import com.example.tts_in_spring.password_reset_token.PasswordResetTokenRepository;
 import com.example.tts_in_spring.password_reset_token.PasswordResetTokenService;
@@ -97,17 +95,6 @@ public class AuthService {
         token.setUsed(true);
         passwordResetTokenRepository.save(token);
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")
-                .withZone(ZoneId.systemDefault());
-
-        notificationService.create(
-                new NotificationRequest(
-                        "Your password was changed in a reset request at " + formatter.format(Instant.now()),
-                        NotificationType.PASSWORD_RESET,
-                        null,
-                        null
-                ),
-                user
-        );
+        notificationService.handleResetPasswordNotification(user);
     }
 }

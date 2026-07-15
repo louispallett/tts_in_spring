@@ -1,6 +1,7 @@
 package com.example.tts_in_spring.post;
 
 import com.example.tts_in_spring.exception.ForbiddenException;
+import com.example.tts_in_spring.notification.NotificationService;
 import com.example.tts_in_spring.post.dto.*;
 import com.example.tts_in_spring.tournament.Tournament;
 import com.example.tts_in_spring.tournament.TournamentFinder;
@@ -17,6 +18,7 @@ public class PostService {
     private final PostMapper postMapper;
     private final PostFinder postFinder;
     private final TournamentFinder tournamentFinder;
+    private final NotificationService notificationService;
 
     @Transactional(readOnly = true)
     public List<PostResponse> getAllPosts() {
@@ -44,6 +46,9 @@ public class PostService {
         post.setTournament(tournament);
 
         Post savedPost = postRepository.save(post);
+
+        notificationService.handlePostCreatedNotification(savedPost);
+
         return postMapper.toResponseLite(savedPost);
     }
 

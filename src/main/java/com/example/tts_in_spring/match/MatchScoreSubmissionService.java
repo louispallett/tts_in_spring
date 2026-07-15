@@ -6,6 +6,7 @@ import com.example.tts_in_spring.exception.GenericBadRequestException;
 import com.example.tts_in_spring.match.dto.MatchResponse;
 import com.example.tts_in_spring.match.dto.SubmitScoreRequest;
 import com.example.tts_in_spring.match.dto.UpdateStateRequest;
+import com.example.tts_in_spring.notification.NotificationService;
 import com.example.tts_in_spring.participant.Participant;
 import com.example.tts_in_spring.participant.ParticipantFinder;
 import com.example.tts_in_spring.participant.ParticipantService;
@@ -26,6 +27,7 @@ public class MatchScoreSubmissionService {
     private final MatchMapper matchMapper;
     private final ParticipantFinder participantFinder;
     private final ParticipantService participantService;
+    private final NotificationService notificationService;
 
     private void assertParticipants(List<ParticipantSubmitScoreRequest> participants, Match match) {
         Set<Long> matchParticipantIds = match.getParticipants().stream()
@@ -73,6 +75,7 @@ public class MatchScoreSubmissionService {
         }
     }
 
+
     @Transactional
     public MatchResponse submitScore(
             Long id,
@@ -98,7 +101,9 @@ public class MatchScoreSubmissionService {
         handleParticipants(request.participants(), match);
 
         matchMapper.updateStateEntity(new UpdateStateRequest(State.SCORE_DONE), match);
+
+        notificationService.handleScoreSubmissionNotification(match, userId);
+
         return matchMapper.toResponse(match);
     }
-
 }
