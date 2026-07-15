@@ -41,7 +41,6 @@ public class MatchScoreSubmissionService {
     }
 
     private void handleParticipants(List<ParticipantSubmitScoreRequest> participants, Match match) {
-        System.out.println("Handle participants");
         for (ParticipantSubmitScoreRequest participant : participants) {
             participantService.updateResultText(
                     participant.id(),
@@ -85,7 +84,6 @@ public class MatchScoreSubmissionService {
         if (match.getState() == State.SCORE_DONE)
             throw new GenericBadRequestException("Match score already submitted");
 
-        System.out.println("Before conditional");
         if (!matchFinder.isHost(match, userId) && !matchFinder.isParticipant(match, userId)) {
             throw new ForbiddenException(
                     "Not host of "
@@ -95,7 +93,6 @@ public class MatchScoreSubmissionService {
                             + ") or participant in match " + match.getId()
             );
         }
-        System.out.println("Before assertParticipants");
 
         assertParticipants(request.participants(), match);
         handleParticipants(request.participants(), match);
