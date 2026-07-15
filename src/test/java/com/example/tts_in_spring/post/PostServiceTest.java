@@ -1,5 +1,6 @@
 package com.example.tts_in_spring.post;
 
+import com.example.tts_in_spring.notification.NotificationService;
 import com.example.tts_in_spring.player.Player;
 import com.example.tts_in_spring.player.PlayerTestBuilder;
 import com.example.tts_in_spring.post.dto.PostRequest;
@@ -35,6 +36,9 @@ public class PostServiceTest {
 
     @Mock
     private TournamentFinder tournamentFinder;
+
+    @Mock
+    private NotificationService notificationService;
 
     @InjectMocks
     private PostService postService;

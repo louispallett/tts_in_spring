@@ -2,6 +2,7 @@ package com.example.tts_in_spring.match;
 
 import com.example.tts_in_spring.category.dto.CategoryResponseLite;
 import com.example.tts_in_spring.match.dto.*;
+import com.example.tts_in_spring.notification.NotificationService;
 import com.example.tts_in_spring.participant.Participant;
 import com.example.tts_in_spring.participant.ParticipantFinder;
 import com.example.tts_in_spring.participant.ParticipantService;
@@ -37,6 +38,9 @@ public class MatchScoreSubmissionServiceTest {
 
     @Mock
     private ParticipantService participantService;
+
+    @Mock
+    private NotificationService notificationService;
 
     @InjectMocks
     private MatchScoreSubmissionService matchScoreSubmissionService;
