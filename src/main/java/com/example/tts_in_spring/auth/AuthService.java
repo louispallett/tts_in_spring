@@ -4,6 +4,9 @@ import com.example.tts_in_spring.auth.dto.LoginRequest;
 import com.example.tts_in_spring.config.AppProperties;
 import com.example.tts_in_spring.emailer.EmailerService;
 import com.example.tts_in_spring.exception.InvalidTokenException;
+import com.example.tts_in_spring.notification.NotificationService;
+import com.example.tts_in_spring.notification.NotificationType;
+import com.example.tts_in_spring.notification.dto.NotificationRequest;
 import com.example.tts_in_spring.password_reset_token.PasswordResetToken;
 import com.example.tts_in_spring.password_reset_token.PasswordResetTokenRepository;
 import com.example.tts_in_spring.password_reset_token.PasswordResetTokenService;
@@ -19,6 +22,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
@@ -33,6 +38,7 @@ public class AuthService {
     private final EmailerService emailerService;
     private final AppProperties appProperties;
     private final UserFinder userFinder;
+    private final NotificationService notificationService;
 
     @Transactional(readOnly = true)
     public Long login(LoginRequest loginRequest) {
@@ -97,5 +103,19 @@ public class AuthService {
 
         token.setUsed(true);
         passwordResetTokenRepository.save(token);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")
+                .withZone(ZoneId.systemDefault());
+
+        notificationService.create(
+                new NotificationRequest(
+                        "Your password was changed in a reset request at " + formatter.format(Instant.now()),
+                        NotificationType.PASSWORD_RESET,
+                        null,
+                        null,
+                        user
+                ),
+                user
+        );
     }
 }
