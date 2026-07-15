@@ -40,6 +40,7 @@ public class PostRepositoryTest {
                 null,
                 List.of(),
                 List.of(),
+                List.of(),
                 List.of()
         );
         userRepository.save(host);

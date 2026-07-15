@@ -43,6 +43,8 @@ public class UserServiceTest {
                 "John",
                 "Doe",
                 "john.doe@example.com",
+                true,
+                null,
                 null,
                 null,
                 null
