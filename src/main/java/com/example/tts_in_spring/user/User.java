@@ -1,6 +1,7 @@
 package com.example.tts_in_spring.user;
 
 import com.example.tts_in_spring.base.Base;
+import com.example.tts_in_spring.notification.Notification;
 import com.example.tts_in_spring.player.Player;
 import com.example.tts_in_spring.tournament.Tournament;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -49,8 +50,8 @@ public class User extends Base {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Player> players = new ArrayList<>();
 
-    // @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    // private List<Notification> notifications = new ArrayList<>();
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<Notification> notifications = new ArrayList<>();
 
     // @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     // private List<Observer> observers = new ArrayList<>();

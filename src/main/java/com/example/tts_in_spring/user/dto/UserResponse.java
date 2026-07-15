@@ -1,5 +1,6 @@
 package com.example.tts_in_spring.user.dto;
 
+import com.example.tts_in_spring.notification.dto.NotificationResponseLite;
 import com.example.tts_in_spring.player.dto.PlayerResponseLite;
 import com.example.tts_in_spring.tournament.dto.TournamentResponseLite;
 
@@ -11,5 +12,6 @@ public record UserResponse(
         String lastName,
         String email,
         List<TournamentResponseLite> tournaments,
-        List<PlayerResponseLite> players
+        List<PlayerResponseLite> players,
+        List<NotificationResponseLite> notifications
 ) {}
