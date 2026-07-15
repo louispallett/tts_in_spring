@@ -1,6 +1,5 @@
 package com.example.tts_in_spring.post;
 
-import com.example.tts_in_spring.exception.ForbiddenException;
 import com.example.tts_in_spring.notification.NotificationService;
 import com.example.tts_in_spring.post.dto.*;
 import com.example.tts_in_spring.tournament.Tournament;
@@ -39,8 +38,7 @@ public class PostService {
     @Transactional
     public PostResponseLite createPost(PostRequest request, Long userId) {
         Tournament tournament = tournamentFinder.getTournamentOrThrow(request.tournamentId());
-
-        if (!tournament.getHost().getId().equals(userId)) throw new ForbiddenException();
+        tournamentFinder.assertHost(tournament, userId);
 
         Post post = postMapper.toEntity(request);
         post.setTournament(tournament);

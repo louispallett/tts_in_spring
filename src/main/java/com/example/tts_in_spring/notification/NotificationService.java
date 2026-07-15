@@ -52,7 +52,7 @@ public class NotificationService {
                     <p>%s</p>
                     <p>Please note that you can alter your email preferences by logging into the application and navigating to <b>Settings</b> and then <b>Account</b>.</p>
                     <p>Please do not respond to this email.</p>
-                    <p><i>Tennis Tournament Creator</i> by <b>Louis Pallett</b> is licensed under the GNU Affero General Public License</p>
+                    <p><i>Tennis Tournament Creator</i> by <b>Louis Pallett</b> is licensed under the GNU Affero General Public License.</p>
                     """
                     .formatted(
                             user.getFirstName(),

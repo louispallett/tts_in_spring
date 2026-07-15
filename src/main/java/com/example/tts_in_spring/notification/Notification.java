@@ -13,20 +13,23 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class Notification extends Base {
-    @Column(name = "text", nullable = false)
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String text;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
     private NotificationType type;
 
-    @Column(name = "read", nullable = false)
+    @Column(nullable = false)
     private boolean read = false;
 
-    @Column(name = "tournamentId")
+    @Column
     private Long tournamentId;
 
-    @Column(name = "targetId")
+    @Column
+    private Long categoryId;
+
+    @Column
     private Long targetId;
 
     @ManyToOne
