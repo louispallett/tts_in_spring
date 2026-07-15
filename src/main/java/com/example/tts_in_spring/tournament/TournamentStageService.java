@@ -5,15 +5,21 @@ import com.example.tts_in_spring.category.Type;
 import com.example.tts_in_spring.exception.IllegalStageException;
 import com.example.tts_in_spring.match.Match;
 import com.example.tts_in_spring.match.State;
+import com.example.tts_in_spring.notification.NotificationService;
+import com.example.tts_in_spring.notification.NotificationType;
+import com.example.tts_in_spring.notification.dto.NotificationRequest;
 import com.example.tts_in_spring.player.Player;
 import com.example.tts_in_spring.player.PlayerService;
 import com.example.tts_in_spring.tournament.dto.TournamentResponseLite;
 import com.example.tts_in_spring.tournament.dto.ValidateResponse;
+import com.example.tts_in_spring.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +28,7 @@ public class TournamentStageService {
     private final TournamentMapper tournamentMapper;
     private final TournamentFinder tournamentFinder;
     private final PlayerService playerService;
+    private final NotificationService notificationService;
 
     public ValidateResponse validate(Long id, Long userId) {
         Tournament tournament = tournamentFinder.getTournamentOrThrow(id);
@@ -112,6 +119,34 @@ public class TournamentStageService {
     }
 
     @Transactional
+    private void handleNotificationForStage(Tournament tournament) {
+        List<User> users = tournament.getCategories().stream()
+                .flatMap(category -> category.getPlayers().stream())
+                .map(Player::getUser)
+                .collect(Collectors.toMap(
+                        User::getId,
+                        Function.identity(),
+                        (existing, replacement) -> existing
+                ))
+                .values()
+                .stream()
+                .toList();
+
+        NotificationRequest request = new NotificationRequest(
+                        tournament.getHost().getFullName() + " updated the stage of "
+                                + tournament.getName() + " to " + " " + tournament.getStage()
+                                + ". Click here to see!",
+                        NotificationType.TOURNAMENT_STAGE,
+                        tournament.getId(),
+                        null
+        );
+
+        for (User user : users) {
+            notificationService.create(request, user);
+        }
+    }
+
+    @Transactional
     public TournamentResponseLite nextStage(Long id, Long userId) {
         Tournament tournament = tournamentFinder.getTournamentOrThrow(id);
         tournamentFinder.assertHost(tournament, userId);
@@ -132,6 +167,9 @@ public class TournamentStageService {
         }
 
         tournament.setStage(next);
+
+        handleNotificationForStage(tournament);
+
         return tournamentMapper.toResponseLite(tournamentRepository.save(tournament));
     }
 
