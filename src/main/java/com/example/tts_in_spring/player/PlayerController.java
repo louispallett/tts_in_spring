@@ -32,14 +32,6 @@ public class PlayerController {
         return ResponseEntity.ok(playerService.getPlayerById(id, user.userId()));
     }
 
-    @PostMapping
-    public ResponseEntity<?> createPlayer(
-            @Valid @RequestBody PlayerRequest playerRequest,
-            @AuthenticationPrincipal UserPrincipal user
-    ) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(playerService.createPlayer(playerRequest, user.userId()));
-    }
-
     @PostMapping("/join-tournament")
     public ResponseEntity<?> joinTournament(
             @Valid @RequestBody JoinTournamentRequest request,

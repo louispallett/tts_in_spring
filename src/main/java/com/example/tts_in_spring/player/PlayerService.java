@@ -4,6 +4,7 @@ import com.example.tts_in_spring.category.Category;
 import com.example.tts_in_spring.category.CategoryFinder;
 import com.example.tts_in_spring.exception.ConflictException;
 import com.example.tts_in_spring.exception.ForbiddenException;
+import com.example.tts_in_spring.notification.NotificationService;
 import com.example.tts_in_spring.player.dto.*;
 import com.example.tts_in_spring.user.User;
 import com.example.tts_in_spring.user.UserFinder;
@@ -22,6 +23,7 @@ public class PlayerService {
     private final CategoryFinder categoryFinder;
     private final UserFinder userFinder;
     private final PlayerFinder playerFinder;
+    private final NotificationService notificationService;
 
 
     @Transactional(readOnly = true)
@@ -47,7 +49,7 @@ public class PlayerService {
     }
 
     @Transactional
-    public PlayerResponseLite createPlayer(PlayerRequest playerRequest, Long userId) {
+    private Player createPlayer(PlayerRequest playerRequest, Long userId) {
         User user = userFinder.getUserOrThrow(userId);
         Category category = categoryFinder.getCategoryOrThrow(playerRequest.categoryId());
 
@@ -64,13 +66,12 @@ public class PlayerService {
         player.setRank(0);
         player.setSeeded(false);
 
-        Player savedPlayer = playerRepository.save(player);
-        return playerMapper.toResponseLite(savedPlayer);
+        return playerRepository.save(player);
     }
 
     @Transactional
-    public List<PlayerResponseLite> joinTournament(JoinTournamentRequest request, Long userId) {
-        List<PlayerResponseLite> players = new ArrayList<>();
+    public List<PlayerResponse> joinTournament(JoinTournamentRequest request, Long userId) {
+        List<Player> players = new ArrayList<>();
         for (Long categoryId : request.categories()) {
             PlayerRequest playerRequest = new PlayerRequest(
                     request.male(),
@@ -81,7 +82,9 @@ public class PlayerService {
             players.add(createPlayer(playerRequest, userId));
         }
 
-        return players;
+        notificationService.handleJoinTournamentNotification(players);
+
+        return players.stream().map(playerMapper::toResponse).toList();
     }
 
     @Transactional

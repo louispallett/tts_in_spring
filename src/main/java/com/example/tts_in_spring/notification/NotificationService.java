@@ -68,6 +68,41 @@ public class NotificationService {
     }
 
     @Transactional
+    public void handleWelcomeNotification(User user) {
+        create(
+                new NotificationRequest(
+                        "Welcome to Tennis Tournament Creator! This message confirms you have successfully registered your account.",
+                        NotificationType.WELCOME,
+                        null,
+                        null,
+                        null
+                ),
+                user
+        );
+    }
+
+    @Transactional
+    public void handleJoinTournamentNotification(List<Player> players) {
+        String categories = players.stream()
+                .map(player -> player.getCategory().getName().getDisplayName())
+                .collect(Collectors.joining(", "));
+
+        Tournament tournament = players.getFirst().getCategory().getTournament();
+
+        create(
+                new NotificationRequest(
+                        "You have joined the tournament " + tournament.getName()
+                        + " in the following categories: " + categories + ".",
+                        NotificationType.JOIN_TOURNAMENT,
+                        tournament.getId(),
+                        null,
+                        null
+                ),
+                players.getFirst().getUser()
+        );
+    }
+
+    @Transactional
     public void handleResetPasswordNotification(User user) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")
                 .withZone(ZoneId.systemDefault());

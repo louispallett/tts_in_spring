@@ -2,6 +2,7 @@ package com.example.tts_in_spring.user;
 
 import com.example.tts_in_spring.exception.ConflictException;
 import com.example.tts_in_spring.exception.GenericBadRequestException;
+import com.example.tts_in_spring.notification.NotificationService;
 import com.example.tts_in_spring.user.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,7 @@ public class UserService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     private final UserFinder userFinder;
+    private final NotificationService notificationService;
 
     @Transactional(readOnly = true)
     public List<UserResponse> getAllUsers() {
@@ -52,6 +54,7 @@ public class UserService {
         newUser.setPassword(passwordEncoder.encode(userRequest.password()));
 
         User savedUser = userRepository.save(newUser);
+        notificationService.handleWelcomeNotification(savedUser);
         return userMapper.toResponseLite(savedUser);
     }
 
