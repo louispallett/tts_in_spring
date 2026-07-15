@@ -5,7 +5,6 @@ import com.example.tts_in_spring.notification.dto.NotificationRequest;
 import com.example.tts_in_spring.notification.dto.NotificationResponse;
 import com.example.tts_in_spring.notification.dto.NotificationResponseLite;
 import com.example.tts_in_spring.user.User;
-import com.resend.core.exception.ResendException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -47,15 +46,12 @@ public class NotificationService {
                             user.getFirstName(),
                             request.text()
                     );
-            try {
-                emailerService.sendEmail(
-                        user.getEmail(),
-                        "TTS: New Notification",
-                        html
-                );
-            } catch (ResendException e) {
-                log.error("Failed to send notification email to user{}", user.getId(), e);
-            }
+
+            emailerService.sendEmail(
+                    user.getEmail(),
+                    "TTS: New Notification",
+                    html
+            );
         }
 
         return notificationMapper.toResponse(savedNotification);
