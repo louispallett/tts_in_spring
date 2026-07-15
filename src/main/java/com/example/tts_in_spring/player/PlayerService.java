@@ -4,8 +4,11 @@ import com.example.tts_in_spring.category.Category;
 import com.example.tts_in_spring.category.CategoryFinder;
 import com.example.tts_in_spring.exception.ConflictException;
 import com.example.tts_in_spring.exception.ForbiddenException;
+import com.example.tts_in_spring.exception.GenericBadRequestException;
 import com.example.tts_in_spring.notification.NotificationService;
 import com.example.tts_in_spring.player.dto.*;
+import com.example.tts_in_spring.tournament.Tournament;
+import com.example.tts_in_spring.tournament.TournamentFinder;
 import com.example.tts_in_spring.user.User;
 import com.example.tts_in_spring.user.UserFinder;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +27,7 @@ public class PlayerService {
     private final UserFinder userFinder;
     private final PlayerFinder playerFinder;
     private final NotificationService notificationService;
+    private final TournamentFinder tournamentFinder;
 
 
     @Transactional(readOnly = true)
@@ -49,7 +53,7 @@ public class PlayerService {
     }
 
     @Transactional
-    private Player createPlayer(PlayerRequest playerRequest, Long userId) {
+    public Player createPlayer(PlayerRequest playerRequest, Long userId) {
         User user = userFinder.getUserOrThrow(userId);
         Category category = categoryFinder.getCategoryOrThrow(playerRequest.categoryId());
 
@@ -71,8 +75,14 @@ public class PlayerService {
 
     @Transactional
     public List<PlayerResponse> joinTournament(JoinTournamentRequest request, Long userId) {
+        Tournament tournament = tournamentFinder.getTournamentByCodeOrThrow(request.tournamentCode());
+
         List<Player> players = new ArrayList<>();
         for (Long categoryId : request.categories()) {
+            // Validate category exists in tournament
+            if (tournament.getCategories().stream().noneMatch(c -> c.getId().equals(categoryId)))
+                throw new GenericBadRequestException("CategoryId is not part of tournament");
+
             PlayerRequest playerRequest = new PlayerRequest(
                     request.male(),
                     request.mobCode(),

@@ -39,7 +39,7 @@ public class NotificationService {
     }
 
     @Transactional
-    private void create(NotificationRequest request, User user) {
+    protected void create(NotificationRequest request, User user) {
         Notification notification = notificationMapper.toEntity(request);
         notification.setUser(user);
 
