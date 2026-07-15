@@ -43,7 +43,7 @@ public class UserController {
         return ResponseEntity.ok(userService.updateDetails(principal.userId(), request));
     }
 
-    @PutMapping("/update-email-preferences")
+    @PatchMapping("/update-email-preferences")
     public ResponseEntity<UserResponseLite> updateEmailPreferences(
             @Valid @RequestBody UserEmailPreferencesRequest request,
             @AuthenticationPrincipal UserPrincipal principal
