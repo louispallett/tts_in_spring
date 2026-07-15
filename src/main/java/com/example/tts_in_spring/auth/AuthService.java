@@ -105,8 +105,7 @@ public class AuthService {
                         "Your password was changed in a reset request at " + formatter.format(Instant.now()),
                         NotificationType.PASSWORD_RESET,
                         null,
-                        null,
-                        user
+                        null
                 ),
                 user
         );
