@@ -30,7 +30,18 @@ public class PostRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        User host = new User("John", "Doe", "john.doe@example.com", "secret", false, false, null, List.of(), List.of());
+        User host = new User(
+                "John",
+                "Doe",
+                "john.doe@example.com",
+                "secret",
+                false,
+                false,
+                null,
+                List.of(),
+                List.of(),
+                List.of()
+        );
         userRepository.save(host);
 
         tournament = new Tournament();
