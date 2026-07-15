@@ -21,7 +21,7 @@ public class Notification extends Base {
     private NotificationType type;
 
     @Column(name = "read", nullable = false)
-    private boolean read;
+    private boolean read = false;
 
     @Column(name = "tournamentId")
     private Long tournamentId;

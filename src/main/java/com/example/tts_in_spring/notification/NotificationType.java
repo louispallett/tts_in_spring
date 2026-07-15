@@ -4,5 +4,6 @@ public enum NotificationType {
     CHAT_MESSAGE,
     TOURNAMENT_STAGE,
     RESULT_SUBMITTED,
-    POST_CREATED
+    POST_CREATED,
+    PASSWORD_RESET
 }

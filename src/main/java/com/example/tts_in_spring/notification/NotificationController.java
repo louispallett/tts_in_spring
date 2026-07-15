@@ -4,7 +4,6 @@ import com.example.tts_in_spring.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -16,9 +15,8 @@ public class NotificationController {
     private final NotificationService notificationService;
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getAllNotification() {
-        throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED);
+        return ResponseEntity.ok(notificationService.getAllNotifications());
     }
 
     @GetMapping("/{id}")
@@ -30,10 +28,11 @@ public class NotificationController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteNotification(
+    public ResponseEntity<Void> deleteNotification(
             @PathVariable Long id,
             @AuthenticationPrincipal UserPrincipal user
     ) {
-        throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED);
+        notificationService.delete(id, user.userId());
+        return ResponseEntity.noContent().build();
     }
 }
