@@ -3,8 +3,11 @@ package com.example.tts_in_spring.emailer;
 import com.resend.Resend;
 import com.resend.core.exception.ResendException;
 import com.resend.services.emails.model.CreateEmailOptions;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 public class EmailerService {
     private final Resend resend;
@@ -15,7 +18,8 @@ public class EmailerService {
 		this.properties = properties;
     }
 
-    public void sendEmail(String to, String subject, String body) throws ResendException {
+    @Async
+    public void sendEmail(String to, String subject, String body) {
 		CreateEmailOptions params = CreateEmailOptions.builder()
 			    .from(properties.from())
 			    .to(to)
@@ -24,6 +28,10 @@ public class EmailerService {
 			    .html(body)
 			    .build();
 
-		resend.emails().send(params);
+        try {
+            resend.emails().send(params);
+        } catch (ResendException e) {
+            log.error("Failed to send notification email to user{}", to, e);
+        }
     }
 }

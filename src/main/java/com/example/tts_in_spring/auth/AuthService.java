@@ -13,10 +13,8 @@ import com.example.tts_in_spring.password_reset_token.PasswordResetTokenService;
 import com.example.tts_in_spring.user.User;
 import com.example.tts_in_spring.user.UserFinder;
 import com.example.tts_in_spring.user.UserRepository;
-import com.resend.core.exception.ResendException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,7 +45,6 @@ public class AuthService {
         return user.getId();
     }
 
-    @Async
     @Transactional
     public void requestPasswordReset(String email) {
         Optional<User> userOpt = userRepository.findByEmailAndDeletedFalse(email);
@@ -76,15 +73,11 @@ public class AuthService {
                         rawToken
                 );
 
-        try {
-            emailerService.sendEmail(
-                    email,
-                    "Password Reset Request",
-                    html
-            );
-        } catch (ResendException e) {
-            log.error("Failed to send password reset email to user {}", user.getId(), e);
-        }
+        emailerService.sendEmail(
+                email,
+                "Password Reset Request",
+                html
+        );
     }
 
     @Transactional
