@@ -41,6 +41,15 @@ public class MatchController {
         return ResponseEntity.ok(matchGenerationService.generateMatchesParent(categoryId, user.userId()));
     }
 
+    @PatchMapping("/{categoryId}/submit-deadlines-by-round")
+    public ResponseEntity<List<MatchResponseLite>> submitDeadlinesByRound(
+            @PathVariable Long categoryId,
+            @Valid @RequestBody MatchUpdateDeadlinesByRoundRequest request,
+            @AuthenticationPrincipal UserPrincipal user
+    ) {
+        return ResponseEntity.ok(matchService.submitDeadlinesByRound(categoryId, request, user.userId()));
+    }
+
     @PostMapping("/{id}/submit-score")
     public ResponseEntity<MatchResponse> submitScore(
             @PathVariable Long id,

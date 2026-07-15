@@ -1,12 +1,20 @@
 package com.example.tts_in_spring.match;
 
+import com.example.tts_in_spring.category.Category;
+import com.example.tts_in_spring.category.CategoryFinder;
 import com.example.tts_in_spring.exception.ForbiddenException;
+import com.example.tts_in_spring.exception.GenericBadRequestException;
+import com.example.tts_in_spring.exception.ResourceNotFoundException;
 import com.example.tts_in_spring.match.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -14,6 +22,7 @@ public class MatchService {
     private final MatchRepository matchRepository;
     private final MatchMapper matchMapper;
     private final MatchFinder matchFinder;
+    private final CategoryFinder categoryFinder;
 
     @Transactional(readOnly = true)
     public List<MatchResponse> getAllMatches() {
@@ -35,7 +44,49 @@ public class MatchService {
     }
 
     @Transactional
-    public MatchResponseLite updateDeadline(Long id, MatchUpdateDeadlineRequest request, Long userId) {
+    public List<MatchResponseLite> submitDeadlinesByRound(
+            Long categoryId,
+            MatchUpdateDeadlinesByRoundRequest request,
+            Long userId
+    ) {
+        Category category = categoryFinder.getCategoryOrThrow(categoryId);
+        categoryFinder.assertHost(category, userId);
+
+        if (category.getMatches().isEmpty())
+            throw new ResourceNotFoundException("No matches in this category");
+
+        Map<String, DeadlineByRoundRequest> requestByRound = request.rounds()
+                .stream()
+                .collect(Collectors.toMap(
+                        DeadlineByRoundRequest::tournamentRoundText,
+                        Function.identity()
+                ));
+
+        List<MatchResponseLite> updatedMatches = new ArrayList<>();
+
+        for (Match match : category.getMatches()) {
+            DeadlineByRoundRequest roundRequest = requestByRound.get(match.getTournamentRoundText());
+
+            if (roundRequest == null)
+                throw new GenericBadRequestException("No deadline supplied for round " + match.getTournamentRoundText());
+
+            updatedMatches.add(updateDeadline(
+                    match.getId(),
+                    new MatchUpdateDeadlineRequest(roundRequest.deadline()),
+                    userId
+            ));
+        }
+
+        return updatedMatches;
+    }
+
+
+    @Transactional
+    public MatchResponseLite updateDeadline(
+            Long id,
+            MatchUpdateDeadlineRequest request,
+            Long userId
+    ) {
         Match match = matchFinder.getMatchOrThrow(id);
         matchFinder.assertHost(match, userId);
 
