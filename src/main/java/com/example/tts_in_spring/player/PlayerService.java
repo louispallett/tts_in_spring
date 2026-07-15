@@ -126,11 +126,10 @@ public class PlayerService {
     }
 
     @Transactional
-    public PlayerResponseLite addTeam(Long id, AddTeamRequest request) {
+    public void addTeam(Long id, AddTeamRequest request) {
         Player player = playerFinder.getPlayerOrThrow(id);
 
         playerMapper.updateTeamEntity(request, player);
-        return playerMapper.toResponseLite(player);
     }
 
     @Transactional
