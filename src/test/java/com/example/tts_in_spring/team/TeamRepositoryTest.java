@@ -50,7 +50,6 @@ public class TeamRepositoryTest {
 
         category = new Category();
         category.setName(Type.MEN_DOUBLES);
-        category.setLocked(false);
         category.setDoubles(true);
         category.setTournament(tournament);
         categoryRepository.save(category);

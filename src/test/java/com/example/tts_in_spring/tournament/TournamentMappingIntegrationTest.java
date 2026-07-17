@@ -63,7 +63,6 @@ public class TournamentMappingIntegrationTest {
         CategoryResponseLite mapped = response.categories().getFirst();
         assertThat(mapped.id()).isEqualTo(100L);
         assertThat(mapped.name()).isEqualTo("Men's Singles");
-        assertThat(mapped.locked()).isFalse();
         assertThat(mapped.doubles()).isFalse();
     }
 }

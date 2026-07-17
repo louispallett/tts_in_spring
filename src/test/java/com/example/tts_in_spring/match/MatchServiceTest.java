@@ -41,7 +41,7 @@ public class MatchServiceTest {
                 State.SCHEDULED,
                 Instant.now(),
                 false,
-                new CategoryResponseLite(100L, "Mens Singles", false, false),
+                new CategoryResponseLite(100L, "Mens Singles",  false),
                 null,
                 List.of(),
                 List.of()

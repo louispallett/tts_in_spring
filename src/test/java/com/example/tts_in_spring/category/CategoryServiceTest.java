@@ -46,8 +46,8 @@ public class CategoryServiceTest {
                 100L,
                 "Mens Singles",
                 false,
-                false,
                 new TournamentResponseLite(10L, "Test Tournament", "SIGN_UP", false),
+                null,
                 null,
                 null
         );
@@ -119,7 +119,6 @@ public class CategoryServiceTest {
         CategoryResponseLite lite = new CategoryResponseLite(
                 100L,
                 "Mens Singles",
-                false,
                 false
         );
 
@@ -138,11 +137,9 @@ public class CategoryServiceTest {
         CategoryLockedUpdateRequest request = new CategoryLockedUpdateRequest(true);
 
         Category updatedCategory = CategoryTestBuilder.aCategory().build();
-        updatedCategory.setLocked(true);
         CategoryResponseLite lite = new CategoryResponseLite(
                 100L,
                 "Men's Singles",
-                true,
                 false
         );
 

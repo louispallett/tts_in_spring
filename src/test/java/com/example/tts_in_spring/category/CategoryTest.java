@@ -22,12 +22,10 @@ public class CategoryTest {
 
         category.setName(Type.MEN_SINGLES);
         category.setDoubles(false);
-        category.setLocked(false);
         category.setTournament(tournament);
 
         assertThat(category.getName()).isEqualTo(Type.MEN_SINGLES);
         assertThat(category.isDoubles()).isFalse();
-        assertThat(category.isLocked()).isFalse();
         assertThat(category.getTournament()).isSameAs(tournament);
     }
 

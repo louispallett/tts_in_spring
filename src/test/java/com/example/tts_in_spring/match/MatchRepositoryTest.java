@@ -49,7 +49,6 @@ class MatchRepositoryTest {
 
         category = new Category();
         category.setName(Type.MEN_SINGLES);
-        category.setLocked(false);
         category.setDoubles(false);
         category.setTournament(tournament);
         categoryRepository.save(category);

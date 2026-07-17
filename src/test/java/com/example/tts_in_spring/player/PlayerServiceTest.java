@@ -50,7 +50,7 @@ public class PlayerServiceTest {
                 "1234567890",
                 new UserResponseLite(2L, "John", "Doe"),
                 null,
-                new CategoryResponseLite(100L, "Mens Singles", false, false),
+                new CategoryResponseLite(100L, "Mens Singles", false),
                 null
         );
     }

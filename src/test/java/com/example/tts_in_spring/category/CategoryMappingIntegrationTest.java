@@ -37,7 +37,6 @@ public class CategoryMappingIntegrationTest {
 
         assertThat(response.id()).isEqualTo(100L);
         assertThat(response.name()).isEqualTo("Men's Singles");
-        assertThat(response.locked()).isFalse();
         assertThat(response.doubles()).isFalse();
         assertThat(response.tournament()).isNotNull();
         assertThat(response.tournament().id()).isEqualTo(10L);

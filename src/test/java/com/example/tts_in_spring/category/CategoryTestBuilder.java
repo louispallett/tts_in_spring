@@ -28,7 +28,6 @@ public class CategoryTestBuilder {
         Category category = new Category();
         category.setId(id);
         category.setName(name);
-        category.setLocked(locked);
         category.setDoubles(doubles);
         category.setTournament(tournament);
 

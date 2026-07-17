@@ -51,7 +51,7 @@ public class TeamServiceTest {
     private TeamResponse buildTeamResponse() {
         return new TeamResponse(
                 10000L,
-                new CategoryResponseLite(100L, "Mens Singles", false, false),
+                new CategoryResponseLite(100L, "Mens Singles", false),
                 null,
                 null
         );
@@ -168,8 +168,7 @@ public class TeamServiceTest {
                             new CategoryResponseLite(
                                     player.getCategory().getId(),
                                     player.getCategory().getName().getDisplayName(),
-                                    player.getCategory().isDoubles(),
-                                    player.getCategory().isLocked()
+                                    player.getCategory().isDoubles()
                             ),
                             null
                     );
