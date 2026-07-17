@@ -59,7 +59,6 @@ public class CategoryService {
 
         Category category = categoryMapper.toEntity(categoryRequest);
         category.setTournament(tournament);
-        category.setLocked(false);
 
         category.setDoubles(!Objects.equals(categoryRequest.name(), Type.MEN_SINGLES)
                 && !Objects.equals(categoryRequest.name(), Type.WOMEN_SINGLES));

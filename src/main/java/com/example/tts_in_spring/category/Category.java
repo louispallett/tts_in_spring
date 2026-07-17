@@ -24,9 +24,6 @@ public class Category extends Base {
     private Type name;
 
     @Column(nullable = false)
-    private boolean locked;
-
-    @Column(nullable = false)
     private boolean doubles;
 
     @ManyToOne
