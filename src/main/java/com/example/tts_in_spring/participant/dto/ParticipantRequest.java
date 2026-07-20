@@ -5,6 +5,6 @@ import jakarta.validation.constraints.NotNull;
 public record ParticipantRequest (
     Long teamId,
     Long playerId,
-    @NotNull(message = "TeamId cannot be null")
+    @NotNull(message = "MatchId cannot be null")
     Long matchId
 ) {}

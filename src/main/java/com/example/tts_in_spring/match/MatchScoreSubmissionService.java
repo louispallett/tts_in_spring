@@ -1,6 +1,5 @@
 package com.example.tts_in_spring.match;
 
-import com.example.tts_in_spring.exception.ConflictException;
 import com.example.tts_in_spring.exception.ForbiddenException;
 import com.example.tts_in_spring.exception.GenericBadRequestException;
 import com.example.tts_in_spring.match.dto.MatchResponse;
@@ -16,9 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,18 +27,6 @@ public class MatchScoreSubmissionService {
     private final ParticipantService participantService;
     private final NotificationService notificationService;
 
-    private void assertParticipants(List<ParticipantSubmitScoreRequest> participants, Match match) {
-        Set<Long> matchParticipantIds = match.getParticipants().stream()
-                .map(Participant::getId)
-                .collect(Collectors.toSet());
-
-        boolean hasInvalidPlayer = participants.stream()
-                .map(ParticipantSubmitScoreRequest::id)
-                .anyMatch(id -> !matchParticipantIds.contains(id));
-
-        if (hasInvalidPlayer)
-            throw new ConflictException("Participant in request is not part of this match");
-    }
 
     private void handleParticipants(List<ParticipantSubmitScoreRequest> participants, Match match) {
         for (ParticipantSubmitScoreRequest participant : participants) {
@@ -97,7 +83,13 @@ public class MatchScoreSubmissionService {
             );
         }
 
-        assertParticipants(request.participants(), match);
+        List<Participant> participants = new ArrayList<>();
+        for (var participantRequest : request.participants()) {
+            Participant participant = participantFinder.getParticipantOrThrow(participantRequest.id());
+            participants.add(participant);
+        }
+
+        participantFinder.assertParticipants(participants, match);
         handleParticipants(request.participants(), match);
 
         matchMapper.updateStateEntity(new UpdateStateRequest(State.SCORE_DONE), match);
