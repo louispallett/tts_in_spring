@@ -11,6 +11,7 @@ import com.example.tts_in_spring.participant.ParticipantFinder;
 import com.example.tts_in_spring.participant.ParticipantService;
 import com.example.tts_in_spring.participant.Status;
 import com.example.tts_in_spring.participant.dto.*;
+import com.example.tts_in_spring.score.ScoreService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +26,7 @@ public class MatchScoreSubmissionService {
     private final MatchMapper matchMapper;
     private final ParticipantFinder participantFinder;
     private final ParticipantService participantService;
+    private final ScoreService scoreService;
     private final NotificationService notificationService;
 
 
@@ -93,6 +95,8 @@ public class MatchScoreSubmissionService {
         handleParticipants(request.participants(), match);
 
         matchMapper.updateStateEntity(new UpdateStateRequest(State.SCORE_DONE), match);
+
+        scoreService.create(match, userId);
 
         notificationService.handleScoreSubmissionNotification(match, userId);
 

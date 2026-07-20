@@ -3,6 +3,7 @@ package com.example.tts_in_spring.match;
 import com.example.tts_in_spring.category.Category;
 import com.example.tts_in_spring.base.Base;
 import com.example.tts_in_spring.participant.Participant;
+import com.example.tts_in_spring.score.Score;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -45,6 +46,6 @@ public class Match extends Base {
     @OneToMany(mappedBy = "match", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Participant> participants = new ArrayList<>();
 
-    // @OneToOne(mappedBy = "match", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    // private Chat chat;
+    @OneToOne(mappedBy = "match", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Score score;
 }
