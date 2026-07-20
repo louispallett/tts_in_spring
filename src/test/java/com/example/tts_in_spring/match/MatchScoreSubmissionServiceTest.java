@@ -11,8 +11,11 @@ import com.example.tts_in_spring.participant.dto.ParticipantResponseLite;
 import com.example.tts_in_spring.participant.dto.ParticipantSubmitScoreRequest;
 import com.example.tts_in_spring.player.Player;
 import com.example.tts_in_spring.player.PlayerTestBuilder;
+import com.example.tts_in_spring.score.ScoreService;
+import com.example.tts_in_spring.score.dto.ScoreResponse;
 import com.example.tts_in_spring.user.User;
 import com.example.tts_in_spring.user.UserTestBuilder;
+import com.example.tts_in_spring.user.dto.UserResponseLite;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -42,6 +45,9 @@ public class MatchScoreSubmissionServiceTest {
     @Mock
     private NotificationService notificationService;
 
+    @Mock
+    private ScoreService scoreService;
+
     @InjectMocks
     private MatchScoreSubmissionService matchScoreSubmissionService;
 
@@ -64,6 +70,7 @@ public class MatchScoreSubmissionServiceTest {
                 false,
                 new CategoryResponseLite(100L, "Mens Singles", false),
                 null,
+                new ScoreResponse(10L, Instant.now(), new UserResponseLite(1L, "John", "Doe")),
                 List.of(),
                 participants
         );

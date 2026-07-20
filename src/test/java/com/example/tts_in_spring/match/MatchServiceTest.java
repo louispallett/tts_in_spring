@@ -7,6 +7,8 @@ import com.example.tts_in_spring.participant.Participant;
 import com.example.tts_in_spring.participant.ParticipantTestBuilder;
 import com.example.tts_in_spring.player.Player;
 import com.example.tts_in_spring.player.PlayerTestBuilder;
+import com.example.tts_in_spring.score.dto.ScoreResponse;
+import com.example.tts_in_spring.user.dto.UserResponseLite;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -43,6 +45,7 @@ public class MatchServiceTest {
                 false,
                 new CategoryResponseLite(100L, "Mens Singles",  false),
                 null,
+                new ScoreResponse(10L, Instant.now(), new UserResponseLite(1L, "John", "Doe")),
                 List.of(),
                 List.of()
         );
