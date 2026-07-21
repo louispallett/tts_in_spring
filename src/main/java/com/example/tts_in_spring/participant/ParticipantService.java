@@ -161,9 +161,10 @@ public class ParticipantService {
         return participantMapper.toResponseLite(participant);
     }
 
+    // FIXME: Not working currently - look into again. We also only really need the participant Id here. Participant Entity contains all the information we need
     @Transactional
     public ParticipantResponseLite changeParticipantMatch(Long id, ParticipantChangeMatchRequest request, Long userId) {
-        if (request.oldParticipantId().equals(id))
+        if (!request.oldParticipantId().equals(id))
             throw new GenericBadRequestException("id param must be old participant id");
 
         Participant participant = participantFinder.getParticipantOrThrow(id);
