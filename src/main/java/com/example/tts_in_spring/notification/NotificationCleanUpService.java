@@ -16,7 +16,7 @@ public class NotificationCleanUpService {
     @Scheduled(cron = "0 0 3 * * *") // 3AM Every day
     @Transactional
     public void deleteOldNotifications() {
-        Instant cutoff = Instant.now().minus(30, ChronoUnit.DAYS);
+        Instant cutoff = Instant.now().minus(60, ChronoUnit.DAYS);
 
         notificationRepository.deleteByDateCreatedBefore(cutoff);
     }
