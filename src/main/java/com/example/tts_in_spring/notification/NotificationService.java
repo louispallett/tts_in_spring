@@ -49,7 +49,7 @@ public class NotificationService {
             String html = """
                     <p>Dear <b>%s</b>,</p>
                     <p>You have a new notification.</p>
-                    <p>%s</p>
+                    <p>%s.</p>
                     <p>Please note that you can alter your email preferences by logging into the application and navigating to <b>Settings</b> and then <b>Account</b>.</p>
                     <p>Please do not respond to this email.</p>
                     <p><i>Tennis Tournament Creator</i> by <b>Louis Pallett</b> is licensed under the GNU Affero General Public License.</p>
@@ -71,7 +71,7 @@ public class NotificationService {
     public void handleWelcomeNotification(User user) {
         create(
                 new NotificationRequest(
-                        "Welcome to Tennis Tournament Creator! This message confirms you have successfully registered your account.",
+                        "Welcome to Tennis Tournament Creator! You have successfully registered your account",
                         NotificationType.WELCOME,
                         null,
                         null,
@@ -137,7 +137,7 @@ public class NotificationService {
     public void handleNotificationForStage(Tournament tournament) {
         NotificationRequest request = new NotificationRequest(
                 tournament.getHost().getFullName() + " updated the stage of "
-                        + tournament.getName() + " to " + " " + tournament.getStage() + ".",
+                        + tournament.getName() + " to " + " " + tournament.getStage(),
                 NotificationType.TOURNAMENT_STAGE,
                 tournament.getId(),
                 null,
@@ -153,7 +153,7 @@ public class NotificationService {
     public void handlePostCreatedNotification(Post post) {
         NotificationRequest request = new NotificationRequest(
                 post.getTournament().getHost().getFullName() + " has posted a new update for "
-                + post.getTournament().getName() + ".",
+                + post.getTournament().getName(),
                 NotificationType.POST_CREATED,
                 post.getTournament().getId(),
                 null,
@@ -171,7 +171,7 @@ public class NotificationService {
         NotificationRequest request = new NotificationRequest(
                 user.getFullName() + " has submitted a score for your "
                         + match.getCategory().getName().getDisplayName() + " match in the tournament "
-                        + match.getCategory().getTournament().getName() + ".",
+                        + match.getCategory().getTournament().getName(),
                 NotificationType.RESULT_SUBMITTED,
                 match.getCategory().getTournament().getId(),
                 match.getCategory().getId(),
