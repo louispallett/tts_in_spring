@@ -6,6 +6,7 @@ import com.example.tts_in_spring.exception.ForbiddenException;
 import com.example.tts_in_spring.exception.GenericBadRequestException;
 import com.example.tts_in_spring.exception.ResourceNotFoundException;
 import com.example.tts_in_spring.match.dto.*;
+import com.example.tts_in_spring.tournament.Stage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +36,8 @@ public class MatchService {
     @Transactional(readOnly = true)
     public MatchResponse getMatchById(Long id, Long userId) {
         Match match = matchFinder.getMatchOrThrow(id);
+        if (match.getCategory().getTournament().getStage().equals(Stage.DRAW))
+            throw new ForbiddenException();
 
         if (matchFinder.isHost(match, userId) || matchFinder.isParticipant(match, userId)) {
             return matchMapper.toResponse(match);

@@ -2,6 +2,7 @@ package com.example.tts_in_spring.match;
 
 import com.example.tts_in_spring.category.Category;
 import com.example.tts_in_spring.category.CategoryFinder;
+import com.example.tts_in_spring.exception.ConflictException;
 import com.example.tts_in_spring.exception.SeedingAlgorithmException;
 import com.example.tts_in_spring.match.dto.MatchResponse;
 import com.example.tts_in_spring.participant.Participant;
@@ -220,6 +221,13 @@ public class MatchGenerationService {
     @Transactional
     List<MatchResponse> generateMatchesParent(Long categoryId, Long userId) {
         Category category = categoryFinder.getCategoryOrThrow(categoryId);
+        if (!category.getMatches().isEmpty())
+            throw new ConflictException(
+                    "Matches already exist for category "
+                            + category.getName().getDisplayName()
+                            + " in tournament "
+                            + category.getTournament().getName()
+            );
         categoryFinder.assertHost(category, userId);
 
         // Generate participants (not saved)
