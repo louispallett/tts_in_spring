@@ -7,6 +7,7 @@ import com.example.tts_in_spring.exception.ForbiddenException;
 import com.example.tts_in_spring.exception.GenericBadRequestException;
 import com.example.tts_in_spring.notification.NotificationService;
 import com.example.tts_in_spring.player.dto.*;
+import com.example.tts_in_spring.tournament.Stage;
 import com.example.tts_in_spring.tournament.Tournament;
 import com.example.tts_in_spring.tournament.TournamentFinder;
 import com.example.tts_in_spring.user.User;
@@ -76,6 +77,8 @@ public class PlayerService {
     @Transactional
     public List<PlayerResponse> joinTournament(JoinTournamentRequest request, Long userId) {
         Tournament tournament = tournamentFinder.getTournamentByCodeOrThrow(request.tournamentCode());
+        if (!tournament.getStage().equals(Stage.REGISTRATION))
+            throw new ForbiddenException("Registration for " + tournament.getName() + " has now closed");
 
         List<Player> players = new ArrayList<>();
         for (Long categoryId : request.categories()) {
