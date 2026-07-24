@@ -36,10 +36,11 @@ public class MatchService {
     @Transactional(readOnly = true)
     public MatchResponse getMatchById(Long id, Long userId) {
         Match match = matchFinder.getMatchOrThrow(id);
-        if (match.getCategory().getTournament().getStage().equals(Stage.DRAW))
-            throw new ForbiddenException();
+        if (matchFinder.isHost(match, userId)) {
+            return matchMapper.toResponse(match);
+        }
 
-        if (matchFinder.isHost(match, userId) || matchFinder.isParticipant(match, userId)) {
+        if (!match.getCategory().getTournament().getStage().equals(Stage.DRAW) && matchFinder.isParticipant(match, userId)) {
             return matchMapper.toResponse(match);
         }
 

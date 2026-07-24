@@ -7,6 +7,8 @@ import com.example.tts_in_spring.exception.SeedingAlgorithmException;
 import com.example.tts_in_spring.match.dto.MatchResponse;
 import com.example.tts_in_spring.participant.Participant;
 import com.example.tts_in_spring.participant.ParticipantService;
+import com.example.tts_in_spring.tournament.Stage;
+import com.example.tts_in_spring.tournament.TournamentFinder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +26,7 @@ public class MatchGenerationService {
     private final MatchRepository matchRepository;
     private final MatchMapper matchMapper;
     private final CategoryFinder categoryFinder;
+    private final TournamentFinder tournamentFinder;
     private final ParticipantService participantService;
 
     public int calculateNumberOfRounds(int numOfPlayers) {
@@ -229,6 +232,7 @@ public class MatchGenerationService {
                             + category.getTournament().getName()
             );
         categoryFinder.assertHost(category, userId);
+        tournamentFinder.assertStage(category.getTournament().getStage(), Stage.DRAW);
 
         // Generate participants (not saved)
         List<Participant> participants = participantService.generateParticipants(category);

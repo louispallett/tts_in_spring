@@ -12,6 +12,8 @@ import com.example.tts_in_spring.participant.ParticipantService;
 import com.example.tts_in_spring.participant.Status;
 import com.example.tts_in_spring.participant.dto.*;
 import com.example.tts_in_spring.score.ScoreService;
+import com.example.tts_in_spring.tournament.Stage;
+import com.example.tts_in_spring.tournament.TournamentFinder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +27,7 @@ public class MatchScoreSubmissionService {
     private final MatchFinder matchFinder;
     private final MatchMapper matchMapper;
     private final ParticipantFinder participantFinder;
+    private final TournamentFinder tournamentFinder;
     private final ParticipantService participantService;
     private final ScoreService scoreService;
     private final NotificationService notificationService;
@@ -71,6 +74,7 @@ public class MatchScoreSubmissionService {
             Long userId
     ) {
         Match match = matchFinder.getMatchOrThrow(id);
+        tournamentFinder.assertStage(match.getCategory().getTournament().getStage(), Stage.PLAY);
 
         if (match.getState() == State.SCORE_DONE)
             throw new GenericBadRequestException("Match score already submitted");

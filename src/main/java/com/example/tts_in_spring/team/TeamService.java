@@ -15,6 +15,8 @@ import com.example.tts_in_spring.team.dto.TeamRequest;
 import com.example.tts_in_spring.team.dto.TeamResponse;
 import com.example.tts_in_spring.team.dto.TeamResponseLite;
 import com.example.tts_in_spring.team.dto.TeamsRequest;
+import com.example.tts_in_spring.tournament.Stage;
+import com.example.tts_in_spring.tournament.TournamentFinder;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,7 @@ public class TeamService {
     private final TeamRepository teamRepository;
     private final TeamMapper teamMapper;
     private final TeamFinder teamFinder;
+    private final TournamentFinder tournamentFinder;
     private final PlayerMapper playerMapper;
     private final PlayerService playerService;
     private final CategoryFinder categoryFinder;
@@ -138,6 +141,7 @@ public class TeamService {
     public List<List<PlayerResponse>> generateTeams(Long categoryId, Long userId) {
         Category category = categoryFinder.getCategoryOrThrow(categoryId);
         categoryFinder.assertHost(category, userId);
+        tournamentFinder.assertStage(category.getTournament().getStage(), Stage.DRAW);
 
         if (!category.isDoubles()) throw new GenericBadRequestException("Cannot create teams for a singles tournament");
 
@@ -160,6 +164,7 @@ public class TeamService {
     public List<TeamResponse> saveTeams(Long categoryId, TeamsRequest request, Long userId) {
         Category category = categoryFinder.getCategoryOrThrow(categoryId);
         categoryFinder.assertHost(category, userId);
+        tournamentFinder.assertStage(category.getTournament().getStage(), Stage.DRAW);
         List<List<PlayerResponse>> teams = request.teams();
 
         if (teams.size() != category.getPlayers().size() / 2) throw new TeamGenerationException("Incorrect number of teams");

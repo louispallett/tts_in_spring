@@ -1,5 +1,6 @@
 package com.example.tts_in_spring.tournament;
 
+import com.example.tts_in_spring.exception.IllegalStageException;
 import com.example.tts_in_spring.exception.ResourceNotFoundException;
 import com.example.tts_in_spring.exception.ForbiddenException;
 import lombok.RequiredArgsConstructor;
@@ -30,5 +31,10 @@ public class TournamentFinder {
                             + ")"
             );
         }
+    }
+
+    public void assertStage(Stage stage, Stage expectedStage) {
+        if (!stage.equals(expectedStage))
+            throw new IllegalStageException("You cannot make this request at this time. Invalid stage (A_STG1)");
     }
 }
