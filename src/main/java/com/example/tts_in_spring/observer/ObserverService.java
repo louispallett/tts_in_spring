@@ -2,6 +2,7 @@ package com.example.tts_in_spring.observer;
 
 import com.example.tts_in_spring.exception.ConflictException;
 import com.example.tts_in_spring.exception.ForbiddenException;
+import com.example.tts_in_spring.notification.NotificationService;
 import com.example.tts_in_spring.observer.dto.ObserverRequest;
 import com.example.tts_in_spring.observer.dto.ObserverResponse;
 import com.example.tts_in_spring.observer.dto.ObserverResponseLite;
@@ -25,6 +26,7 @@ public class ObserverService {
     private final UserFinder userFinder;
     private final PlayerFinder playerFinder;
     private final TournamentFinder tournamentFinder;
+    private final NotificationService notificationService;
 
     @Transactional(readOnly = true)
     public List<ObserverResponse> getAllObservers() {
@@ -62,6 +64,9 @@ public class ObserverService {
         newObserver.setUser(user);
 
         Observer savedObserver = observerRepository.save(newObserver);
+
+        notificationService.handleCreateObserverNotification(savedObserver);
+
         return observerMapper.toResponseLite(savedObserver);
     }
 

@@ -4,6 +4,7 @@ import com.example.tts_in_spring.emailer.EmailerService;
 import com.example.tts_in_spring.match.Match;
 import com.example.tts_in_spring.notification.dto.NotificationRequest;
 import com.example.tts_in_spring.notification.dto.NotificationResponse;
+import com.example.tts_in_spring.observer.Observer;
 import com.example.tts_in_spring.participant.Participant;
 import com.example.tts_in_spring.player.Player;
 import com.example.tts_in_spring.post.Post;
@@ -99,6 +100,21 @@ public class NotificationService {
                         null
                 ),
                 players.getFirst().getUser()
+        );
+    }
+
+    @Transactional
+    public void handleCreateObserverNotification(Observer observer) {
+        create(
+                new NotificationRequest(
+                        "Your have signed up as an OBSERVER to observer the tournament "
+                        + observer.getTournament().getName() + ".",
+                        NotificationType.JOIN_TOURNAMENT,
+                        observer.getTournament().getId(),
+                        null,
+                        null
+                ),
+                observer.getUser()
         );
     }
 
