@@ -34,7 +34,7 @@ public class ObserverController {
         return ResponseEntity.ok(observerService.getObserverById(id, user.userId()));
     }
 
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<ObserverResponseLite> create(
             @Valid @RequestBody ObserverRequest request,
             @AuthenticationPrincipal UserPrincipal user

@@ -2,6 +2,7 @@ package com.example.tts_in_spring.tournament;
 
 import com.example.tts_in_spring.category.Category;
 import com.example.tts_in_spring.base.Base;
+import com.example.tts_in_spring.observer.Observer;
 import com.example.tts_in_spring.post.Post;
 import com.example.tts_in_spring.user.User;
 import jakarta.persistence.*;
@@ -40,4 +41,7 @@ public class Tournament extends Base {
 
     @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Post> posts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Observer> observers = new ArrayList<>();
 }

@@ -67,7 +67,7 @@ public class ObserverService {
 
     public void delete(Long id, Long userId) {
         Observer observer = observerFinder.getObserverOrThrow(id);
-        observerFinder.assertHost(observer, userId);
+        observerFinder.assertHostOrSelf(observer, userId);
 
         observerRepository.delete(observer);
     }

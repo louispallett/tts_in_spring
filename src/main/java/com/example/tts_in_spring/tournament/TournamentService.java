@@ -72,7 +72,12 @@ public class TournamentService {
                 .flatMap(category -> category.getPlayers().stream())
                         .anyMatch(player -> player.getUser().getId().equals(userId));
 
-        if (isPlayer) return tournamentMapper.toResponse(tournament);
+        boolean isObserver = tournament.getObservers().stream()
+                .anyMatch(observer -> (
+                        observer.getTournament().equals(tournament) && observer.getUser().getId().equals(userId)
+                ));
+
+        if (isPlayer || isObserver) return tournamentMapper.toResponse(tournament);
 
         throw new ForbiddenException("You are not a host or player of this tournament");
     }

@@ -42,7 +42,13 @@ public class CategoryService {
         boolean isPlayer = category.getPlayers().stream()
                 .anyMatch(player -> player.getUser().getId().equals(userId));
 
-        if (isPlayer) return categoryMapper.toResponse(category);
+        boolean isObserver = category.getTournament().getObservers().stream()
+                .anyMatch(observer -> (
+                        observer.getUser().getId().equals(userId)
+                                && observer.getTournament().equals(category.getTournament())
+                ));
+
+        if (isPlayer || isObserver) return categoryMapper.toResponse(category);
 
         throw new ForbiddenException();
     }

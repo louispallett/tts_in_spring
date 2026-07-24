@@ -19,14 +19,17 @@ public class ObserverFinder {
         return observerRepository.findByUserIdAndTournamentId(userId, tournamentId).isPresent();
     }
 
-    public void assertHost(Observer observer, Long userId) {
-        if (!observer.getTournament().getHost().getId().equals(userId)) {
+    public void assertHostOrSelf(Observer observer, Long userId) {
+        if (
+                !observer.getTournament().getHost().getId().equals(userId)
+                && !isObserver(observer.getUser().getId(), observer.getTournament().getId())
+        ) {
             throw new ForbiddenException(
                     "Not host of tournament "
-                    + observer.getTournament().getName()
-                    + " ("
-                    + observer.getTournament().getId()
-                    + ")"
+                            + observer.getTournament().getName()
+                            + " ("
+                            + observer.getTournament().getId()
+                            + ") or observer themselves"
             );
         }
     }
