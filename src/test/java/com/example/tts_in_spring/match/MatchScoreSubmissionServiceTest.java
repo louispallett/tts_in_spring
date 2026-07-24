@@ -13,6 +13,7 @@ import com.example.tts_in_spring.player.Player;
 import com.example.tts_in_spring.player.PlayerTestBuilder;
 import com.example.tts_in_spring.score.ScoreService;
 import com.example.tts_in_spring.score.dto.ScoreResponse;
+import com.example.tts_in_spring.tournament.TournamentFinder;
 import com.example.tts_in_spring.user.User;
 import com.example.tts_in_spring.user.UserTestBuilder;
 import com.example.tts_in_spring.user.dto.UserResponseLite;
@@ -47,6 +48,9 @@ public class MatchScoreSubmissionServiceTest {
 
     @Mock
     private ScoreService scoreService;
+
+    @Mock
+    private TournamentFinder tournamentFinder;
 
     @InjectMocks
     private MatchScoreSubmissionService matchScoreSubmissionService;

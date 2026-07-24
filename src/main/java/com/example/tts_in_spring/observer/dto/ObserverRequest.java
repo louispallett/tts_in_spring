@@ -1,7 +1,7 @@
 package com.example.tts_in_spring.observer.dto;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotEmpty;
 
 public record ObserverRequest(
-        @NotNull Long tournamentId
+        @NotEmpty String tournamentCode
 ) {}

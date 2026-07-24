@@ -6,6 +6,7 @@ import com.example.tts_in_spring.exception.ConflictException;
 import com.example.tts_in_spring.exception.ForbiddenException;
 import com.example.tts_in_spring.exception.GenericBadRequestException;
 import com.example.tts_in_spring.notification.NotificationService;
+import com.example.tts_in_spring.observer.ObserverFinder;
 import com.example.tts_in_spring.player.dto.*;
 import com.example.tts_in_spring.tournament.Stage;
 import com.example.tts_in_spring.tournament.Tournament;
@@ -27,6 +28,7 @@ public class PlayerService {
     private final CategoryFinder categoryFinder;
     private final UserFinder userFinder;
     private final PlayerFinder playerFinder;
+    private final ObserverFinder observerFinder;
     private final NotificationService notificationService;
     private final TournamentFinder tournamentFinder;
 
@@ -80,11 +82,22 @@ public class PlayerService {
         if (!tournament.getStage().equals(Stage.REGISTRATION))
             throw new ForbiddenException("Registration for " + tournament.getName() + " has now closed");
 
+        if (observerFinder.isObserver(tournament.getId(), userId)) {
+            throw new ConflictException("You are already an observer in this tournament");
+        }
+
         List<Player> players = new ArrayList<>();
         for (Long categoryId : request.categories()) {
-            // Validate category exists in tournament
             if (tournament.getCategories().stream().noneMatch(c -> c.getId().equals(categoryId)))
                 throw new GenericBadRequestException("CategoryId is not part of tournament");
+
+            if (playerFinder.isPlayerInCategory(userId, categoryId)) {
+                throw new ConflictException(
+                        "You are already part of category: "
+                        + categoryFinder.getCategoryOrThrow(categoryId).getName().getDisplayName()
+                        + " (" + categoryId + ")"
+                );
+            }
 
             PlayerRequest playerRequest = new PlayerRequest(
                     request.male(),

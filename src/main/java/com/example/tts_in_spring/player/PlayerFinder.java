@@ -15,6 +15,14 @@ public class PlayerFinder {
                 .orElseThrow(() -> new ResourceNotFoundException("Player " + id + " not found"));
     }
 
+    public boolean isPlayerInCategory(Long userId, Long categoryId) {
+        return playerRepository.findByUserIdAndCategoryId(userId, categoryId).isPresent();
+    }
+
+    public boolean isPlayerInTournament(Long userId, Long tournamentId) {
+        return playerRepository.existsByUserIdAndCategory_TournamentId(userId, tournamentId);
+    }
+
     public void assertHost(Player player, Long userId) {
         if (!player.getCategory().getTournament().getHost().getId().equals(userId)) {
             throw new ForbiddenException(

@@ -1,9 +1,11 @@
 package com.example.tts_in_spring.observer;
 
+import com.example.tts_in_spring.exception.ConflictException;
 import com.example.tts_in_spring.exception.ForbiddenException;
 import com.example.tts_in_spring.observer.dto.ObserverRequest;
 import com.example.tts_in_spring.observer.dto.ObserverResponse;
 import com.example.tts_in_spring.observer.dto.ObserverResponseLite;
+import com.example.tts_in_spring.player.PlayerFinder;
 import com.example.tts_in_spring.tournament.Tournament;
 import com.example.tts_in_spring.tournament.TournamentFinder;
 import com.example.tts_in_spring.user.User;
@@ -21,6 +23,7 @@ public class ObserverService {
     private final ObserverMapper observerMapper;
     private final ObserverFinder observerFinder;
     private final UserFinder userFinder;
+    private final PlayerFinder playerFinder;
     private final TournamentFinder tournamentFinder;
 
     @Transactional(readOnly = true)
@@ -48,7 +51,11 @@ public class ObserverService {
     @Transactional
     public ObserverResponseLite createObserver(ObserverRequest request, Long userId) {
         User user = userFinder.getUserOrThrow(userId);
-        Tournament tournament = tournamentFinder.getTournamentOrThrow(request.tournamentId());
+        Tournament tournament = tournamentFinder.getTournamentByCodeOrThrow(request.tournamentCode());
+
+        if (playerFinder.isPlayerInTournament(userId, tournament.getId())) {
+            throw new ConflictException("You are already a player in " + tournament.getName() + " (" + tournament.getId() + ")");
+        }
 
         Observer newObserver = observerMapper.toEntity(request);
         newObserver.setTournament(tournament);

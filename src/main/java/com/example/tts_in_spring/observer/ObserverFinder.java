@@ -15,6 +15,10 @@ public class ObserverFinder {
                 .orElseThrow(() -> new ResourceNotFoundException("Observer " + id + " not found"));
     }
 
+    public boolean isObserver(Long userId, Long tournamentId) {
+        return observerRepository.findByUserIdAndTournamentId(userId, tournamentId).isPresent();
+    }
+
     public void assertHost(Observer observer, Long userId) {
         if (!observer.getTournament().getHost().getId().equals(userId)) {
             throw new ForbiddenException(
