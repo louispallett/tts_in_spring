@@ -256,7 +256,6 @@ public class TeamServiceTest {
             List<PlayerResponse> female = team.stream().filter(p -> !p.male()).toList();
             assertThat(seeded.size()).isEqualTo(1);
             assertThat(nonSeeded.size()).isEqualTo(1);
-            System.out.println(male.size());
             assertThat(male.size()).isEqualTo(1);
             assertThat(female.size()).isEqualTo(1);
         }
