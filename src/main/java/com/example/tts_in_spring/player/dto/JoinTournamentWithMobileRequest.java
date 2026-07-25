@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Pattern;
 
 import java.util.List;
 
-public record JoinTournamentRequest(
+public record JoinTournamentWithMobileRequest(
         @NotBlank String tournamentCode,
         @NotNull(message = "Male boolean cannot be null") boolean male,
         @NotBlank(message = "Mobile country code is required")

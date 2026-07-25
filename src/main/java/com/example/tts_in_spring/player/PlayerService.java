@@ -13,6 +13,7 @@ import com.example.tts_in_spring.tournament.Tournament;
 import com.example.tts_in_spring.tournament.TournamentFinder;
 import com.example.tts_in_spring.user.User;
 import com.example.tts_in_spring.user.UserFinder;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -77,28 +78,9 @@ public class PlayerService {
     }
 
     @Transactional
-    public List<PlayerResponse> joinTournament(JoinTournamentRequest request, Long userId) {
-        Tournament tournament = tournamentFinder.getTournamentByCodeOrThrow(request.tournamentCode());
-        if (!tournament.getStage().equals(Stage.REGISTRATION))
-            throw new ForbiddenException("Registration for " + tournament.getName() + " has now closed");
-
-        if (observerFinder.isObserver(tournament.getId(), userId)) {
-            throw new ConflictException("You are already an observer in this tournament");
-        }
-
+    public List<Player> joinTournament(@Valid JoinTournamentWithMobileRequest request, Long userId) {
         List<Player> players = new ArrayList<>();
         for (Long categoryId : request.categories()) {
-            if (tournament.getCategories().stream().noneMatch(c -> c.getId().equals(categoryId)))
-                throw new GenericBadRequestException("CategoryId is not part of tournament");
-
-            if (playerFinder.isPlayerInCategory(userId, categoryId)) {
-                throw new ConflictException(
-                        "You are already part of category: "
-                        + categoryFinder.getCategoryOrThrow(categoryId).getName().getDisplayName()
-                        + " (" + categoryId + ")"
-                );
-            }
-
             PlayerRequest playerRequest = new PlayerRequest(
                     request.male(),
                     request.mobCode(),
@@ -107,6 +89,57 @@ public class PlayerService {
             );
             players.add(createPlayer(playerRequest, userId));
         }
+
+        return players;
+    }
+
+    @Transactional
+    public List<Player> joinTournament(@Valid JoinTournamentWithoutMobileRequest request, Long userId) {
+        List<Player> players = new ArrayList<>();
+        for (Long categoryId : request.categories()) {
+            PlayerRequest playerRequest = new PlayerRequest(
+                    request.male(),
+                    " ",
+                    " ",
+                    categoryId
+            );
+            players.add(createPlayer(playerRequest, userId));
+        }
+
+        return players;
+    }
+
+    @Transactional
+    public List<PlayerResponse> joinTournamentParent(JoinTournamentRequestParent request, Long userId) {
+        Tournament tournament = tournamentFinder.getTournamentByCodeOrThrow(request.tournamentCode());
+        if (!tournament.getStage().equals(Stage.REGISTRATION))
+            throw new ForbiddenException("Registration for " + tournament.getName() + " has now closed");
+
+        if (observerFinder.isObserver(tournament.getId(), userId)) {
+            throw new ConflictException("You are already an observer in this tournament");
+        }
+
+
+        for (Long categoryId : request.categories()) {
+            if (tournament.getCategories().stream().noneMatch(c -> c.getId().equals(categoryId)))
+                throw new GenericBadRequestException("CategoryId is not part of tournament");
+
+            if (playerFinder.isPlayerInCategory(userId, categoryId)) {
+                throw new ConflictException(
+                        "You are already part of category: "
+                                + categoryFinder.getCategoryOrThrow(categoryId).getName().getDisplayName()
+                                + " (" + categoryId + ")"
+                );
+            }
+        }
+
+        List<Player> players = tournament.isShowMobile()
+                ? joinTournament(new JoinTournamentWithMobileRequest(
+                request.tournamentCode(), request.male(), request.mobCode(), request.mobile(), request.categories()),
+                userId)
+                : joinTournament(new JoinTournamentWithoutMobileRequest(
+                request.tournamentCode(), request.male(), request.categories()),
+                userId);
 
         notificationService.handleJoinTournamentNotification(players);
 
