@@ -34,10 +34,10 @@ public class PlayerController {
 
     @PostMapping("/join-tournament")
     public ResponseEntity<?> joinTournament(
-            @Valid @RequestBody JoinTournamentRequest request,
+            @Valid @RequestBody JoinTournamentRequestParent request,
             @AuthenticationPrincipal UserPrincipal user
     ) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(playerService.joinTournament(request, user.userId()));
+        return ResponseEntity.status(HttpStatus.CREATED).body(playerService.joinTournamentParent(request, user.userId()));
     }
 
     @PatchMapping("{tournamentId}/update-mobile")
