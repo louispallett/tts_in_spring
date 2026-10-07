@@ -17,6 +17,8 @@ import com.example.tts_in_spring.team.dto.TeamResponseLite;
 import com.example.tts_in_spring.team.dto.TeamsRequest;
 import com.example.tts_in_spring.tournament.Stage;
 import com.example.tts_in_spring.tournament.TournamentFinder;
+import com.example.tts_in_spring.user.User;
+import com.example.tts_in_spring.user.UserFinder;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
@@ -34,6 +36,7 @@ public class TeamService {
     private final PlayerMapper playerMapper;
     private final PlayerService playerService;
     private final CategoryFinder categoryFinder;
+    private final UserFinder userFinder;
 
     @Transactional(readOnly = true)
     public List<TeamResponse> getAllTeams() {
@@ -61,6 +64,18 @@ public class TeamService {
         }
 
         throw new ForbiddenException();
+    }
+
+    @Transactional(readOnly = true)
+    public List<TeamResponse> getUserTeamsByTournament(Long tournamentId, Long userId) {
+        User user = userFinder.getUserOrThrow(userId);
+        List<Player> players = user.getPlayers().stream().filter(p -> p.getCategory().getTournament().getId().equals(tournamentId)).toList();
+        List<Team> teams = players.stream()
+                .map(Player::getTeam)
+                .filter(Objects::nonNull)
+                .toList();
+
+        return teams.stream().map(teamMapper::toResponse).toList();
     }
 
     public List<List<Player>> generateMixed(List<Player> players) {

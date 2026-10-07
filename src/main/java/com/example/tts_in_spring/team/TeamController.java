@@ -35,6 +35,14 @@ public class TeamController {
         return ResponseEntity.ok(teamService.getTeamById(id, user.userId()));
     }
 
+    @GetMapping("/{tournamentId}/me")
+    public ResponseEntity<List<TeamResponse>> getUserTeamsByTournament(
+            @PathVariable Long tournamentId,
+            @AuthenticationPrincipal UserPrincipal user
+    ) {
+        return ResponseEntity.ok(teamService.getUserTeamsByTournament(tournamentId, user.userId()));
+    }
+
     @PostMapping
     public ResponseEntity<?> createTeam(
             @Valid @RequestBody TeamRequest teamRequest,
