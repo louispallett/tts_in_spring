@@ -2,7 +2,9 @@ package com.example.tts_in_spring.auth;
 
 import com.example.tts_in_spring.auth.dto.LoginRequest;
 import com.example.tts_in_spring.config.AppProperties;
+import com.example.tts_in_spring.config.CompromisedPasswordService;
 import com.example.tts_in_spring.emailer.EmailerService;
+import com.example.tts_in_spring.exception.GenericBadRequestException;
 import com.example.tts_in_spring.exception.InvalidTokenException;
 import com.example.tts_in_spring.notification.NotificationService;
 import com.example.tts_in_spring.password_reset_token.PasswordResetToken;
@@ -36,6 +38,7 @@ public class AuthService {
     private final AppProperties appProperties;
     private final UserFinder userFinder;
     private final NotificationService notificationService;
+    private final CompromisedPasswordService compromisedPasswordService;
     @Value("${cookie.secure}")
     private boolean secureCookie;
 
@@ -89,6 +92,10 @@ public class AuthService {
 
         if (token.isUsed() || token.getExpiresAt().isBefore(Instant.now())) {
             throw new InvalidTokenException("Invalid or expired token");
+        }
+
+        if (compromisedPasswordService.isCompromised(newPassword)) {
+            throw new GenericBadRequestException("The provided password has appeared in a data breach. We ran your password against a well-known list of exposed passwords, which cyber criminals will often use when attempting to gain access to accounts, and the password you provided showed up. Please choose a different password.");
         }
 
         User user = token.getUser();
