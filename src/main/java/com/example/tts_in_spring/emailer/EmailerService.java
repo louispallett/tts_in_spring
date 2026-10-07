@@ -1,5 +1,7 @@
 package com.example.tts_in_spring.emailer;
 
+import com.example.tts_in_spring.emailer.dto.EmailRequest;
+import com.example.tts_in_spring.emailer.dto.GenericHostEmail;
 import com.resend.Resend;
 import com.resend.core.exception.ResendException;
 import com.resend.services.emails.model.CreateEmailOptions;
@@ -11,11 +13,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class EmailerService {
     private final Resend resend;
-	private final ResendProperties properties;
+    private final ResendProperties properties;
 
     public EmailerService(Resend resend, ResendProperties properties) {
-		this.resend = resend;
-		this.properties = properties;
+		    this.resend = resend;
+		    this.properties = properties;
     }
 
     @Async
@@ -33,5 +35,28 @@ public class EmailerService {
         } catch (ResendException e) {
             log.error("Failed to send notification email to user{}", to, e);
         }
+    }
+
+    @Async
+    public void sendGenericHostEmail(GenericHostEmail info, EmailRequest request) {
+        String html = """
+                <p>Dear <b>%s</b>,</p>
+                %s
+                <p>This email was sent out by %s regarding the tournament <b>%s</b>.</p>
+                <p>Please do not respond to this email.</p>
+                <p><i>Tennis Tournament Creator</i> by <b>Louis Pallett</p> is licensed under the GNU Affero General Public License.</p>
+                """
+                .formatted(
+                        info.firstName(),
+                        info.from(),
+                        info.tournamentName(),
+                        request.text()
+                );
+
+        sendEmail(
+                info.to(),
+                "TTS: " + request.subject(),
+                html
+        );
     }
 }

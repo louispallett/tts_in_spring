@@ -2,6 +2,9 @@ package com.example.tts_in_spring.player;
 
 import com.example.tts_in_spring.category.Category;
 import com.example.tts_in_spring.category.CategoryFinder;
+import com.example.tts_in_spring.emailer.EmailerService;
+import com.example.tts_in_spring.emailer.dto.EmailRequest;
+import com.example.tts_in_spring.emailer.dto.GenericHostEmail;
 import com.example.tts_in_spring.exception.ConflictException;
 import com.example.tts_in_spring.exception.ForbiddenException;
 import com.example.tts_in_spring.exception.GenericBadRequestException;
@@ -32,6 +35,7 @@ public class PlayerService {
     private final ObserverFinder observerFinder;
     private final NotificationService notificationService;
     private final TournamentFinder tournamentFinder;
+    private final EmailerService emailerService;
 
 
     @Transactional(readOnly = true)
@@ -144,6 +148,24 @@ public class PlayerService {
         notificationService.handleJoinTournamentNotification(players);
 
         return players.stream().map(playerMapper::toResponse).toList();
+    }
+
+    public void email(
+            Long id,
+            EmailRequest request,
+            Long userId
+    ) {
+        Player player = playerFinder.getPlayerOrThrow(id);
+        playerFinder.assertHost(player, userId);
+        User user = player.getUser();
+        Tournament tournament = player.getCategory().getTournament();
+
+        emailerService.sendGenericHostEmail(new GenericHostEmail(
+                user.getFirstName(),
+                tournament.getName(),
+                user.getEmail(),
+                tournament.getHost().getFullName()
+        ), request);
     }
 
     @Transactional

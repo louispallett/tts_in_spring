@@ -1,5 +1,6 @@
 package com.example.tts_in_spring.player;
 
+import com.example.tts_in_spring.emailer.dto.EmailRequest;
 import com.example.tts_in_spring.player.dto.*;
 import com.example.tts_in_spring.security.UserPrincipal;
 import jakarta.validation.Valid;
@@ -38,6 +39,16 @@ public class PlayerController {
             @AuthenticationPrincipal UserPrincipal user
     ) {
         return ResponseEntity.status(HttpStatus.CREATED).body(playerService.joinTournamentParent(request, user.userId()));
+    }
+
+    @PostMapping("/email")
+    public ResponseEntity<Void> email(
+            @PathVariable Long id,
+            @Valid @RequestBody EmailRequest request,
+            @AuthenticationPrincipal UserPrincipal user
+    ) {
+        playerService.email(id, request, user.userId());
+        return ResponseEntity.accepted().build();
     }
 
     @PatchMapping("{tournamentId}/update-mobile")
