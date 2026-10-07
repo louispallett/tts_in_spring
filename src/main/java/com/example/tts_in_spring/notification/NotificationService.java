@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -31,11 +32,21 @@ public class NotificationService {
     private final EmailerService emailerService;
     private final UserFinder userFinder;
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<NotificationResponse> getAllNotifications() {
         return notificationRepository.findAll()
                 .stream()
                 .map(notificationMapper::toResponse)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<NotificationResponse> getUserNotifications(Long userId) {
+        User user = userFinder.getUserOrThrow(userId);
+        return user.getNotifications()
+                .stream()
+                .map(notificationMapper::toResponse)
+                .sorted(Comparator.comparing(NotificationResponse::dateCreated).reversed())
                 .toList();
     }
 

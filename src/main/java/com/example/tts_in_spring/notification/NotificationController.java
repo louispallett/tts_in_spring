@@ -1,5 +1,6 @@
 package com.example.tts_in_spring.notification;
 
+import com.example.tts_in_spring.notification.dto.NotificationResponse;
 import com.example.tts_in_spring.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -7,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,6 +28,13 @@ public class NotificationController {
             @AuthenticationPrincipal UserPrincipal user
     ) {
         throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<List<NotificationResponse>> getUserNotifications(
+            @AuthenticationPrincipal UserPrincipal user
+    ) {
+        return ResponseEntity.ok(notificationService.getUserNotifications(user.userId()));
     }
 
     @DeleteMapping

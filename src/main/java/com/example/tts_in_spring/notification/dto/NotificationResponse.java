@@ -1,7 +1,6 @@
 package com.example.tts_in_spring.notification.dto;
 
 import com.example.tts_in_spring.notification.NotificationType;
-import com.example.tts_in_spring.user.dto.UserResponseLite;
 
 import java.time.Instant;
 
@@ -12,6 +11,5 @@ public record NotificationResponse(
         boolean read,
         Long tournamentId,
         Long targetId,
-        Instant dateCreated,
-        UserResponseLite user
+        Instant dateCreated
 ) {}
