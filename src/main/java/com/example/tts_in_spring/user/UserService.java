@@ -1,5 +1,6 @@
 package com.example.tts_in_spring.user;
 
+import com.example.tts_in_spring.config.CompromisedPasswordService;
 import com.example.tts_in_spring.exception.ConflictException;
 import com.example.tts_in_spring.exception.GenericBadRequestException;
 import com.example.tts_in_spring.notification.NotificationService;
@@ -22,6 +23,7 @@ public class UserService {
     private final UserMapper userMapper;
     private final UserFinder userFinder;
     private final NotificationService notificationService;
+    private final CompromisedPasswordService compromisedPasswordService;
 
     @Transactional(readOnly = true)
     public List<UserResponse> getAllUsers() {
@@ -45,6 +47,10 @@ public class UserService {
 
         if (userRepository.findByEmail(email).isPresent()) {
             throw new ConflictException("Email " + email + " is already registered");
+        }
+
+        if (compromisedPasswordService.isCompromised(userRequest.password())) {
+            throw new GenericBadRequestException("The provided password has appeared in a data breach. We ran your password against a well-known list of exposed passwords, which cyber criminals will often use when attempting to gain access to accounts, and the password you provided showed up. Please choose a different password.");
         }
 
         User newUser = userMapper.toEntity(userRequest);

@@ -1,5 +1,6 @@
 package com.example.tts_in_spring.user;
 
+import com.example.tts_in_spring.config.CompromisedPasswordService;
 import com.example.tts_in_spring.exception.ConflictException;
 import com.example.tts_in_spring.exception.GenericBadRequestException;
 import com.example.tts_in_spring.notification.NotificationService;
@@ -37,6 +38,9 @@ public class UserServiceTest {
 
     @Mock
     private NotificationService notificationService;
+
+    @Mock
+    private CompromisedPasswordService compromisedPasswordService;
 
     @InjectMocks
     private UserService userService;
