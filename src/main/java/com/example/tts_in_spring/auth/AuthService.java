@@ -11,8 +11,11 @@ import com.example.tts_in_spring.password_reset_token.PasswordResetTokenService;
 import com.example.tts_in_spring.user.User;
 import com.example.tts_in_spring.user.UserFinder;
 import com.example.tts_in_spring.user.UserRepository;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +36,8 @@ public class AuthService {
     private final AppProperties appProperties;
     private final UserFinder userFinder;
     private final NotificationService notificationService;
+    @Value("${cookie.secure}")
+    private boolean secureCookie;
 
     @Transactional(readOnly = true)
     public Long login(LoginRequest loginRequest) {
@@ -94,5 +99,14 @@ public class AuthService {
         passwordResetTokenRepository.save(token);
 
         notificationService.handleResetPasswordNotification(user);
+    }
+
+    public void logout(HttpServletResponse responses) {
+        Cookie cookie = new Cookie("jwt", null);
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
+        cookie.setHttpOnly(secureCookie);
+        cookie.setSecure(true);
+        responses.addCookie(cookie);
     }
 }

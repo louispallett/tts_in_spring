@@ -5,6 +5,7 @@ import com.example.tts_in_spring.auth.dto.ForgotPasswordRequest;
 import com.example.tts_in_spring.auth.dto.LoginRequest;
 import com.example.tts_in_spring.auth.dto.ResetPasswordRequest;
 import com.example.tts_in_spring.security.JwtUtil;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -79,5 +80,11 @@ public class AuthController {
     ) {
         authService.resetPassword(request.token(), request.newPassword());
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletResponse response) {
+        authService.logout(response);
+        return ResponseEntity.noContent().build();
     }
 }
