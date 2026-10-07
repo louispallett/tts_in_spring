@@ -41,6 +41,27 @@ public class TournamentController {
         return ResponseEntity.ok(tournamentStageService.validate(id, user.userId()));
     }
 
+    @GetMapping("/hosting/me")
+    public ResponseEntity<List<TournamentResponseLite>> getHostingTournaments(
+            @AuthenticationPrincipal UserPrincipal user
+    ) {
+        return ResponseEntity.ok(tournamentService.getHostingTournaments(user.userId()));
+    }
+
+    @GetMapping("/playing/me")
+    public ResponseEntity<List<TournamentResponseLite>> getPlayingTournaments(
+            @AuthenticationPrincipal UserPrincipal user
+    ) {
+        return ResponseEntity.ok(tournamentService.getPlayingTournaments(user.userId()));
+    }
+
+    @GetMapping("/observing/me")
+    public ResponseEntity<List<TournamentResponseLite>> getObservingTournaments(
+            @AuthenticationPrincipal UserPrincipal user
+    ) {
+        return ResponseEntity.ok(tournamentService.getObservingTournaments(user.userId()));
+    }
+
     @PostMapping
     public ResponseEntity<?> createTournament(
             @RequestBody TournamentRequest tournamentRequest,

@@ -2,8 +2,11 @@ package com.example.tts_in_spring.player;
 
 import com.example.tts_in_spring.exception.ResourceNotFoundException;
 import com.example.tts_in_spring.exception.ForbiddenException;
+import com.example.tts_in_spring.tournament.Tournament;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -33,5 +36,9 @@ public class PlayerFinder {
                             + ")"
             );
         }
+    }
+
+    public List<Tournament> getPlayingTournaments(Long userId) {
+        return playerRepository.findPlayingTournaments(userId);
     }
 }

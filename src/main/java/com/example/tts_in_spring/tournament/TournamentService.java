@@ -4,6 +4,8 @@ import com.example.tts_in_spring.category.Type;
 import com.example.tts_in_spring.category.dto.CategoryRequest;
 import com.example.tts_in_spring.category.CategoryService;
 import com.example.tts_in_spring.exception.ForbiddenException;
+import com.example.tts_in_spring.observer.ObserverFinder;
+import com.example.tts_in_spring.player.PlayerFinder;
 import com.example.tts_in_spring.tournament.dto.*;
 import com.example.tts_in_spring.user.User;
 import com.example.tts_in_spring.user.UserFinder;
@@ -19,9 +21,11 @@ import java.util.List;
 public class TournamentService {
     private final TournamentRepository tournamentRepository;
     private final UserFinder userFinder;
+    private final PlayerFinder playerFinder;
     private final TournamentMapper tournamentMapper;
     private final CategoryService categoryService;
     private final TournamentFinder tournamentFinder;
+    private final ObserverFinder observerFinder;
 
 
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
@@ -82,6 +86,34 @@ public class TournamentService {
         throw new ForbiddenException("You are not a host or player of this tournament");
     }
 
+    @Transactional(readOnly = true)
+    public List<TournamentResponseLite> getHostingTournaments(Long userId) {
+        User user = userFinder.getUserOrThrow(userId);
+        return user.getTournaments()
+                .stream()
+                .map(tournamentMapper::toResponseLite)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<TournamentResponseLite> getPlayingTournaments(Long userId) {
+        userFinder.getUserOrThrow(userId);
+
+        return playerFinder.getPlayingTournaments(userId)
+                .stream()
+                .map(tournamentMapper::toResponseLite)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<TournamentResponseLite> getObservingTournaments(Long userId) {
+        userFinder.getUserOrThrow(userId);
+
+        return observerFinder.getObservingTournaments(userId)
+                .stream()
+                .map(tournamentMapper::toResponseLite)
+                .toList();
+    }
 
     @Transactional
     public TournamentResponseLite createTournament(TournamentRequest request, Long userId) {

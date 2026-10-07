@@ -2,8 +2,11 @@ package com.example.tts_in_spring.observer;
 
 import com.example.tts_in_spring.exception.ForbiddenException;
 import com.example.tts_in_spring.exception.ResourceNotFoundException;
+import com.example.tts_in_spring.tournament.Tournament;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -32,5 +35,9 @@ public class ObserverFinder {
                             + ") or observer themselves"
             );
         }
+    }
+
+    public List<Tournament> getObservingTournaments(Long userId) {
+        return observerRepository.findObservingTournaments(userId);
     }
 }
