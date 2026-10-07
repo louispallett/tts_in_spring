@@ -34,6 +34,10 @@ public class Player extends Base {
     @Column(nullable = false)
     private String mobile;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PlayerStatus status = PlayerStatus.ACTIVE;
+
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
