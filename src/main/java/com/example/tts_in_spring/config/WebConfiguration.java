@@ -9,7 +9,7 @@ public class WebConfiguration implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
-                .allowedOrigins("app.tennistournamentcreator.com")
+                .allowedOrigins("http://localhost:3000", "http://192.168.0.153:3000")
                 .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                 .allowCredentials(true)
                 .allowedHeaders("Content-Type")
