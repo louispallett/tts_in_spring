@@ -6,7 +6,11 @@ import com.example.tts_in_spring.exception.ForbiddenException;
 import com.example.tts_in_spring.exception.GenericBadRequestException;
 import com.example.tts_in_spring.exception.ResourceNotFoundException;
 import com.example.tts_in_spring.match.dto.*;
+import com.example.tts_in_spring.participant.Participant;
+import com.example.tts_in_spring.player.Player;
 import com.example.tts_in_spring.tournament.Stage;
+import com.example.tts_in_spring.user.User;
+import com.example.tts_in_spring.user.UserFinder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +28,7 @@ public class MatchService {
     private final MatchMapper matchMapper;
     private final MatchFinder matchFinder;
     private final CategoryFinder categoryFinder;
+    private final UserFinder userFinder;
 
     @Transactional(readOnly = true)
     public List<MatchResponse> getAllMatches() {
@@ -45,6 +50,28 @@ public class MatchService {
         }
 
         throw new ForbiddenException("Not host of tournament or participant in match");
+    }
+
+    public List<MatchResponse> getUserMatchesByCategory(Long tournamentId, Long userId) {
+        User user = userFinder.getUserOrThrow(userId);
+        List<Player> players = user.getPlayers().stream().filter(p -> p.getCategory().getTournament().getId().equals(tournamentId)).toList();
+        List<Match> matches = new ArrayList<>();
+
+        for (Player player : players) {
+            if (player.getTeam() == null) {
+                List<Participant> participants = player.getParticipants();
+                for (Participant participant : participants) {
+                    matches.add(participant.getMatch());
+                }
+            } else {
+                List<Participant> participants = player.getTeam().getParticipants();
+                for (Participant participant : participants) {
+                    matches.add(participant.getMatch());
+                }
+            }
+        }
+
+        return matches.stream().map(matchMapper::toResponse).toList();
     }
 
     @Transactional
@@ -83,7 +110,6 @@ public class MatchService {
 
         return updatedMatches;
     }
-
 
     @Transactional
     public MatchResponseLite updateDeadline(

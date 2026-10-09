@@ -33,6 +33,14 @@ public class MatchController {
         return ResponseEntity.ok(matchService.getMatchById(id, user.userId()));
     }
 
+    @GetMapping("/{categoryId}/me")
+    public ResponseEntity<List<MatchResponse>> getUserMatchesByCategory(
+            @PathVariable Long categoryId,
+            @AuthenticationPrincipal UserPrincipal user
+    ) {
+        return ResponseEntity.ok(matchService.getUserMatchesByCategory(categoryId, user.userId()));
+    }
+
     @PostMapping("/{categoryId}/generate")
     public ResponseEntity<List<MatchResponse>> generateMatches(
             @PathVariable Long categoryId,
