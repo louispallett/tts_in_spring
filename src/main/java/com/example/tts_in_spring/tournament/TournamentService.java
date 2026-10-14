@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -92,6 +93,7 @@ public class TournamentService {
         return user.getTournaments()
                 .stream()
                 .map(tournamentMapper::toResponseLite)
+                .sorted(Comparator.comparing(TournamentResponseLite::dateCreated).reversed())
                 .toList();
     }
 
@@ -102,6 +104,7 @@ public class TournamentService {
         return playerFinder.getPlayingTournaments(userId)
                 .stream()
                 .map(tournamentMapper::toResponseLite)
+                .sorted(Comparator.comparing(TournamentResponseLite::dateCreated).reversed())
                 .toList();
     }
 
@@ -112,6 +115,7 @@ public class TournamentService {
         return observerFinder.getObservingTournaments(userId)
                 .stream()
                 .map(tournamentMapper::toResponseLite)
+                .sorted(Comparator.comparing(TournamentResponseLite::dateCreated).reversed())
                 .toList();
     }
 

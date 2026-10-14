@@ -4,6 +4,7 @@ import com.example.tts_in_spring.category.dto.CategoryResponseLite;
 import com.example.tts_in_spring.post.dto.PostResponseLite;
 import com.example.tts_in_spring.user.dto.UserResponseLite;
 
+import java.time.Instant;
 import java.util.List;
 
 public record TournamentResponse (
@@ -12,6 +13,7 @@ public record TournamentResponse (
     String stage,
     String code,
     Boolean showMobile,
+    Instant dateCreated,
     UserResponseLite host,
     List<CategoryResponseLite> categories,
     List<PostResponseLite> posts
