@@ -14,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Instant;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,6 +60,7 @@ public class TournamentServiceTest {
                 "SIGN_UP",
                 "1234567",
                 false,
+                Instant.now(),
                 new UserResponseLite(1L, "John", "Doe"),
                 null,
                 null
@@ -144,7 +146,8 @@ public class TournamentServiceTest {
                10L,
                "Test Tournament",
                 "SIGN_UP",
-                false
+                false,
+                Instant.now()
         );
 
         when(userFinder.getUserOrThrow(currentUser.getId())).thenReturn(currentUser);
@@ -168,7 +171,8 @@ public class TournamentServiceTest {
                  10L,
                  "New Tournament Name",
                  "SIGN_UP",
-                 false
+                 false,
+                 Instant.now()
          );
 
          when(tournamentFinder.getTournamentOrThrow(tournament.getId())).thenReturn(tournament);
@@ -199,7 +203,8 @@ public class TournamentServiceTest {
                  10L,
                  "Test Tournament",
                  "SIGN_UP",
-                 true
+                 true,
+                 Instant.now()
          );
 
          when(tournamentFinder.getTournamentOrThrow(tournament.getId())).thenReturn(tournament);

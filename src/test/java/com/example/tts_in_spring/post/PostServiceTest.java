@@ -16,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Instant;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,7 +53,8 @@ public class PostServiceTest {
                         10L,
                         "Test Tournament",
                         "REGISTRATION",
-                        false
+                        false,
+                        Instant.now()
                 )
         );
     }

@@ -18,6 +18,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Instant;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,7 +47,7 @@ public class CategoryServiceTest {
                 100L,
                 "Mens Singles",
                 false,
-                new TournamentResponseLite(10L, "Test Tournament", "SIGN_UP", false),
+                new TournamentResponseLite(10L, "Test Tournament", "SIGN_UP", false, Instant.now()),
                 null,
                 null,
                 null
