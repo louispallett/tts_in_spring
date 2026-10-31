@@ -69,7 +69,7 @@ public class AuthService {
 
         String html = """
                 <p>Dear <b>%s</b>,</p>
-                <p>Please click <a href="%s/reset-password?token=%s">here</a> to reset your password.</p>
+                <p>Please click <a ses:no-track href="%s/auth/forgot-password/reset?token=%s">here</a> to reset your password.</p>
                 """
                 .formatted(
                         user.getFirstName(),
